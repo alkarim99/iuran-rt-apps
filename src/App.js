@@ -11,11 +11,16 @@ import { PersistGate } from "redux-persist/integration/react"
 
 // import pages
 import Home from "./pages/Home"
+import SignIn from "./pages/SignIn"
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Home />,
+  },
+  {
+    path: "/sign-in",
+    element: <SignIn />,
   },
 ])
 
