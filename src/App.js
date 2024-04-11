@@ -1,25 +1,52 @@
-import logo from './logo.svg';
-import './App.css';
+import "bootstrap/dist/css/bootstrap.css"
+import "bootstrap/dist/js/bootstrap.js"
+
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
+// import store from "./store"
+import { Provider, useSelector } from "react-redux"
+import axios from "axios"
+import React from "react"
+import { store, persistor } from "./store"
+import { PersistGate } from "redux-persist/integration/react"
+
+// import pages
+import Home from "./pages/Home"
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />,
+  },
+])
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <PersistGate loading={null} persistor={persistor}>
+        <Provider store={store}>
+          <RunApp RouterProvider={RouterProvider} router={router} />
+        </Provider>
+      </PersistGate>
     </div>
-  );
+  )
 }
 
-export default App;
+function RunApp({ RouterProvider, router }) {
+  const state = useSelector((reducer) => reducer.auth)
+  React.useEffect(() => {
+    axios.interceptors.request.use(
+      (config) => {
+        if (state?.token != "") {
+          config.headers["Authorization"] = `Bearer ${state?.token}`
+        }
+        return config
+      },
+      (error) => {
+        Promise.reject(error)
+      }
+    )
+  }, [])
+  return <RouterProvider router={router} />
+}
+
+export default App
