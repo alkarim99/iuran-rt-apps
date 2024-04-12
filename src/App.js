@@ -15,6 +15,9 @@ import SignIn from "./pages/SignIn"
 import IndexWarga from "./pages/warga"
 import CreateWarga from "./pages/warga/create"
 import EditWarga from "./pages/warga/edit"
+import IndexIuran from "./pages/iuran"
+import CreateIuran from "./pages/iuran/create"
+import EditIuran from "./pages/iuran/edit"
 
 const router = createBrowserRouter([
   {
@@ -36,6 +39,18 @@ const router = createBrowserRouter([
   {
     path: "/warga/edit/:id",
     element: <EditWarga />,
+  },
+  {
+    path: "/iuran",
+    element: <IndexIuran />,
+  },
+  {
+    path: "/iuran/create",
+    element: <CreateIuran />,
+  },
+  {
+    path: "/iuran/edit/:id",
+    element: <EditIuran />,
   },
 ])
 

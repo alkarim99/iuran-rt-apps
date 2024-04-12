@@ -6,11 +6,11 @@ import { useSelector } from "react-redux"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
 
-function IndexWarga() {
+function IndexIuran() {
   const navigate = useNavigate()
   const state = useSelector((reducer) => reducer.auth)
 
-  const [dataWarga, setDataWarga] = React.useState([])
+  const [dataIuran, setDataIuran] = React.useState([])
   const [isLoading, setIsLoading] = React.useState(false)
 
   React.useEffect(() => {
@@ -23,9 +23,9 @@ function IndexWarga() {
 
   const handleGet = () => {
     axios
-      .get(`${process.env.REACT_APP_BASE_URL}/wargas`)
+      .get(`${process.env.REACT_APP_BASE_URL}/payments`)
       .then((response) => {
-        setDataWarga(response?.data?.data)
+        setDataIuran(response?.data?.data)
       })
       .catch((error) => {
         console.log(error)
@@ -47,7 +47,7 @@ function IndexWarga() {
       if (result.isConfirmed) {
         setIsLoading(true)
         axios
-          .delete(`${process.env.REACT_APP_BASE_URL}/wargas/${id}`)
+          .delete(`${process.env.REACT_APP_BASE_URL}/payments/${id}`)
           .then((response) => {
             Swal.fire({
               title: "Delete Success!",
@@ -70,9 +70,35 @@ function IndexWarga() {
             setIsLoading(false)
           })
       } else if (result.isDenied) {
-        Swal.fire("Warga are not deleted", "", "info")
+        Swal.fire("Payment are not deleted", "", "info")
       }
     })
+  }
+
+  const formatDate = (inputDate) => {
+    // Parse the input date string
+    const date = new Date(inputDate)
+
+    // Get day, month, and year
+    const day = date.getDate()
+    const month = date.toLocaleString("default", { month: "long" }) // Get month name
+    const year = date.getFullYear()
+
+    // Construct the formatted date string
+    const formattedDate = `${day} ${month} ${year}`
+
+    return formattedDate
+  }
+
+  const formatCurrency = (amount) => {
+    // Convert the amount to string
+    let formattedAmount = amount.toString()
+
+    // Insert dots for thousands separator
+    formattedAmount = formattedAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+
+    // Prepend "Rp " to the formatted amount
+    return "Rp " + formattedAmount
   }
 
   if (isLoading) {
@@ -91,13 +117,13 @@ function IndexWarga() {
       <>
         <div
           className="d-flex p-3 mx-auto flex-column"
-          style={{ maxWidth: "42em", height: "100vh" }}
+          style={{ maxWidth: "60em", height: "100vh" }}
         >
           <Navbar />
 
-          <h1>Data Warga</h1>
+          <h1>Data Iuran</h1>
           <div>
-            <Link className="btn btn-primary" to="/warga/create">
+            <Link className="btn btn-primary" to="/iuran/create">
               Add Data
             </Link>
           </div>
@@ -105,30 +131,39 @@ function IndexWarga() {
             <thead>
               <tr>
                 <th scope="col">#</th>
-                <th scope="col">Name</th>
-                <th scope="col">Address</th>
+                <th scope="col">Tanggal</th>
+                <th scope="col">Warga</th>
+                <th scope="col">Periode</th>
+                <th scope="col">Nominal</th>
+                <th scope="col">Metode Pembayaran</th>
                 <th scope="col">Action</th>
               </tr>
             </thead>
             <tbody>
-              {dataWarga.map((warga, index) => {
+              {dataIuran.map((iuran, index) => {
                 return (
                   <>
                     <tr>
                       <th scope="row">{index + 1}</th>
-                      <td>{warga?.name}</td>
-                      <td>{warga?.address}</td>
+                      <td>{formatDate(iuran?.pay_at)}</td>
+                      <td>{iuran?.warga_id}</td>
+                      <td>
+                        {formatDate(iuran?.period_start)} -{" "}
+                        {formatDate(iuran?.period_end)}
+                      </td>
+                      <td>{formatCurrency(iuran?.nominal)}</td>
+                      <td>{iuran?.payment_method?.toUpperCase()}</td>
                       <td>
                         <Link
                           className="btn btn-primary me-2"
-                          to={`/warga/edit/${warga?._id}`}
+                          to={`/iuran/edit/${iuran?._id}`}
                         >
                           Edit
                         </Link>
                         <Link
                           className="btn btn-primary mx-2"
                           onClick={() => {
-                            handleDelete(warga?._id)
+                            handleDelete(iuran?._id)
                           }}
                         >
                           Delete
@@ -148,4 +183,4 @@ function IndexWarga() {
   }
 }
 
-export default IndexWarga
+export default IndexIuran

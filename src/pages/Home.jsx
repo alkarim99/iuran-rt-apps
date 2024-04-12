@@ -1,15 +1,10 @@
 import React from "react"
-import { Link, useNavigate } from "react-router-dom"
-import axios from "axios"
-import Swal from "sweetalert2"
-import { useDispatch, useSelector } from "react-redux"
-import { addAuth } from "../store/reducers/auth"
+import { Link } from "react-router-dom"
+import { useSelector } from "react-redux"
 import Navbar from "../components/Navbar"
 import Footer from "../components/Footer"
 
 function Home() {
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
   const state = useSelector((reducer) => reducer.auth)
 
   return (
@@ -33,6 +28,9 @@ function Home() {
       {state?.auth ? (
         <>
           <div className="text-center">
+            <Link className="btn btn-primary mx-3" to="/user">
+              Data User
+            </Link>
             <Link className="btn btn-primary mx-3" to="/warga">
               Data Warga
             </Link>
