@@ -58,6 +58,10 @@ function SignIn() {
       style={{ height: "100vh" }}
     >
       <form onSubmit={(e) => e.preventDefault()}>
+        <Link className="btn btn-primary" to="/">
+          Back
+        </Link>
+
         <h1 className="h3 mb-3 fw-normal">Please sign in</h1>
 
         <div className="form-floating">

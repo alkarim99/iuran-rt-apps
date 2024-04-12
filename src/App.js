@@ -12,6 +12,9 @@ import { PersistGate } from "redux-persist/integration/react"
 // import pages
 import Home from "./pages/Home"
 import SignIn from "./pages/SignIn"
+import IndexWarga from "./pages/warga"
+import CreateWarga from "./pages/warga/create"
+import EditWarga from "./pages/warga/edit"
 
 const router = createBrowserRouter([
   {
@@ -21,6 +24,18 @@ const router = createBrowserRouter([
   {
     path: "/sign-in",
     element: <SignIn />,
+  },
+  {
+    path: "/warga",
+    element: <IndexWarga />,
+  },
+  {
+    path: "/warga/create",
+    element: <CreateWarga />,
+  },
+  {
+    path: "/warga/edit/:id",
+    element: <EditWarga />,
   },
 ])
 
