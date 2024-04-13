@@ -48,8 +48,6 @@ function EditIuran() {
       })
   }, [state])
 
-  console.log(periodStart, periodEnd)
-
   const handleGetWarga = () => {
     axios
       .get(`${process.env.REACT_APP_BASE_URL}/wargas`)
@@ -151,34 +149,42 @@ function EditIuran() {
                     })}
                   </select>
                 </div>
-                <div className="mb-3">
-                  <label for="period_start" className="form-label">
-                    Period Mulai
-                  </label>
-                  <input
-                    type="date"
-                    className="form-control"
-                    id="period_start"
-                    // defaultValue={new Date(periodStart)
-                    //   .toISOString()
-                    //   .substr(0, 10)}
-                    onChange={(e) => setPeriodStart(e.target.value)}
-                  />
-                </div>
-                <div className="mb-3">
-                  <label for="period_end" className="form-label">
-                    Period Akhir
-                  </label>
-                  <input
-                    type="date"
-                    className="form-control"
-                    id="period_end"
-                    // defaultValue={new Date(periodEnd)
-                    //   .toISOString()
-                    //   .substr(0, 10)}
-                    onChange={(e) => setPeriodEnd(e.target.value)}
-                  />
-                </div>
+                {periodStart != "" ? (
+                  <div className="mb-3">
+                    <label for="period_start" className="form-label">
+                      Period Mulai
+                    </label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      id="period_start"
+                      defaultValue={
+                        new Date(periodStart).toISOString().split("T")[0]
+                      }
+                      onChange={(e) => setPeriodStart(e.target.value)}
+                    />
+                  </div>
+                ) : (
+                  <></>
+                )}
+                {periodEnd != "" ? (
+                  <div className="mb-3">
+                    <label for="period_end" className="form-label">
+                      Period Akhir
+                    </label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      id="period_end"
+                      defaultValue={
+                        new Date(periodEnd).toISOString().split("T")[0]
+                      }
+                      onChange={(e) => setPeriodEnd(e.target.value)}
+                    />
+                  </div>
+                ) : (
+                  <></>
+                )}
                 <div className="mb-3">
                   <label for="nominal" className="form-label">
                     Nominal
