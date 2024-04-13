@@ -18,6 +18,9 @@ function IndexIuran() {
   const [dataIuran, setDataIuran] = React.useState([])
   const [isLoading, setIsLoading] = React.useState(false)
 
+  const [keyword, setKeyword] = React.useState("")
+  const [sortBy, setSortBy] = React.useState("")
+
   React.useEffect(() => {
     setIsLoading(true)
     if (!state.auth) {
@@ -80,6 +83,33 @@ function IndexIuran() {
     })
   }
 
+  const handleSearch = () => {
+    setIsLoading(true)
+    let url = `${process.env.REACT_APP_BASE_URL}/payments`
+    if (keyword != "") {
+      url = url + `?keyword=${keyword}`
+    }
+    if (sortBy != "") {
+      url = url + `?sort_by=${sortBy}`
+    }
+    axios
+      .get(url)
+      .then((response) => {
+        setDataIuran(response?.data?.data)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
+  }
+
+  const handleReset = () => {
+    setIsLoading(true)
+    handleGet()
+  }
+
   if (isLoading) {
     return (
       <div
@@ -105,7 +135,61 @@ function IndexIuran() {
             <Link className="btn btn-primary ms-1" to="/iuran/create">
               <FontAwesomeIcon icon={faPlus} />
             </Link>
+            <Link className="btn btn-primary ms-1" to="/iuran/total">
+              Total
+            </Link>
           </h1>
+
+          <div className="my-4">
+            <form onSubmit={(e) => e.preventDefault()}>
+              <div className="row d-flex align-items-end">
+                <div className="col-3">
+                  <label for="keyword" className="form-label">
+                    Cari
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="keyword"
+                    placeholder="Nama atau Alamat"
+                    onChange={(e) => setKeyword(e.target.value)}
+                  />
+                </div>
+                <div className="col-3">
+                  <label for="sort_by" className="form-label">
+                    Urutkan berdasarkan
+                  </label>
+                  <select
+                    id="sort_by"
+                    className="form-select"
+                    onChange={(e) => setSortBy(e.target.value)}
+                  >
+                    <option selected>Urutkan</option>
+                    <option value="pay_at">Pembayaran Terbaru</option>
+                    <option value="warga.name">Nama Warga</option>
+                    <option value="warga.address">Alamat Warga</option>
+                  </select>
+                </div>
+                <div className="col-3">
+                  <button
+                    className="btn btn-primary py-2 me-2"
+                    type="submit"
+                    onClick={handleSearch}
+                  >
+                    {isLoading ? "Loading..." : "Search"}
+                  </button>
+                  <button
+                    className="btn btn-primary py-2"
+                    type="button"
+                    onClick={handleReset}
+                  >
+                    {isLoading ? "Loading..." : "Reset"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
           <table className="table">
             <thead>
               <tr>
@@ -125,7 +209,9 @@ function IndexIuran() {
                     <tr>
                       <th scope="row">{index + 1}</th>
                       <td>{FormatDate(iuran?.pay_at)}</td>
-                      <td>{iuran?.warga_id}</td>
+                      <td>
+                        {iuran?.warga?.address} | {iuran?.warga?.name}
+                      </td>
                       <td>
                         {FormatDate(iuran?.period_start)} -{" "}
                         {FormatDate(iuran?.period_end)}

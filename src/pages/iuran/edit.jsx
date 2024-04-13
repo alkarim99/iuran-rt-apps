@@ -33,7 +33,7 @@ function EditIuran() {
     axios
       .get(`${process.env.REACT_APP_BASE_URL}/payments/${id}`)
       .then((response) => {
-        setWargaID(response?.data?.data?.warga_id)
+        setWargaID(response?.data?.data?.warga?._id)
         setPeriodStart(response?.data?.data?.period_start)
         setPeriodEnd(response?.data?.data?.period_end)
         setNominal(response?.data?.data?.nominal)

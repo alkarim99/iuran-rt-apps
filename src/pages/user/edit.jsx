@@ -32,7 +32,6 @@ function EditUser() {
       .then((response) => {
         setName(response?.data?.data?.name)
         setEmail(response?.data?.data?.email)
-        setPassword(response?.data?.data?.password)
         setRole(response?.data?.data?.role)
       })
       .catch((error) => {
@@ -45,14 +44,17 @@ function EditUser() {
 
   const handleEdit = () => {
     setIsLoading(true)
+    const payload = {
+      id: id,
+      name: name,
+      email: email,
+      role: role,
+    }
+    if (password != "") {
+      payload.password = password
+    }
     axios
-      .put(`${process.env.REACT_APP_BASE_URL}/users`, {
-        id: id,
-        name: name,
-        email: email,
-        password: password,
-        role: role,
-      })
+      .patch(`${process.env.REACT_APP_BASE_URL}/users`, payload)
       .then((response) => {
         Swal.fire({
           title: "Update Success!",
@@ -139,8 +141,8 @@ function EditUser() {
                     className="form-control"
                     id="password"
                     onChange={(e) => setPassword(e.target.value)}
-                    defaultValue={password}
                   />
+                  <small>Isi jika ingin mengubah password</small>
                 </div>
                 <div className="mb-3">
                   <label for="role" className="form-label">

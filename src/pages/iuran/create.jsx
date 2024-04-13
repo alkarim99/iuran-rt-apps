@@ -31,8 +31,6 @@ function CreateIuran() {
     handleGetWarga()
   }, [state])
 
-  console.log(latestPeriod)
-
   const handleGetWarga = () => {
     axios
       .get(`${process.env.REACT_APP_BASE_URL}/wargas`)

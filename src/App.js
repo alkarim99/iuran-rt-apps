@@ -19,6 +19,7 @@ import DetailWarga from "./pages/warga/detail"
 import IndexIuran from "./pages/iuran"
 import CreateIuran from "./pages/iuran/create"
 import EditIuran from "./pages/iuran/edit"
+import TotalIuran from "./pages/iuran/total"
 import IndexUser from "./pages/user"
 import CreateUser from "./pages/user/create"
 import EditUser from "./pages/user/edit"
@@ -59,6 +60,10 @@ const router = createBrowserRouter([
   {
     path: "/iuran/edit/:id",
     element: <EditIuran />,
+  },
+  {
+    path: "/iuran/total",
+    element: <TotalIuran />,
   },
   {
     path: "/user",

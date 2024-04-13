@@ -4,7 +4,7 @@ import axios from "axios"
 import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faPen, faTrash, faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+import { faPen, faTrash, faArrowLeft, faPlus } from "@fortawesome/free-solid-svg-icons"
 import { useLocation } from "react-router"
 import FormatDate from "../../helpers/FormatDate"
 import FormatCurrency from "../../helpers/FormatCurrency"
@@ -152,7 +152,12 @@ function DetailWarga() {
             </div>
           </div>
 
-          <h3>Data Iuran</h3>
+          <h3>
+            Data Iuran
+            <Link className="btn btn-primary ms-1" to="/iuran/create">
+              <FontAwesomeIcon icon={faPlus} />
+            </Link>
+          </h3>
           <table className="table">
             <thead>
               <tr>
