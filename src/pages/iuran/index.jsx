@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
+import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"
 
 function IndexIuran() {
   const navigate = useNavigate()
@@ -116,17 +118,17 @@ function IndexIuran() {
     return (
       <>
         <div
-          className="d-flex p-3 mx-auto flex-column"
-          style={{ maxWidth: "60em", height: "100vh" }}
+          className="container d-flex p-3 mx-auto flex-column"
+          style={{ height: "100vh" }}
         >
           <Navbar />
 
-          <h1>Data Iuran</h1>
-          <div>
-            <Link className="btn btn-primary" to="/iuran/create">
-              Add Data
+          <h1>
+            Data Iuran
+            <Link className="btn btn-primary ms-1" to="/iuran/create">
+              <FontAwesomeIcon icon={faPlus} />
             </Link>
-          </div>
+          </h1>
           <table className="table">
             <thead>
               <tr>
@@ -155,18 +157,18 @@ function IndexIuran() {
                       <td>{iuran?.payment_method?.toUpperCase()}</td>
                       <td>
                         <Link
-                          className="btn btn-primary me-2"
+                          className="btn btn-warning me-1"
                           to={`/iuran/edit/${iuran?._id}`}
                         >
-                          Edit
+                          <FontAwesomeIcon icon={faPen} />
                         </Link>
                         <Link
-                          className="btn btn-primary mx-2"
+                          className="btn btn-danger mx-1"
                           onClick={() => {
                             handleDelete(iuran?._id)
                           }}
                         >
-                          Delete
+                          <FontAwesomeIcon icon={faTrash} />
                         </Link>
                       </td>
                     </tr>

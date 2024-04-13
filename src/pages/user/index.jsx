@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
+import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"
 
 function IndexUser() {
   const navigate = useNavigate()
@@ -95,12 +97,12 @@ function IndexUser() {
         >
           <Navbar />
 
-          <h1>Data User</h1>
-          <div>
-            <Link className="btn btn-primary" to="/user/create">
-              Add Data
+          <h1>
+            Data User
+            <Link className="btn btn-primary ms-1" to="/user/create">
+              <FontAwesomeIcon icon={faPlus} />
             </Link>
-          </div>
+          </h1>
           <table className="table">
             <thead>
               <tr>
@@ -122,18 +124,18 @@ function IndexUser() {
                       <td>{user?.role}</td>
                       <td>
                         <Link
-                          className="btn btn-primary me-2"
+                          className="btn btn-warning me-1"
                           to={`/user/edit/${user?._id}`}
                         >
-                          Edit
+                          <FontAwesomeIcon icon={faPen} />
                         </Link>
                         <Link
-                          className="btn btn-primary mx-2"
+                          className="btn btn-danger mx-1"
                           onClick={() => {
                             handleDelete(user?._id)
                           }}
                         >
-                          Delete
+                          <FontAwesomeIcon icon={faTrash} />
                         </Link>
                       </td>
                     </tr>

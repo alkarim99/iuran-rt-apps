@@ -2,6 +2,12 @@ import React from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { addAuth } from "../store/reducers/auth"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import {
+  faArrowRightFromBracket,
+  faArrowRightToBracket,
+  faHouse,
+} from "@fortawesome/free-solid-svg-icons"
 
 function Navbar() {
   const navigate = useNavigate()
@@ -18,7 +24,7 @@ function Navbar() {
             aria-current="page"
             to="/"
           >
-            Home
+            <FontAwesomeIcon icon={faHouse} className="text-black" />
           </Link>
           {state?.auth ? (
             <>
@@ -31,7 +37,10 @@ function Navbar() {
                   navigate("/")
                 }}
               >
-                Sign Out
+                <FontAwesomeIcon
+                  icon={faArrowRightFromBracket}
+                  className="text-black"
+                />
               </Link>
             </>
           ) : (
@@ -41,7 +50,10 @@ function Navbar() {
                 aria-current="page"
                 to="/sign-in"
               >
-                Sign In
+                <FontAwesomeIcon
+                  icon={faArrowRightToBracket}
+                  className="text-black"
+                />
               </Link>
             </>
           )}

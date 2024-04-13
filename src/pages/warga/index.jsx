@@ -3,6 +3,14 @@ import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import {
+  faPlus,
+  faInfo,
+  faPen,
+  faTrash,
+  faInfoCircle,
+} from "@fortawesome/free-solid-svg-icons"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
 
@@ -95,12 +103,12 @@ function IndexWarga() {
         >
           <Navbar />
 
-          <h1>Data Warga</h1>
-          <div>
-            <Link className="btn btn-primary" to="/warga/create">
-              Add Data
+          <h1>
+            Data Warga
+            <Link className="btn btn-primary ms-1" to="/warga/create">
+              <FontAwesomeIcon icon={faPlus} />
             </Link>
-          </div>
+          </h1>
           <table className="table">
             <thead>
               <tr>
@@ -120,18 +128,24 @@ function IndexWarga() {
                       <td>{warga?.address}</td>
                       <td>
                         <Link
-                          className="btn btn-primary me-2"
-                          to={`/warga/edit/${warga?._id}`}
+                          className="btn btn-success me-1"
+                          to={`/warga/${warga?._id}`}
                         >
-                          Edit
+                          <FontAwesomeIcon icon={faInfoCircle} />
                         </Link>
                         <Link
-                          className="btn btn-primary mx-2"
+                          className="btn btn-warning mx-1"
+                          to={`/warga/edit/${warga?._id}`}
+                        >
+                          <FontAwesomeIcon icon={faPen} />
+                        </Link>
+                        <Link
+                          className="btn btn-danger mx-1"
                           onClick={() => {
                             handleDelete(warga?._id)
                           }}
                         >
-                          Delete
+                          <FontAwesomeIcon icon={faTrash} />
                         </Link>
                       </td>
                     </tr>

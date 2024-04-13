@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
 
@@ -16,6 +18,7 @@ function CreateIuran() {
   const [nominal, setNominal] = React.useState("")
   const [paymentMethod, setPaymentMethod] = React.useState("")
   const [dataWarga, setDataWarga] = React.useState([])
+  const [latestPeriod, setLatestPeriod] = React.useState(null)
   const [isLoading, setIsLoading] = React.useState(false)
 
   React.useEffect(() => {
@@ -26,11 +29,29 @@ function CreateIuran() {
     handleGetWarga()
   }, [state])
 
+  console.log(latestPeriod)
+
   const handleGetWarga = () => {
     axios
       .get(`${process.env.REACT_APP_BASE_URL}/wargas`)
       .then((response) => {
         setDataWarga(response?.data?.data)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
+  }
+
+  const handleGetLatestPeriod = (id) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_BASE_URL}/payments/latest/6613be94127c436d61f1f709`
+      )
+      .then((response) => {
+        setLatestPeriod(response?.data?.latest_period)
       })
       .catch((error) => {
         console.log(error)
@@ -72,6 +93,21 @@ function CreateIuran() {
       })
   }
 
+  const formatDate = (inputDate) => {
+    // Parse the input date string
+    const date = new Date(inputDate)
+
+    // Get day, month, and year
+    const day = date.getDate()
+    const month = date.toLocaleString("default", { month: "long" }) // Get month name
+    const year = date.getFullYear()
+
+    // Construct the formatted date string
+    const formattedDate = `${day} ${month} ${year}`
+
+    return formattedDate
+  }
+
   if (isLoading) {
     return (
       <div
@@ -92,12 +128,12 @@ function CreateIuran() {
         >
           <Navbar />
 
-          <h1>Add Data Iuran</h1>
-          <div>
-            <Link className="btn btn-primary" to="/iuran">
-              Back
+          <h1>
+            <Link className="btn btn-primary me-1" to="/iuran">
+              <FontAwesomeIcon icon={faArrowLeft} />
             </Link>
-          </div>
+            Add Data Iuran
+          </h1>
 
           <form onSubmit={(e) => e.preventDefault()}>
             <div className="mb-3">
@@ -107,7 +143,10 @@ function CreateIuran() {
               <select
                 id="warga_id"
                 className="form-select"
-                onChange={(e) => setWargaID(e.target.value)}
+                onChange={(e) => {
+                  setWargaID(e.target.value)
+                  handleGetLatestPeriod(e.target.value)
+                }}
                 required
               >
                 <option selected>Pilih Warga</option>
@@ -120,6 +159,11 @@ function CreateIuran() {
                 })}
               </select>
             </div>
+            {latestPeriod != null ? (
+              <p>Periode bayar terakhir: {formatDate(latestPeriod)} </p>
+            ) : (
+              <></>
+            )}
             <div className="mb-3">
               <label for="period_start" className="form-label">
                 Period Mulai
