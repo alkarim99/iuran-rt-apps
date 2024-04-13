@@ -108,6 +108,7 @@ function CreateIuran() {
                 id="warga_id"
                 className="form-select"
                 onChange={(e) => setWargaID(e.target.value)}
+                required
               >
                 <option selected>Pilih Warga</option>
                 {dataWarga.map((warga) => {
@@ -128,6 +129,7 @@ function CreateIuran() {
                 className="form-control"
                 id="period_start"
                 onChange={(e) => setPeriodStart(e.target.value)}
+                required
               />
             </div>
             <div className="mb-3">
@@ -139,6 +141,7 @@ function CreateIuran() {
                 className="form-control"
                 id="period_end"
                 onChange={(e) => setPeriodEnd(e.target.value)}
+                required
               />
             </div>
             <div className="mb-3">
@@ -150,6 +153,7 @@ function CreateIuran() {
                 className="form-control"
                 id="nominal"
                 onChange={(e) => setNominal(e.target.value)}
+                required
               />
             </div>
             <div className="mb-3">
@@ -160,6 +164,7 @@ function CreateIuran() {
                 id="payment_method"
                 className="form-select"
                 onChange={(e) => setPaymentMethod(e.target.value)}
+                required
               >
                 <option selected>Pilih Metode Pembayaran</option>
                 <option value="cash">Cash</option>

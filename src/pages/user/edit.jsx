@@ -1,0 +1,179 @@
+import React from "react"
+import { useLocation } from "react-router"
+import { Link, useNavigate } from "react-router-dom"
+import axios from "axios"
+import Swal from "sweetalert2"
+import { useSelector } from "react-redux"
+import Navbar from "../../components/Navbar"
+import Footer from "../../components/Footer"
+
+function EditUser() {
+  const navigate = useNavigate()
+  const state = useSelector((reducer) => reducer.auth)
+  const location = useLocation()
+  const id = location?.pathname?.split("/")[3]
+
+  const [name, setName] = React.useState("")
+  const [email, setEmail] = React.useState("")
+  const [password, setPassword] = React.useState("")
+  const [role, setRole] = React.useState("")
+  const [isLoading, setIsLoading] = React.useState(false)
+
+  React.useEffect(() => {
+    if (!state.auth) {
+      navigate("/sign-in")
+    }
+    setIsLoading(true)
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}/users/${id}`)
+      .then((response) => {
+        setName(response?.data?.data?.name)
+        setEmail(response?.data?.data?.email)
+        setPassword(response?.data?.data?.password)
+        setRole(response?.data?.data?.role)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
+  }, [state])
+
+  const handleEdit = () => {
+    setIsLoading(true)
+    axios
+      .put(`${process.env.REACT_APP_BASE_URL}/users`, {
+        id: id,
+        name: name,
+        email: email,
+        password: password,
+        role: role,
+      })
+      .then((response) => {
+        Swal.fire({
+          title: "Update Success!",
+          text: response?.data?.message,
+          icon: "success",
+        }).then(() => {
+          navigate("/user")
+        })
+      })
+      .catch((error) => {
+        console.log(error)
+        Swal.fire({
+          title: "Error!",
+          text: error?.response?.data?.message ?? "Something wrong in our App!",
+          icon: "error",
+        })
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
+  }
+
+  if (isLoading) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "100vh" }}
+      >
+        <div className="spinner-grow text-warning" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    )
+  } else {
+    return (
+      <>
+        <div
+          className="d-flex p-3 mx-auto flex-column"
+          style={{ maxWidth: "42em", height: "100vh" }}
+        >
+          <Navbar />
+
+          <h1>Edit Data User</h1>
+          <div>
+            <Link className="btn btn-primary" to="/user">
+              Back
+            </Link>
+          </div>
+
+          <form onSubmit={(e) => e.preventDefault()}>
+            <div className="mb-3">
+              <label for="name" className="form-label">
+                Name
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="name"
+                onChange={(e) => setName(e.target.value)}
+                defaultValue={name}
+              />
+            </div>
+            <div className="mb-3">
+              <label for="email" className="form-label">
+                Email
+              </label>
+              <input
+                type="email"
+                className="form-control"
+                id="email"
+                onChange={(e) => setEmail(e.target.value)}
+                defaultValue={email}
+              />
+            </div>
+            <div className="mb-3">
+              <label for="password" className="form-label">
+                Password
+              </label>
+              <input
+                type="password"
+                className="form-control"
+                id="password"
+                onChange={(e) => setPassword(e.target.value)}
+                defaultValue={password}
+              />
+            </div>
+            <div className="mb-3">
+              <label for="role" className="form-label">
+                Role
+              </label>
+              <select
+                id="role"
+                className="form-select"
+                onChange={(e) => setRole(e.target.value)}
+              >
+                <option selected>Pilih Role User</option>
+                <option
+                  value="admin"
+                  selected={role == "admin" ? "selected" : ""}
+                >
+                  Admin
+                </option>
+                <option
+                  value="user"
+                  selected={role == "user" ? "selected" : ""}
+                >
+                  User
+                </option>
+              </select>
+            </div>
+            <button
+              className="btn btn-primary py-2"
+              type="submit"
+              onClick={handleEdit}
+            >
+              {isLoading ? "Loading..." : "Submit"}
+            </button>
+          </form>
+
+          <Footer />
+        </div>
+      </>
+    )
+  }
+}
+
+export default EditUser

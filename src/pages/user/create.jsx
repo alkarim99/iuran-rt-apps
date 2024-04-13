@@ -6,12 +6,14 @@ import { useSelector } from "react-redux"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
 
-function CreateWarga() {
+function CreateUser() {
   const navigate = useNavigate()
   const state = useSelector((reducer) => reducer.auth)
 
   const [name, setName] = React.useState("")
-  const [address, setAddress] = React.useState("")
+  const [email, setEmail] = React.useState("")
+  const [password, setPassword] = React.useState("")
+  const [role, setRole] = React.useState("")
   const [isLoading, setIsLoading] = React.useState(false)
 
   React.useEffect(() => {
@@ -23,9 +25,11 @@ function CreateWarga() {
   const handleCreate = () => {
     setIsLoading(true)
     axios
-      .post(`${process.env.REACT_APP_BASE_URL}/wargas`, {
+      .post(`${process.env.REACT_APP_BASE_URL}/users`, {
         name: name,
-        address: address,
+        email: email,
+        password: password,
+        role: role,
       })
       .then((response) => {
         Swal.fire({
@@ -33,7 +37,7 @@ function CreateWarga() {
           text: response?.data?.message,
           icon: "success",
         }).then(() => {
-          navigate("/warga")
+          navigate("/user")
         })
       })
       .catch((error) => {
@@ -56,9 +60,9 @@ function CreateWarga() {
       >
         <Navbar />
 
-        <h1>Add Data Warga</h1>
+        <h1>Add Data User</h1>
         <div>
-          <Link className="btn btn-primary" to="/warga">
+          <Link className="btn btn-primary" to="/user">
             Back
           </Link>
         </div>
@@ -77,16 +81,43 @@ function CreateWarga() {
             />
           </div>
           <div className="mb-3">
-            <label for="address" className="form-label">
-              Address
+            <label for="email" className="form-label">
+              Email
             </label>
             <input
-              type="text"
+              type="email"
               className="form-control"
-              id="address"
-              onChange={(e) => setAddress(e.target.value)}
+              id="email"
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
+          </div>
+          <div className="mb-3">
+            <label for="password" className="form-label">
+              Password
+            </label>
+            <input
+              type="password"
+              className="form-control"
+              id="password"
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-3">
+            <label for="role" className="form-label">
+              Role
+            </label>
+            <select
+              id="role"
+              className="form-select"
+              onChange={(e) => setRole(e.target.value)}
+              required
+            >
+              <option selected>Pilih Role User</option>
+              <option value="admin">Admin</option>
+              <option value="user">User</option>
+            </select>
           </div>
           <button
             className="btn btn-primary py-2"
@@ -103,4 +134,4 @@ function CreateWarga() {
   )
 }
 
-export default CreateWarga
+export default CreateUser
