@@ -54,11 +54,11 @@ function SignIn() {
 
   return (
     <main
-      className="form-signin w-100 d-flex p-3 mx-auto flex-column"
-      style={{ height: "100vh" }}
+      className="form-signin d-flex p-3 flex-column justify-content-center align-items-center"
+      style={{ minHeight: "100vh" }}
     >
       <form onSubmit={(e) => e.preventDefault()}>
-        <Link className="btn btn-primary" to="/">
+        <Link className="btn btn-primary mb-3" to="/">
           Back
         </Link>
 

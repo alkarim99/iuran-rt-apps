@@ -9,12 +9,15 @@ function Home() {
 
   return (
     <div
-      className="d-flex p-3 mx-auto flex-column"
-      style={{ maxWidth: "42em", height: "100vh" }}
+      className="container d-flex p-3 mx-auto flex-column"
+      style={{ height: "100vh" }}
     >
       <Navbar />
 
-      <main className="px-3 text-center">
+      <main
+        className="px-3 text-center d-flex flex-column m-auto"
+        style={{ maxWidth: "43em" }}
+      >
         <h1>Catatan Iuran RT.</h1>
         <p className="lead">
           Aplikasi ini memudahkan pengelolaan iuran RT dengan fitur pencatatan
