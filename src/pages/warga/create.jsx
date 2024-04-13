@@ -3,8 +3,11 @@ import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
 
 function CreateWarga() {
   const navigate = useNavigate()
@@ -51,51 +54,56 @@ function CreateWarga() {
   return (
     <>
       <div
-        className="d-flex p-3 mx-auto flex-column"
-        style={{ maxWidth: "42em", height: "100vh" }}
+        className="container d-flex p-3 mx-auto flex-column"
+        style={{ height: "100vh" }}
       >
         <Navbar />
 
-        <h1>Add Data Warga</h1>
-        <div>
+        <div className="mb-3">
           <Link className="btn btn-primary" to="/warga">
-            Back
+            <FontAwesomeIcon icon={faArrowLeft} />
           </Link>
         </div>
 
-        <form onSubmit={(e) => e.preventDefault()}>
-          <div className="mb-3">
-            <label for="name" className="form-label">
-              Name
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="name"
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
+        <h1>Add Data Warga</h1>
+
+        <div className="row">
+          <div className="col-6">
+            <form onSubmit={(e) => e.preventDefault()}>
+              <div className="mb-3">
+                <label for="name" className="form-label">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="name"
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label for="address" className="form-label">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="address"
+                  onChange={(e) => setAddress(e.target.value)}
+                  required
+                />
+              </div>
+              <button
+                className="btn btn-primary py-2"
+                type="submit"
+                onClick={handleCreate}
+              >
+                {isLoading ? "Loading..." : "Submit"}
+              </button>
+            </form>
           </div>
-          <div className="mb-3">
-            <label for="address" className="form-label">
-              Address
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="address"
-              onChange={(e) => setAddress(e.target.value)}
-              required
-            />
-          </div>
-          <button
-            className="btn btn-primary py-2"
-            type="submit"
-            onClick={handleCreate}
-          >
-            {isLoading ? "Loading..." : "Submit"}
-          </button>
-        </form>
+        </div>
 
         <Footer />
       </div>

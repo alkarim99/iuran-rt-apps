@@ -6,7 +6,6 @@ import { useSelector } from "react-redux"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
   faPlus,
-  faInfo,
   faPen,
   faTrash,
   faInfoCircle,
@@ -98,8 +97,8 @@ function IndexWarga() {
     return (
       <>
         <div
-          className="d-flex p-3 mx-auto flex-column"
-          style={{ maxWidth: "42em", height: "100vh" }}
+          className="container d-flex p-3 mx-auto flex-column"
+          style={{ height: "100vh" }}
         >
           <Navbar />
 
@@ -109,51 +108,56 @@ function IndexWarga() {
               <FontAwesomeIcon icon={faPlus} />
             </Link>
           </h1>
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Name</th>
-                <th scope="col">Address</th>
-                <th scope="col">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {dataWarga.map((warga, index) => {
-                return (
-                  <>
-                    <tr>
-                      <th scope="row">{index + 1}</th>
-                      <td>{warga?.name}</td>
-                      <td>{warga?.address}</td>
-                      <td>
-                        <Link
-                          className="btn btn-success me-1"
-                          to={`/warga/${warga?._id}`}
-                        >
-                          <FontAwesomeIcon icon={faInfoCircle} />
-                        </Link>
-                        <Link
-                          className="btn btn-warning mx-1"
-                          to={`/warga/edit/${warga?._id}`}
-                        >
-                          <FontAwesomeIcon icon={faPen} />
-                        </Link>
-                        <Link
-                          className="btn btn-danger mx-1"
-                          onClick={() => {
-                            handleDelete(warga?._id)
-                          }}
-                        >
-                          <FontAwesomeIcon icon={faTrash} />
-                        </Link>
-                      </td>
-                    </tr>
-                  </>
-                )
-              })}
-            </tbody>
-          </table>
+
+          <div className="row">
+            <div className="col-6">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Address</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dataWarga.map((warga, index) => {
+                    return (
+                      <>
+                        <tr>
+                          <th scope="row">{index + 1}</th>
+                          <td>{warga?.name}</td>
+                          <td>{warga?.address}</td>
+                          <td>
+                            <Link
+                              className="btn btn-success me-1"
+                              to={`/warga/${warga?._id}`}
+                            >
+                              <FontAwesomeIcon icon={faInfoCircle} />
+                            </Link>
+                            <Link
+                              className="btn btn-warning mx-1"
+                              to={`/warga/edit/${warga?._id}`}
+                            >
+                              <FontAwesomeIcon icon={faPen} />
+                            </Link>
+                            <Link
+                              className="btn btn-danger mx-1"
+                              onClick={() => {
+                                handleDelete(warga?._id)
+                              }}
+                            >
+                              <FontAwesomeIcon icon={faTrash} />
+                            </Link>
+                          </td>
+                        </tr>
+                      </>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
           <Footer />
         </div>

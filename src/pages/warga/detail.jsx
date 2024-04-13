@@ -4,33 +4,62 @@ import axios from "axios"
 import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"
+import { faPen, faTrash, faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+import { useLocation } from "react-router"
 import FormatDate from "../../helpers/FormatDate"
 import FormatCurrency from "../../helpers/FormatCurrency"
 
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
 
-function IndexIuran() {
+function DetailWarga() {
   const navigate = useNavigate()
   const state = useSelector((reducer) => reducer.auth)
+  const location = useLocation()
+  const id = location?.pathname?.split("/")[2]
 
+  const [dataWarga, setDataWarga] = React.useState({})
   const [dataIuran, setDataIuran] = React.useState([])
+  const [dataReport, setDataReport] = React.useState([])
   const [isLoading, setIsLoading] = React.useState(false)
 
   React.useEffect(() => {
-    setIsLoading(true)
     if (!state.auth) {
       navigate("/sign-in")
     }
     handleGet()
+    handleGetPayment()
+    handleGetReport()
   }, [state])
 
   const handleGet = () => {
+    setIsLoading(true)
     axios
-      .get(`${process.env.REACT_APP_BASE_URL}/payments`)
+      .get(`${process.env.REACT_APP_BASE_URL}/wargas/${id}`)
+      .then((response) => {
+        setDataWarga(response?.data?.data)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+
+  const handleGetPayment = () => {
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}/payments/warga/${id}`)
       .then((response) => {
         setDataIuran(response?.data?.data)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+
+  const handleGetReport = () => {
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}/payments/report/${id}`)
+      .then((response) => {
+        setDataReport(response?.data?.reports)
       })
       .catch((error) => {
         console.log(error)
@@ -100,18 +129,35 @@ function IndexIuran() {
         >
           <Navbar />
 
-          <h1>
-            Data Iuran
-            <Link className="btn btn-primary ms-1" to="/iuran/create">
-              <FontAwesomeIcon icon={faPlus} />
+          <div className="mb-3">
+            <Link className="btn btn-primary" to="/warga">
+              <FontAwesomeIcon icon={faArrowLeft} />
             </Link>
-          </h1>
+          </div>
+
+          <div className="mb-3">
+            <h3>
+              Detail Warga
+              <Link className="btn btn-warning mx-1" to={`/warga/edit/${id}`}>
+                <FontAwesomeIcon icon={faPen} />
+              </Link>
+            </h3>
+            <div className="row">
+              <div className="col-2">Name</div>
+              <div className="col">: {dataWarga?.name}</div>
+            </div>
+            <div className="row">
+              <div className="col-2">Address</div>
+              <div className="col">: {dataWarga?.address}</div>
+            </div>
+          </div>
+
+          <h3>Data Iuran</h3>
           <table className="table">
             <thead>
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">Tanggal</th>
-                <th scope="col">Warga</th>
                 <th scope="col">Periode</th>
                 <th scope="col">Nominal</th>
                 <th scope="col">Metode Pembayaran</th>
@@ -125,7 +171,6 @@ function IndexIuran() {
                     <tr>
                       <th scope="row">{index + 1}</th>
                       <td>{FormatDate(iuran?.pay_at)}</td>
-                      <td>{iuran?.warga_id}</td>
                       <td>
                         {FormatDate(iuran?.period_start)} -{" "}
                         {FormatDate(iuran?.period_end)}
@@ -155,6 +200,32 @@ function IndexIuran() {
             </tbody>
           </table>
 
+          <h3>Data Rincian</h3>
+          <table className="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Tanggal</th>
+                <th scope="col">Periode</th>
+                <th scope="col">Nominal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dataReport.map((report, index) => {
+                return (
+                  <>
+                    <tr>
+                      <th scope="row">{index + 1}</th>
+                      <td>{FormatDate(report?.pay_at)}</td>
+                      <td>{FormatDate(report?.period)}</td>
+                      <td>{FormatCurrency(report?.nominal)}</td>
+                    </tr>
+                  </>
+                )
+              })}
+            </tbody>
+          </table>
+
           <Footer />
         </div>
       </>
@@ -162,4 +233,4 @@ function IndexIuran() {
   }
 }
 
-export default IndexIuran
+export default DetailWarga

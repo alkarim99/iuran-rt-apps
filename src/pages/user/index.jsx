@@ -92,8 +92,8 @@ function IndexUser() {
     return (
       <>
         <div
-          className="d-flex p-3 mx-auto flex-column"
-          style={{ maxWidth: "42em", height: "100vh" }}
+          className="container d-flex p-3 mx-auto flex-column"
+          style={{ height: "100vh" }}
         >
           <Navbar />
 
@@ -103,47 +103,52 @@ function IndexUser() {
               <FontAwesomeIcon icon={faPlus} />
             </Link>
           </h1>
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Name</th>
-                <th scope="col">Email</th>
-                <th scope="col">Role</th>
-                <th scope="col">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {dataUser.map((user, index) => {
-                return (
-                  <>
-                    <tr>
-                      <th scope="row">{index + 1}</th>
-                      <td>{user?.name}</td>
-                      <td>{user?.email}</td>
-                      <td>{user?.role}</td>
-                      <td>
-                        <Link
-                          className="btn btn-warning me-1"
-                          to={`/user/edit/${user?._id}`}
-                        >
-                          <FontAwesomeIcon icon={faPen} />
-                        </Link>
-                        <Link
-                          className="btn btn-danger mx-1"
-                          onClick={() => {
-                            handleDelete(user?._id)
-                          }}
-                        >
-                          <FontAwesomeIcon icon={faTrash} />
-                        </Link>
-                      </td>
-                    </tr>
-                  </>
-                )
-              })}
-            </tbody>
-          </table>
+
+          <div className="row">
+            <div className="col-6">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dataUser.map((user, index) => {
+                    return (
+                      <>
+                        <tr>
+                          <th scope="row">{index + 1}</th>
+                          <td>{user?.name}</td>
+                          <td>{user?.email}</td>
+                          <td>{user?.role}</td>
+                          <td>
+                            <Link
+                              className="btn btn-warning me-1"
+                              to={`/user/edit/${user?._id}`}
+                            >
+                              <FontAwesomeIcon icon={faPen} />
+                            </Link>
+                            <Link
+                              className="btn btn-danger mx-1"
+                              onClick={() => {
+                                handleDelete(user?._id)
+                              }}
+                            >
+                              <FontAwesomeIcon icon={faTrash} />
+                            </Link>
+                          </td>
+                        </tr>
+                      </>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
           <Footer />
         </div>

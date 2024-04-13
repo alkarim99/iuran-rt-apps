@@ -20,6 +20,8 @@ function CreateIuran() {
   const [dataWarga, setDataWarga] = React.useState([])
   const [latestPeriod, setLatestPeriod] = React.useState(null)
   const [isLoading, setIsLoading] = React.useState(false)
+  const [isLoadingLatestPeriod, setIsLoadingLatestPeriod] =
+    React.useState(false)
 
   React.useEffect(() => {
     setIsLoading(true)
@@ -46,18 +48,22 @@ function CreateIuran() {
   }
 
   const handleGetLatestPeriod = (id) => {
+    setIsLoadingLatestPeriod(true)
     axios
-      .get(
-        `${process.env.REACT_APP_BASE_URL}/payments/latest/6613be94127c436d61f1f709`
-      )
+      .get(`${process.env.REACT_APP_BASE_URL}/payments/latest/${id}`)
       .then((response) => {
-        setLatestPeriod(response?.data?.latest_period)
+        console.log(response?.data?.latest_period != undefined)
+        if (response?.data?.latest_period != undefined) {
+          setLatestPeriod(response?.data?.latest_period)
+        } else {
+          setLatestPeriod("Tidak ada")
+        }
       })
       .catch((error) => {
         console.log(error)
       })
       .finally(() => {
-        setIsLoading(false)
+        setIsLoadingLatestPeriod(false)
       })
   }
 
@@ -94,18 +100,22 @@ function CreateIuran() {
   }
 
   const formatDate = (inputDate) => {
-    // Parse the input date string
-    const date = new Date(inputDate)
+    if (inputDate != "Tidak ada") {
+      // Parse the input date string
+      const date = new Date(inputDate)
 
-    // Get day, month, and year
-    const day = date.getDate()
-    const month = date.toLocaleString("default", { month: "long" }) // Get month name
-    const year = date.getFullYear()
+      // Get day, month, and year
+      const day = date.getDate()
+      const month = date.toLocaleString("default", { month: "long" }) // Get month name
+      const year = date.getFullYear()
 
-    // Construct the formatted date string
-    const formattedDate = `${day} ${month} ${year}`
+      // Construct the formatted date string
+      const formattedDate = `${day} ${month} ${year}`
 
-    return formattedDate
+      return formattedDate
+    } else {
+      return inputDate
+    }
   }
 
   if (isLoading) {
@@ -123,106 +133,112 @@ function CreateIuran() {
     return (
       <>
         <div
-          className="d-flex p-3 mx-auto flex-column"
-          style={{ maxWidth: "42em", height: "100vh" }}
+          className="container d-flex p-3 mx-auto flex-column"
+          style={{ height: "100vh" }}
         >
           <Navbar />
 
-          <h1>
+          <div className="mb-3">
             <Link className="btn btn-primary me-1" to="/iuran">
               <FontAwesomeIcon icon={faArrowLeft} />
             </Link>
-            Add Data Iuran
-          </h1>
+          </div>
 
-          <form onSubmit={(e) => e.preventDefault()}>
-            <div className="mb-3">
-              <label for="warga_id" className="form-label">
-                Warga
-              </label>
-              <select
-                id="warga_id"
-                className="form-select"
-                onChange={(e) => {
-                  setWargaID(e.target.value)
-                  handleGetLatestPeriod(e.target.value)
-                }}
-                required
-              >
-                <option selected>Pilih Warga</option>
-                {dataWarga.map((warga) => {
-                  return (
-                    <option value={warga?._id}>
-                      {warga?.address} | {warga?.name}
-                    </option>
-                  )
-                })}
-              </select>
+          <h1>Add Data Iuran</h1>
+
+          <div className="row">
+            <div className="col-6">
+              <form onSubmit={(e) => e.preventDefault()}>
+                <div className="mb-3">
+                  <label for="warga_id" className="form-label">
+                    Warga
+                  </label>
+                  <select
+                    id="warga_id"
+                    className="form-select"
+                    onChange={(e) => {
+                      setWargaID(e.target.value)
+                      handleGetLatestPeriod(e.target.value)
+                    }}
+                    required
+                  >
+                    <option selected>Pilih Warga</option>
+                    {dataWarga.map((warga) => {
+                      return (
+                        <option value={warga?._id}>
+                          {warga?.address} | {warga?.name}
+                        </option>
+                      )
+                    })}
+                  </select>
+                </div>
+                <p>
+                  Periode bayar terakhir :{" "}
+                  {latestPeriod != null
+                    ? `${formatDate(latestPeriod)}`
+                    : "Pilih warga dahulu"}
+                </p>
+                <div className="mb-3">
+                  <label for="period_start" className="form-label">
+                    Periode Mulai
+                  </label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    id="period_start"
+                    onChange={(e) => setPeriodStart(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label for="period_end" className="form-label">
+                    Periode Akhir
+                  </label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    id="period_end"
+                    onChange={(e) => setPeriodEnd(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label for="nominal" className="form-label">
+                    Nominal
+                  </label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    id="nominal"
+                    onChange={(e) => setNominal(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label for="payment_method" className="form-label">
+                    Metode Pembayaran
+                  </label>
+                  <select
+                    id="payment_method"
+                    className="form-select"
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    required
+                  >
+                    <option selected>Pilih Metode Pembayaran</option>
+                    <option value="cash">Cash</option>
+                    <option value="transfer">Transfer</option>
+                  </select>
+                </div>
+                <button
+                  className="btn btn-primary py-2"
+                  type="submit"
+                  onClick={handleCreate}
+                >
+                  {isLoading ? "Loading..." : "Submit"}
+                </button>
+              </form>
             </div>
-            {latestPeriod != null ? (
-              <p>Periode bayar terakhir: {formatDate(latestPeriod)} </p>
-            ) : (
-              <></>
-            )}
-            <div className="mb-3">
-              <label for="period_start" className="form-label">
-                Period Mulai
-              </label>
-              <input
-                type="date"
-                className="form-control"
-                id="period_start"
-                onChange={(e) => setPeriodStart(e.target.value)}
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label for="period_end" className="form-label">
-                Period Akhir
-              </label>
-              <input
-                type="date"
-                className="form-control"
-                id="period_end"
-                onChange={(e) => setPeriodEnd(e.target.value)}
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label for="nominal" className="form-label">
-                Nominal
-              </label>
-              <input
-                type="number"
-                className="form-control"
-                id="nominal"
-                onChange={(e) => setNominal(e.target.value)}
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label for="payment_method" className="form-label">
-                Metode Pembayaran
-              </label>
-              <select
-                id="payment_method"
-                className="form-select"
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                required
-              >
-                <option selected>Pilih Metode Pembayaran</option>
-                <option value="cash">Cash</option>
-                <option value="transfer">Transfer</option>
-              </select>
-            </div>
-            <button
-              className="btn btn-primary py-2"
-              type="submit"
-              onClick={handleCreate}
-            >
-              {isLoading ? "Loading..." : "Submit"}
-            </button>
-          </form>
+          </div>
 
           <Footer />
         </div>

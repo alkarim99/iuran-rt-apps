@@ -4,6 +4,9 @@ import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
 
@@ -87,87 +90,92 @@ function EditUser() {
     return (
       <>
         <div
-          className="d-flex p-3 mx-auto flex-column"
-          style={{ maxWidth: "42em", height: "100vh" }}
+          className="container d-flex p-3 mx-auto flex-column"
+          style={{ height: "100vh" }}
         >
           <Navbar />
 
-          <h1>Edit Data User</h1>
-          <div>
+          <div className="mb-3">
             <Link className="btn btn-primary" to="/user">
-              Back
+              <FontAwesomeIcon icon={faArrowLeft} />
             </Link>
           </div>
 
-          <form onSubmit={(e) => e.preventDefault()}>
-            <div className="mb-3">
-              <label for="name" className="form-label">
-                Name
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="name"
-                onChange={(e) => setName(e.target.value)}
-                defaultValue={name}
-              />
-            </div>
-            <div className="mb-3">
-              <label for="email" className="form-label">
-                Email
-              </label>
-              <input
-                type="email"
-                className="form-control"
-                id="email"
-                onChange={(e) => setEmail(e.target.value)}
-                defaultValue={email}
-              />
-            </div>
-            <div className="mb-3">
-              <label for="password" className="form-label">
-                Password
-              </label>
-              <input
-                type="password"
-                className="form-control"
-                id="password"
-                onChange={(e) => setPassword(e.target.value)}
-                defaultValue={password}
-              />
-            </div>
-            <div className="mb-3">
-              <label for="role" className="form-label">
-                Role
-              </label>
-              <select
-                id="role"
-                className="form-select"
-                onChange={(e) => setRole(e.target.value)}
-              >
-                <option selected>Pilih Role User</option>
-                <option
-                  value="admin"
-                  selected={role == "admin" ? "selected" : ""}
+          <h1>Edit Data User</h1>
+
+          <div className="row">
+            <div className="col-6">
+              <form onSubmit={(e) => e.preventDefault()}>
+                <div className="mb-3">
+                  <label for="name" className="form-label">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="name"
+                    onChange={(e) => setName(e.target.value)}
+                    defaultValue={name}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label for="email" className="form-label">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    id="email"
+                    onChange={(e) => setEmail(e.target.value)}
+                    defaultValue={email}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label for="password" className="form-label">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    id="password"
+                    onChange={(e) => setPassword(e.target.value)}
+                    defaultValue={password}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label for="role" className="form-label">
+                    Role
+                  </label>
+                  <select
+                    id="role"
+                    className="form-select"
+                    onChange={(e) => setRole(e.target.value)}
+                  >
+                    <option selected>Pilih Role User</option>
+                    <option
+                      value="admin"
+                      selected={role == "admin" ? "selected" : ""}
+                    >
+                      Admin
+                    </option>
+                    <option
+                      value="user"
+                      selected={role == "user" ? "selected" : ""}
+                    >
+                      User
+                    </option>
+                  </select>
+                </div>
+                <button
+                  className="btn btn-primary py-2"
+                  type="submit"
+                  onClick={handleEdit}
                 >
-                  Admin
-                </option>
-                <option
-                  value="user"
-                  selected={role == "user" ? "selected" : ""}
-                >
-                  User
-                </option>
-              </select>
+                  {isLoading ? "Loading..." : "Submit"}
+                </button>
+              </form>
             </div>
-            <button
-              className="btn btn-primary py-2"
-              type="submit"
-              onClick={handleEdit}
-            >
-              {isLoading ? "Loading..." : "Submit"}
-            </button>
-          </form>
+          </div>
 
           <Footer />
         </div>
