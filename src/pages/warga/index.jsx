@@ -110,7 +110,7 @@ function IndexWarga() {
           </h1>
 
           <div className="row">
-            <div className="col-6">
+            <div className="col-8">
               <table className="table">
                 <thead>
                   <tr>
