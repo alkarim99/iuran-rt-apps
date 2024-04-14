@@ -97,7 +97,7 @@ function RunApp({ RouterProvider, router }) {
     axios.interceptors.request.use(
       (config) => {
         // console.log(state?.token)
-        if (state?.token != "") {
+        if (state?.token !== "") {
           config.headers["Authorization"] = `Bearer ${state?.token}`
         }
         return config
@@ -106,7 +106,7 @@ function RunApp({ RouterProvider, router }) {
         Promise.reject(error)
       }
     )
-  }, [])
+  }, [state])
   return <RouterProvider router={router} />
 }
 
