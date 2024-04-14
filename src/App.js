@@ -96,7 +96,7 @@ function RunApp({ RouterProvider, router }) {
   React.useEffect(() => {
     axios.interceptors.request.use(
       (config) => {
-        console.log(state?.token)
+        // console.log(state?.token)
         if (state?.token != "") {
           config.headers["Authorization"] = `Bearer ${state?.token}`
         }
