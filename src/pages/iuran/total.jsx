@@ -26,8 +26,7 @@ function TotalIuran() {
   }, [state])
 
   const handleSearch = () => {
-    console.log(start, end)
-    console.log(typeof start, typeof end)
+    setIsLoading(true)
     axios
       .get(
         `${process.env.REACT_APP_BASE_URL}/payments/total?start=${start}&end=${end}`
@@ -38,6 +37,7 @@ function TotalIuran() {
       .catch((error) => {
         console.log(error)
       })
+      .finally(() => setIsLoading(false))
   }
 
   return (
