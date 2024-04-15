@@ -8,6 +8,7 @@ import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+import FormatDate from "../../helpers/FormatDate"
 
 function EditIuran() {
   const navigate = useNavigate()
@@ -22,6 +23,7 @@ function EditIuran() {
   const [paymentMethod, setPaymentMethod] = React.useState("")
   const [payAt, setPayAt] = React.useState("")
   const [dataWarga, setDataWarga] = React.useState([])
+  const [latestPeriod, setLatestPeriod] = React.useState(null)
   const [isLoading, setIsLoading] = React.useState(false)
 
   React.useEffect(() => {
@@ -43,9 +45,8 @@ function EditIuran() {
       .catch((error) => {
         console.log(error)
       })
-      .finally(() => {
-        setIsLoading(false)
-      })
+    handleGetLatestPeriod(wargaID)
+    setIsLoading(false)
   }, [state])
 
   const handleGetWarga = () => {
@@ -93,6 +94,21 @@ function EditIuran() {
       })
       .finally(() => {
         setIsLoading(false)
+      })
+  }
+
+  const handleGetLatestPeriod = (id) => {
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}/payments/latest/${id}`)
+      .then((response) => {
+        if (response?.data?.latest_period != undefined) {
+          setLatestPeriod(response?.data?.latest_period)
+        } else {
+          setLatestPeriod("Tidak ada")
+        }
+      })
+      .catch((error) => {
+        console.log(error)
       })
   }
 
@@ -149,6 +165,28 @@ function EditIuran() {
                     })}
                   </select>
                 </div>
+                <p>
+                  Periode bayar terakhir :{" "}
+                  {latestPeriod != null
+                    ? `${FormatDate(latestPeriod)}`
+                    : "Pilih warga dahulu"}
+                </p>
+                {payAt != "" ? (
+                  <div className="mb-3">
+                    <label for="pay_at" className="form-label">
+                      Tanggal Bayar
+                    </label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      id="pay_at"
+                      onChange={(e) => setPayAt(e.target.value)}
+                      required
+                    />
+                  </div>
+                ) : (
+                  <></>
+                )}
                 {periodStart != "" ? (
                   <div className="mb-3">
                     <label for="period_start" className="form-label">

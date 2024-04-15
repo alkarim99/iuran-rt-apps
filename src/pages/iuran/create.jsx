@@ -5,6 +5,7 @@ import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+import FormatDate from "../../helpers/FormatDate"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
 
@@ -17,6 +18,7 @@ function CreateIuran() {
   const [periodEnd, setPeriodEnd] = React.useState("")
   const [nominal, setNominal] = React.useState("")
   const [paymentMethod, setPaymentMethod] = React.useState("")
+  const [payAt, setPayAt] = React.useState("")
   const [dataWarga, setDataWarga] = React.useState([])
   const [latestPeriod, setLatestPeriod] = React.useState(null)
   const [isLoading, setIsLoading] = React.useState(false)
@@ -50,7 +52,6 @@ function CreateIuran() {
     axios
       .get(`${process.env.REACT_APP_BASE_URL}/payments/latest/${id}`)
       .then((response) => {
-        console.log(response?.data?.latest_period != undefined)
         if (response?.data?.latest_period != undefined) {
           setLatestPeriod(response?.data?.latest_period)
         } else {
@@ -74,7 +75,7 @@ function CreateIuran() {
         period_end: periodEnd,
         nominal: nominal,
         payment_method: paymentMethod,
-        pay_at: new Date(),
+        pay_at: payAt,
       })
       .then((response) => {
         Swal.fire({
@@ -95,25 +96,6 @@ function CreateIuran() {
       .finally(() => {
         setIsLoading(false)
       })
-  }
-
-  const formatDate = (inputDate) => {
-    if (inputDate != "Tidak ada") {
-      // Parse the input date string
-      const date = new Date(inputDate)
-
-      // Get day, month, and year
-      const day = date.getDate()
-      const month = date.toLocaleString("default", { month: "long" }) // Get month name
-      const year = date.getFullYear()
-
-      // Construct the formatted date string
-      const formattedDate = `${day} ${month} ${year}`
-
-      return formattedDate
-    } else {
-      return inputDate
-    }
   }
 
   if (isLoading) {
@@ -173,9 +155,21 @@ function CreateIuran() {
                 <p>
                   Periode bayar terakhir :{" "}
                   {latestPeriod != null
-                    ? `${formatDate(latestPeriod)}`
+                    ? `${FormatDate(latestPeriod)}`
                     : "Pilih warga dahulu"}
                 </p>
+                <div className="mb-3">
+                  <label for="pay_at" className="form-label">
+                    Tanggal Bayar
+                  </label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    id="pay_at"
+                    onChange={(e) => setPayAt(e.target.value)}
+                    required
+                  />
+                </div>
                 <div className="mb-3">
                   <label for="period_start" className="form-label">
                     Periode Mulai

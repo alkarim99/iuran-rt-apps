@@ -5,6 +5,8 @@ import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+import FormatDate from "../../helpers/FormatDate"
+import FormatCurrency from "../../helpers/FormatCurrency"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
 
@@ -27,10 +29,9 @@ function TotalIuran() {
     console.log(start, end)
     console.log(typeof start, typeof end)
     axios
-      .get(`${process.env.REACT_APP_BASE_URL}/payments/total`, {
-        start: start,
-        end: end,
-      })
+      .get(
+        `${process.env.REACT_APP_BASE_URL}/payments/total?start=${start}&end=${end}`
+      )
       .then((response) => {
         setTotal(response?.data?.total_income)
       })
@@ -46,6 +47,11 @@ function TotalIuran() {
         style={{ height: "100vh" }}
       >
         <Navbar />
+        <div className="mb-3">
+          <Link className="btn btn-primary me-1" to="/iuran">
+            <FontAwesomeIcon icon={faArrowLeft} />
+          </Link>
+        </div>
         <form onSubmit={(e) => e.preventDefault()}>
           <div className="row d-flex align-items-end">
             <div className="col-3">
@@ -90,7 +96,12 @@ function TotalIuran() {
           </div>
         </form>
         {total != 0 ? (
-          <p className="my-3">Total Pendapatan = {total}</p>
+          <>
+            <p className="my-3">
+              Periode {FormatDate(start)} s.d. {FormatDate(end)} <br /> Total
+              Pendapatan = {FormatCurrency(total)}
+            </p>
+          </>
         ) : (
           <></>
         )}

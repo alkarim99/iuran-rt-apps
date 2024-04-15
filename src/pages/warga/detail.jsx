@@ -4,7 +4,12 @@ import axios from "axios"
 import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faPen, faTrash, faArrowLeft, faPlus } from "@fortawesome/free-solid-svg-icons"
+import {
+  faPen,
+  faTrash,
+  faArrowLeft,
+  faPlus,
+} from "@fortawesome/free-solid-svg-icons"
 import { useLocation } from "react-router"
 import FormatDate from "../../helpers/FormatDate"
 import FormatCurrency from "../../helpers/FormatCurrency"
@@ -89,6 +94,8 @@ function DetailWarga() {
               icon: "success",
             }).then(() => {
               handleGet()
+              handleGetPayment()
+              handleGetReport()
             })
           })
           .catch((error) => {
