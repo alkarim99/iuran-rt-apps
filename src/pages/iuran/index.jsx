@@ -126,7 +126,7 @@ function IndexIuran() {
       <>
         <div
           className="container d-flex p-3 mx-auto flex-column"
-          style={{ height: "100vh" }}
+          // style={{ height: "100vh" }}
         >
           <Navbar />
 
@@ -166,6 +166,7 @@ function IndexIuran() {
                   >
                     <option selected>Urutkan</option>
                     <option value="pay_at">Pembayaran Terbaru</option>
+                    <option value="created_at">Pencatatan Terbaru</option>
                     <option value="warga.name">Nama Warga</option>
                     <option value="warga.address">Alamat Warga</option>
                   </select>
@@ -189,12 +190,15 @@ function IndexIuran() {
               </div>
             </form>
           </div>
+        </div>
 
-          <table className="table">
+        <div className="d-flex justify-content-center">
+          <table className="table" style={{ width: "90%" }}>
             <thead>
               <tr>
                 <th scope="col">#</th>
-                <th scope="col">Tanggal</th>
+                <th scope="col">Tanggal Catat</th>
+                <th scope="col">Tanggal Bayar</th>
                 <th scope="col">Warga</th>
                 <th scope="col">Periode</th>
                 <th scope="col">Nominal</th>
@@ -208,6 +212,7 @@ function IndexIuran() {
                   <>
                     <tr>
                       <th scope="row">{index + 1}</th>
+                      <td>{FormatDate(iuran?.created_at)}</td>
                       <td>{FormatDate(iuran?.pay_at)}</td>
                       <td>
                         {iuran?.warga?.address} | {iuran?.warga?.name}
@@ -240,7 +245,12 @@ function IndexIuran() {
               })}
             </tbody>
           </table>
+        </div>
 
+        <div
+          className="container d-flex p-3 mx-auto flex-column"
+          // style={{ height: "100vh" }}
+        >
           <Footer />
         </div>
       </>
