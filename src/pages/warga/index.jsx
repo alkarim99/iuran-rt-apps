@@ -20,6 +20,10 @@ function IndexWarga() {
   const [dataWarga, setDataWarga] = React.useState([])
   const [isLoading, setIsLoading] = React.useState(false)
 
+  const [keyword, setKeyword] = React.useState("")
+  const [sortBy, setSortBy] = React.useState("address")
+  const [order, setOrder] = React.useState(1)
+
   React.useEffect(() => {
     setIsLoading(true)
     if (!state.auth) {
@@ -82,6 +86,51 @@ function IndexWarga() {
     })
   }
 
+  const handleSearch = () => {
+    setIsLoading(true)
+    let url = `${process.env.REACT_APP_BASE_URL}/wargas`
+    if (keyword != "") {
+      if (url.includes("?")) {
+        url = url + `&keyword=${keyword}`
+      } else {
+        url = url + `?keyword=${keyword}`
+      }
+    }
+    if (sortBy != "") {
+      if (url.includes("?")) {
+        url = url + `&sort_by=${sortBy}`
+      } else {
+        url = url + `?sort_by=${sortBy}`
+      }
+    }
+    if (order != "") {
+      if (url.includes("?")) {
+        url = url + `&order=${order}`
+      } else {
+        url = url + `?order=${order}`
+      }
+    }
+    axios
+      .get(url)
+      .then((response) => {
+        setDataWarga(response?.data?.data)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
+  }
+
+  const handleReset = () => {
+    setIsLoading(true)
+    setKeyword("")
+    setSortBy("address")
+    setOrder(1)
+    handleGet()
+  }
+
   if (isLoading) {
     return (
       <div
@@ -108,6 +157,55 @@ function IndexWarga() {
               <FontAwesomeIcon icon={faPlus} />
             </Link>
           </h1>
+
+          <div className="my-4">
+            <form onSubmit={(e) => e.preventDefault()}>
+              <div className="row d-flex align-items-end">
+                <div className="col-3">
+                  <label for="keyword" className="form-label">
+                    Cari
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="keyword"
+                    placeholder="Nama atau Alamat"
+                    onChange={(e) => setKeyword(e.target.value)}
+                  />
+                </div>
+                <div className="col-3">
+                  <label for="sort_by" className="form-label">
+                    Urutkan berdasarkan
+                  </label>
+                  <select
+                    id="sort_by"
+                    className="form-select"
+                    onChange={(e) => setSortBy(e.target.value)}
+                  >
+                    <option selected>Urutkan</option>
+                    <option value="name">Nama Warga</option>
+                    <option value="address">Alamat Warga</option>
+                  </select>
+                </div>
+                <div className="col-3">
+                  <button
+                    className="btn btn-primary py-2 me-2"
+                    type="submit"
+                    onClick={handleSearch}
+                  >
+                    {isLoading ? "Loading..." : "Search"}
+                  </button>
+                  <button
+                    className="btn btn-primary py-2"
+                    type="button"
+                    onClick={handleReset}
+                  >
+                    {isLoading ? "Loading..." : "Reset"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
 
           <div className="row">
             <div className="col-8">

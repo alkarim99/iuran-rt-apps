@@ -87,10 +87,18 @@ function IndexIuran() {
     setIsLoading(true)
     let url = `${process.env.REACT_APP_BASE_URL}/payments`
     if (keyword != "") {
-      url = url + `?keyword=${keyword}`
+      if (url.includes("?")) {
+        url = url + `&keyword=${keyword}`
+      } else {
+        url = url + `?keyword=${keyword}`
+      }
     }
     if (sortBy != "") {
-      url = url + `?sort_by=${sortBy}`
+      if (url.includes("?")) {
+        url = url + `&sort_by=${sortBy}`
+      } else {
+        url = url + `?sort_by=${sortBy}`
+      }
     }
     axios
       .get(url)
@@ -107,6 +115,8 @@ function IndexIuran() {
 
   const handleReset = () => {
     setIsLoading(true)
+    setKeyword("")
+    setSortBy("")
     handleGet()
   }
 
