@@ -207,7 +207,7 @@ function IndexIuran() {
             <thead>
               <tr>
                 <th scope="col">#</th>
-                <th scope="col">Tanggal Catat</th>
+                <th scope="col">Tanggal Input</th>
                 <th scope="col">Tanggal Bayar</th>
                 <th scope="col">Warga</th>
                 <th scope="col">Periode</th>
