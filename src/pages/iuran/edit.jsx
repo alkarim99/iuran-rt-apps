@@ -180,6 +180,9 @@ function EditIuran() {
                       type="date"
                       className="form-control"
                       id="pay_at"
+                      defaultValue={
+                        new Date(payAt).toISOString().split("T")[0]
+                      }
                       onChange={(e) => setPayAt(e.target.value)}
                       required
                     />
