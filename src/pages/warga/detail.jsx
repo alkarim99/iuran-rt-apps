@@ -161,7 +161,10 @@ function DetailWarga() {
 
           <h3>
             Data Iuran
-            <Link className="btn btn-primary ms-1" to="/iuran/create">
+            <Link
+              className="btn btn-primary ms-1"
+              to={`/iuran/create/warga/${dataWarga?._id}`}
+            >
               <FontAwesomeIcon icon={faPlus} />
             </Link>
           </h3>

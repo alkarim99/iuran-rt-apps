@@ -1,0 +1,17 @@
+.searchable-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.dropdown-search-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1;
+}
+
+.form-select {
+  position: relative;
+  z-index: 0;
+}

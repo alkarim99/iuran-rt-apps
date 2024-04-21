@@ -54,6 +54,10 @@ const router = createBrowserRouter([
     element: <IndexIuran />,
   },
   {
+    path: "/iuran/create/warga/:id",
+    element: <CreateIuran />,
+  },
+  {
     path: "/iuran/create",
     element: <CreateIuran />,
   },

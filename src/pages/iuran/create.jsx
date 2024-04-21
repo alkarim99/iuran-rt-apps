@@ -1,5 +1,5 @@
 import React from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate, useParams } from "react-router-dom"
 import axios from "axios"
 import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
@@ -11,9 +11,10 @@ import Footer from "../../components/Footer"
 
 function CreateIuran() {
   const navigate = useNavigate()
+  const params = useParams()
   const state = useSelector((reducer) => reducer.auth)
 
-  const [wargaID, setWargaID] = React.useState("")
+  const [wargaID, setWargaID] = React.useState(params?.id ?? "")
   const [periodStart, setPeriodStart] = React.useState("")
   const [periodEnd, setPeriodEnd] = React.useState("")
   const [nominal, setNominal] = React.useState("")
@@ -24,6 +25,8 @@ function CreateIuran() {
   const [isLoading, setIsLoading] = React.useState(false)
   const [isLoadingLatestPeriod, setIsLoadingLatestPeriod] =
     React.useState(false)
+  const [searchTerm, setSearchTerm] = React.useState("")
+  const [filteredOptions, setFilteredOptions] = React.useState([])
 
   React.useEffect(() => {
     setIsLoading(true)
@@ -31,6 +34,9 @@ function CreateIuran() {
       navigate("/sign-in")
     }
     handleGetWarga()
+    if (wargaID != "") {
+      handleGetLatestPeriod(wargaID)
+    }
   }, [state])
 
   const handleGetWarga = () => {
@@ -38,6 +44,7 @@ function CreateIuran() {
       .get(`${process.env.REACT_APP_BASE_URL}/wargas`)
       .then((response) => {
         setDataWarga(response?.data?.data)
+        setFilteredOptions(response?.data?.data)
       })
       .catch((error) => {
         console.log(error)
@@ -98,6 +105,17 @@ function CreateIuran() {
       })
   }
 
+  React.useEffect(() => {
+    // Filter options based on search term
+    setFilteredOptions(
+      dataWarga.filter(
+        (warga) =>
+          warga?.address?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
+          warga?.name?.toLowerCase()?.includes(searchTerm?.toLowerCase())
+      )
+    )
+  }, [searchTerm, dataWarga])
+
   if (isLoading) {
     return (
       <div
@@ -118,11 +136,24 @@ function CreateIuran() {
         >
           <Navbar />
 
-          <div className="mb-3">
-            <Link className="btn btn-primary me-1" to="/iuran">
-              <FontAwesomeIcon icon={faArrowLeft} />
-            </Link>
-          </div>
+          {params?.id != null ? (
+            <div className="mb-3">
+              <Link
+                className="btn btn-primary me-1"
+                to={`/warga/${params?.id}`}
+              >
+                <FontAwesomeIcon icon={faArrowLeft} />
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="mb-3">
+                <Link className="btn btn-primary me-1" to="/iuran">
+                  <FontAwesomeIcon icon={faArrowLeft} />
+                </Link>
+              </div>
+            </>
+          )}
 
           <h1>Add Data Iuran</h1>
 
@@ -133,29 +164,62 @@ function CreateIuran() {
                   <label for="warga_id" className="form-label">
                     Warga
                   </label>
-                  <select
-                    id="warga_id"
-                    className="form-select"
-                    onChange={(e) => {
-                      setWargaID(e.target.value)
-                      handleGetLatestPeriod(e.target.value)
-                    }}
-                    required
-                  >
-                    <option selected>Pilih Warga</option>
-                    {dataWarga.map((warga) => {
-                      return (
-                        <option value={warga?._id}>
-                          {warga?.address} | {warga?.name}
-                        </option>
-                      )
-                    })}
-                  </select>
+                  <div>
+                    <select
+                      id="warga_id"
+                      className="form-select"
+                      onChange={(e) => {
+                        setWargaID(e.target.value)
+                        handleGetLatestPeriod(e.target.value)
+                      }}
+                      required
+                    >
+                      {params?.id != null ? (
+                        <>
+                          <option selected>Pilih Warga</option>
+                          {filteredOptions.map((warga) => {
+                            return (
+                              <>
+                                <option
+                                  value={warga?._id}
+                                  selected={
+                                    params?.id == warga?._id ? "selected" : ""
+                                  }
+                                >
+                                  {warga?.address} | {warga?.name}
+                                </option>
+                              </>
+                            )
+                          })}
+                        </>
+                      ) : (
+                        <>
+                          <option selected>Pilih Warga</option>
+                          {filteredOptions.map((warga) => {
+                            return (
+                              <option value={warga?._id}>
+                                {warga?.address} | {warga?.name}
+                              </option>
+                            )
+                          })}
+                        </>
+                      )}
+                    </select>
+                    <input
+                      type="text"
+                      placeholder="Cari dengan nama / alamat"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="form-control mt-2"
+                    />
+                  </div>
                 </div>
                 <p>
                   Periode bayar terakhir :{" "}
                   {latestPeriod != null
-                    ? `${FormatDate(latestPeriod)}`
+                    ? latestPeriod != "Tidak ada"
+                      ? FormatDate(latestPeriod)
+                      : latestPeriod
                     : "Pilih warga dahulu"}
                 </p>
                 <div className="mb-3">

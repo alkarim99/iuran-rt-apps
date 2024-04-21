@@ -234,20 +234,46 @@ function IndexIuran() {
                       <td>{FormatCurrency(iuran?.nominal)}</td>
                       <td>{iuran?.payment_method?.toUpperCase()}</td>
                       <td>
-                        <Link
-                          className="btn btn-warning me-1"
-                          to={`/iuran/edit/${iuran?._id}`}
-                        >
-                          <FontAwesomeIcon icon={faPen} />
-                        </Link>
-                        <Link
-                          className="btn btn-danger mx-1"
-                          onClick={() => {
-                            handleDelete(iuran?._id)
-                          }}
-                        >
-                          <FontAwesomeIcon icon={faTrash} />
-                        </Link>
+                        <div class="btn-group">
+                          <button
+                            class="btn btn-primary btn-sm dropdown-toggle"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                          >
+                            Menu
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end" style={{ minWidth: 200 }}>
+                            <li>
+                              <Link
+                                className="text-decoration-none text-black p-2"
+                                to={`/iuran/create/warga/${iuran?.warga?._id}`}
+                              >
+                                <FontAwesomeIcon icon={faPlus} /> Buat
+                                Pembayaran
+                              </Link>
+                            </li>
+                            <li>
+                              <Link
+                                className="text-decoration-none text-black p-2"
+                                to={`/iuran/edit/${iuran?._id}`}
+                              >
+                                <FontAwesomeIcon icon={faPen} /> Edit Pembayaran
+                              </Link>
+                            </li>
+                            <li>
+                              <Link
+                                className="text-decoration-none text-black p-2"
+                                onClick={() => {
+                                  handleDelete(iuran?._id)
+                                }}
+                              >
+                                <FontAwesomeIcon icon={faTrash} /> Hapus
+                                Pembayaran
+                              </Link>
+                            </li>
+                          </ul>
+                        </div>
                       </td>
                     </tr>
                   </>
