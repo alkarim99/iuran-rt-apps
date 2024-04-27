@@ -24,6 +24,7 @@ function IndexIuran() {
   const itemsPerPage = 20
   const [currentPage, setCurrentPage] = React.useState(1)
   const [totalPages, setTotalPages] = React.useState(itemsPerPage)
+  const pagesPerGroup = 5
 
   React.useEffect(() => {
     setIsLoading(true)
@@ -126,15 +127,38 @@ function IndexIuran() {
   }
 
   const handlePreviousPage = () => {
-    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
+    const newGroupStartPage = Math.max(1, currentPage - pagesPerGroup)
+    setCurrentPage(newGroupStartPage)
   }
 
   const handleNextPage = () => {
-    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
+    const newGroupStartPage = Math.min(
+      currentPage + pagesPerGroup,
+      totalPages - pagesPerGroup + 1
+    )
+    setCurrentPage(newGroupStartPage)
+  }
+
+  const handlePageClick = (page) => {
+    setCurrentPage(page)
   }
 
   const getStartingIndex = () => {
     return (currentPage - 1) * itemsPerPage + 1
+  }
+
+  const getPageNumbers = () => {
+    const pageNumbers = []
+    const totalPagesDisplayed = Math.min(
+      totalPages,
+      currentPage + pagesPerGroup - 1
+    )
+
+    for (let i = currentPage; i <= totalPagesDisplayed; i++) {
+      pageNumbers.push(i)
+    }
+
+    return pageNumbers
   }
 
   if (isLoading) {
@@ -305,8 +329,8 @@ function IndexIuran() {
               </tbody>
             </table>
 
-            {/* Pagination */}
-            <nav aria-label="Page navigation example">
+            {/* Compact pagination */}
+            <nav aria-label="Compact Page Navigation" className="mt-3">
               <ul className="pagination justify-content-center">
                 <li
                   className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
@@ -319,18 +343,18 @@ function IndexIuran() {
                     Previous
                   </button>
                 </li>
-                {Array.from({ length: totalPages }, (_, i) => (
+                {getPageNumbers().map((page) => (
                   <li
-                    key={i}
+                    key={page}
                     className={`page-item ${
-                      i + 1 === currentPage ? "active" : ""
+                      page === currentPage ? "active" : ""
                     }`}
                   >
                     <button
                       className="page-link"
-                      onClick={() => setCurrentPage(i + 1)}
+                      onClick={() => handlePageClick(page)}
                     >
-                      {i + 1}
+                      {page}
                     </button>
                   </li>
                 ))}
