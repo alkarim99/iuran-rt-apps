@@ -24,18 +24,23 @@ function IndexWarga() {
   const [sortBy, setSortBy] = React.useState("address")
   const [order, setOrder] = React.useState(1)
 
+  const itemsPerPage = 20
+  const [currentPage, setCurrentPage] = React.useState(1)
+  const [totalPages, setTotalPages] = React.useState(itemsPerPage)
+
   React.useEffect(() => {
     setIsLoading(true)
     if (!state.auth) {
       navigate("/sign-in")
     }
     handleGet()
-  }, [state])
+  }, [state, currentPage])
 
   const handleGet = () => {
     axios
-      .get(`${process.env.REACT_APP_BASE_URL}/wargas`)
+      .get(`${process.env.REACT_APP_BASE_URL}/wargas?page=${currentPage}`)
       .then((response) => {
+        setTotalPages(response?.data?.totalPages)
         setDataWarga(response?.data?.data)
       })
       .catch((error) => {
@@ -131,6 +136,18 @@ function IndexWarga() {
     handleGet()
   }
 
+  const handlePreviousPage = () => {
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
+  }
+
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
+  }
+
+  const getStartingIndex = () => {
+    return (currentPage - 1) * itemsPerPage + 1
+  }
+
   if (isLoading) {
     return (
       <div
@@ -220,10 +237,11 @@ function IndexWarga() {
                 </thead>
                 <tbody>
                   {dataWarga.map((warga, index) => {
+                    const currentIndex = getStartingIndex() + index
                     return (
                       <>
                         <tr>
-                          <th scope="row">{index + 1}</th>
+                          <th scope="row">{currentIndex}</th>
                           <td>{warga?.name}</td>
                           <td>{warga?.address}</td>
                           <td>
@@ -254,6 +272,52 @@ function IndexWarga() {
                   })}
                 </tbody>
               </table>
+              {/* Pagination */}
+              <nav aria-label="Page navigation example">
+                <ul className="pagination justify-content-center">
+                  <li
+                    className={`page-item ${
+                      currentPage === 1 ? "disabled" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={handlePreviousPage}
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </button>
+                  </li>
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <li
+                      key={i}
+                      className={`page-item ${
+                        i + 1 === currentPage ? "active" : ""
+                      }`}
+                    >
+                      <button
+                        className="page-link"
+                        onClick={() => setCurrentPage(i + 1)}
+                      >
+                        {i + 1}
+                      </button>
+                    </li>
+                  ))}
+                  <li
+                    className={`page-item ${
+                      currentPage === totalPages ? "disabled" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={handleNextPage}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                    </button>
+                  </li>
+                </ul>
+              </nav>
             </div>
           </div>
 

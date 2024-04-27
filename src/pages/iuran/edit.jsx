@@ -32,20 +32,8 @@ function EditIuran() {
     }
     setIsLoading(true)
     handleGetWarga()
-    axios
-      .get(`${process.env.REACT_APP_BASE_URL}/payments/${id}`)
-      .then((response) => {
-        setWargaID(response?.data?.data?.warga?._id)
-        setPeriodStart(response?.data?.data?.period_start)
-        setPeriodEnd(response?.data?.data?.period_end)
-        setNominal(response?.data?.data?.nominal)
-        setPaymentMethod(response?.data?.data?.payment_method)
-        setPayAt(response?.data?.data?.pay_at)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-    handleGetLatestPeriod(wargaID)
+    handleGetIuran()
+    handleGetLatestPeriod()
     setIsLoading(false)
   }, [state])
 
@@ -58,8 +46,21 @@ function EditIuran() {
       .catch((error) => {
         console.log(error)
       })
-      .finally(() => {
-        setIsLoading(false)
+  }
+
+  const handleGetIuran = () => {
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}/payments/${id}`)
+      .then((response) => {
+        setWargaID(response?.data?.data?.warga?._id)
+        setPeriodStart(response?.data?.data?.period_start)
+        setPeriodEnd(response?.data?.data?.period_end)
+        setNominal(response?.data?.data?.nominal)
+        setPaymentMethod(response?.data?.data?.payment_method)
+        setPayAt(response?.data?.data?.pay_at)
+      })
+      .catch((error) => {
+        console.log(error)
       })
   }
 
@@ -97,7 +98,7 @@ function EditIuran() {
       })
   }
 
-  const handleGetLatestPeriod = (id) => {
+  const handleGetLatestPeriod = () => {
     axios
       .get(`${process.env.REACT_APP_BASE_URL}/payments/latest/${id}`)
       .then((response) => {
@@ -180,9 +181,7 @@ function EditIuran() {
                       type="date"
                       className="form-control"
                       id="pay_at"
-                      defaultValue={
-                        new Date(payAt).toISOString().split("T")[0]
-                      }
+                      defaultValue={new Date(payAt).toISOString().split("T")[0]}
                       onChange={(e) => setPayAt(e.target.value)}
                       required
                     />

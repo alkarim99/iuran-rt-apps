@@ -21,18 +21,23 @@ function IndexIuran() {
   const [keyword, setKeyword] = React.useState("")
   const [sortBy, setSortBy] = React.useState("")
 
+  const itemsPerPage = 20
+  const [currentPage, setCurrentPage] = React.useState(1)
+  const [totalPages, setTotalPages] = React.useState(itemsPerPage)
+
   React.useEffect(() => {
     setIsLoading(true)
     if (!state.auth) {
       navigate("/sign-in")
     }
     handleGet()
-  }, [state])
+  }, [state, currentPage])
 
   const handleGet = () => {
     axios
-      .get(`${process.env.REACT_APP_BASE_URL}/payments`)
+      .get(`${process.env.REACT_APP_BASE_URL}/payments?page=${currentPage}`)
       .then((response) => {
+        setTotalPages(response?.data?.totalPages)
         setDataIuran(response?.data?.data)
       })
       .catch((error) => {
@@ -120,6 +125,18 @@ function IndexIuran() {
     handleGet()
   }
 
+  const handlePreviousPage = () => {
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
+  }
+
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
+  }
+
+  const getStartingIndex = () => {
+    return (currentPage - 1) * itemsPerPage + 1
+  }
+
   if (isLoading) {
     return (
       <div
@@ -202,85 +219,137 @@ function IndexIuran() {
           </div>
         </div>
 
-        <div className="d-flex justify-content-center">
-          <table className="table" style={{ width: "90%" }}>
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Tanggal Input</th>
-                <th scope="col">Tanggal Bayar</th>
-                <th scope="col">Warga</th>
-                <th scope="col">Periode</th>
-                <th scope="col">Nominal</th>
-                <th scope="col">Metode Pembayaran</th>
-                <th scope="col">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {dataIuran.map((iuran, index) => {
-                return (
-                  <>
-                    <tr>
-                      <th scope="row">{index + 1}</th>
-                      <td>{FormatDate(iuran?.created_at)}</td>
-                      <td>{FormatDate(iuran?.pay_at)}</td>
-                      <td>
-                        {iuran?.warga?.address} | {iuran?.warga?.name}
-                      </td>
-                      <td>
-                        {FormatDate(iuran?.period_start)} -{" "}
-                        {FormatDate(iuran?.period_end)}
-                      </td>
-                      <td>{FormatCurrency(iuran?.nominal)}</td>
-                      <td>{iuran?.payment_method?.toUpperCase()}</td>
-                      <td>
-                        <div class="btn-group">
-                          <button
-                            class="btn btn-primary btn-sm dropdown-toggle"
-                            type="button"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                          >
-                            Menu
-                          </button>
-                          <ul class="dropdown-menu dropdown-menu-end" style={{ minWidth: 200 }}>
-                            <li>
-                              <Link
-                                className="text-decoration-none text-black p-2"
-                                to={`/iuran/create/warga/${iuran?.warga?._id}`}
-                              >
-                                <FontAwesomeIcon icon={faPlus} /> Buat
-                                Pembayaran
-                              </Link>
-                            </li>
-                            <li>
-                              <Link
-                                className="text-decoration-none text-black p-2"
-                                to={`/iuran/edit/${iuran?._id}`}
-                              >
-                                <FontAwesomeIcon icon={faPen} /> Edit Pembayaran
-                              </Link>
-                            </li>
-                            <li>
-                              <Link
-                                className="text-decoration-none text-black p-2"
-                                onClick={() => {
-                                  handleDelete(iuran?._id)
-                                }}
-                              >
-                                <FontAwesomeIcon icon={faTrash} /> Hapus
-                                Pembayaran
-                              </Link>
-                            </li>
-                          </ul>
-                        </div>
-                      </td>
-                    </tr>
-                  </>
-                )
-              })}
-            </tbody>
-          </table>
+        <div className="container d-flex justify-content-center align-items-center flex-column">
+          <div>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Tanggal Input</th>
+                  <th scope="col">Tanggal Bayar</th>
+                  <th scope="col">Warga</th>
+                  <th scope="col">Periode</th>
+                  <th scope="col">Nominal</th>
+                  <th scope="col">Metode Pembayaran</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dataIuran.map((iuran, index) => {
+                  const currentIndex = getStartingIndex() + index
+                  return (
+                    <>
+                      <tr>
+                        <th scope="row">{currentIndex}</th>
+                        <td>{FormatDate(iuran?.created_at)}</td>
+                        <td>{FormatDate(iuran?.pay_at)}</td>
+                        <td>
+                          {iuran?.warga?.address} | {iuran?.warga?.name}
+                        </td>
+                        <td>
+                          {FormatDate(iuran?.period_start)} -{" "}
+                          {FormatDate(iuran?.period_end)}
+                        </td>
+                        <td>{FormatCurrency(iuran?.nominal)}</td>
+                        <td>{iuran?.payment_method?.toUpperCase()}</td>
+                        <td>
+                          <div class="btn-group">
+                            <button
+                              class="btn btn-primary btn-sm dropdown-toggle"
+                              type="button"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                            >
+                              Menu
+                            </button>
+                            <ul
+                              class="dropdown-menu dropdown-menu-end"
+                              style={{ minWidth: 200 }}
+                            >
+                              <li>
+                                <Link
+                                  className="text-decoration-none text-black p-2"
+                                  to={`/iuran/create/warga/${iuran?.warga?._id}`}
+                                >
+                                  <FontAwesomeIcon icon={faPlus} /> Buat
+                                  Pembayaran
+                                </Link>
+                              </li>
+                              <li>
+                                <Link
+                                  className="text-decoration-none text-black p-2"
+                                  to={`/iuran/edit/${iuran?._id}`}
+                                >
+                                  <FontAwesomeIcon icon={faPen} /> Edit
+                                  Pembayaran
+                                </Link>
+                              </li>
+                              <li>
+                                <Link
+                                  className="text-decoration-none text-black p-2"
+                                  onClick={() => {
+                                    handleDelete(iuran?._id)
+                                  }}
+                                >
+                                  <FontAwesomeIcon icon={faTrash} /> Hapus
+                                  Pembayaran
+                                </Link>
+                              </li>
+                            </ul>
+                          </div>
+                        </td>
+                      </tr>
+                    </>
+                  )
+                })}
+              </tbody>
+            </table>
+
+            {/* Pagination */}
+            <nav aria-label="Page navigation example">
+              <ul className="pagination justify-content-center">
+                <li
+                  className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
+                >
+                  <button
+                    className="page-link"
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </button>
+                </li>
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <li
+                    key={i}
+                    className={`page-item ${
+                      i + 1 === currentPage ? "active" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => setCurrentPage(i + 1)}
+                    >
+                      {i + 1}
+                    </button>
+                  </li>
+                ))}
+                <li
+                  className={`page-item ${
+                    currentPage === totalPages ? "disabled" : ""
+                  }`}
+                >
+                  <button
+                    className="page-link"
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          </div>
         </div>
 
         <div
