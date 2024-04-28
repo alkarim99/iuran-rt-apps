@@ -28,6 +28,8 @@ function DetailWarga() {
   const [dataReport, setDataReport] = React.useState([])
   const [isLoading, setIsLoading] = React.useState(false)
 
+  const [sortBy, setSortBy] = React.useState("")
+
   React.useEffect(() => {
     if (!state.auth) {
       navigate("/sign-in")
@@ -116,6 +118,41 @@ function DetailWarga() {
     })
   }
 
+  const handleSearch = () => {
+    setIsLoading(true)
+    axios
+      .get(
+        `${process.env.REACT_APP_BASE_URL}/payments/warga/${id}?sort_by=${sortBy}`
+      )
+      .then((response) => {
+        setDataIuran(response?.data?.data)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+    axios
+      .get(
+        `${process.env.REACT_APP_BASE_URL}/payments/report/${id}?sort_by=${sortBy}`
+      )
+      .then((response) => {
+        setDataReport(response?.data?.reports)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
+  }
+
+  const handleReset = () => {
+    setIsLoading(true)
+    setSortBy("")
+    handleGet()
+    handleGetPayment()
+    handleGetReport()
+  }
+
   if (isLoading) {
     return (
       <div
@@ -168,11 +205,50 @@ function DetailWarga() {
               <FontAwesomeIcon icon={faPlus} />
             </Link>
           </h3>
+
+          <div className="my-4">
+            <form onSubmit={(e) => e.preventDefault()}>
+              <div className="row d-flex align-items-end">
+                <div className="col-3">
+                  <label for="sort_by" className="form-label">
+                    Urutkan berdasarkan
+                  </label>
+                  <select
+                    id="sort_by"
+                    className="form-select"
+                    onChange={(e) => setSortBy(e.target.value)}
+                  >
+                    <option selected>Urutkan</option>
+                    <option value="pay_at">Pembayaran Terbaru</option>
+                    <option value="created_at">Pencatatan Terbaru</option>
+                  </select>
+                </div>
+                <div className="col-3">
+                  <button
+                    className="btn btn-primary py-2 me-2"
+                    type="submit"
+                    onClick={handleSearch}
+                  >
+                    {isLoading ? "Loading..." : "Search"}
+                  </button>
+                  <button
+                    className="btn btn-primary py-2"
+                    type="button"
+                    onClick={handleReset}
+                  >
+                    {isLoading ? "Loading..." : "Reset"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
           <table className="table">
             <thead>
               <tr>
                 <th scope="col">#</th>
-                <th scope="col">Tanggal</th>
+                <th scope="col">Tanggal Input</th>
+                <th scope="col">Tanggal Bayar</th>
                 <th scope="col">Periode</th>
                 <th scope="col">Nominal</th>
                 <th scope="col">Metode Pembayaran</th>
@@ -185,6 +261,7 @@ function DetailWarga() {
                   <>
                     <tr>
                       <th scope="row">{index + 1}</th>
+                      <td>{FormatDate(iuran?.created_at)}</td>
                       <td>{FormatDate(iuran?.pay_at)}</td>
                       <td>
                         {FormatDate(iuran?.period_start)} -{" "}
@@ -220,7 +297,8 @@ function DetailWarga() {
             <thead>
               <tr>
                 <th scope="col">#</th>
-                <th scope="col">Tanggal</th>
+                <th scope="col">Tanggal Input</th>
+                <th scope="col">Tanggal Bayar</th>
                 <th scope="col">Periode</th>
                 <th scope="col">Nominal</th>
               </tr>
@@ -231,6 +309,7 @@ function DetailWarga() {
                   <>
                     <tr>
                       <th scope="row">{index + 1}</th>
+                      <td>{FormatDate(report?.created_at)}</td>
                       <td>{FormatDate(report?.pay_at)}</td>
                       <td>{FormatDate(report?.period)}</td>
                       <td>{FormatCurrency(report?.nominal)}</td>
