@@ -41,7 +41,7 @@ function CreateIuran() {
 
   const handleGetWarga = () => {
     axios
-      .get(`${process.env.REACT_APP_BASE_URL}/wargas`)
+      .get(`${process.env.REACT_APP_BASE_URL}/wargas/option`)
       .then((response) => {
         setDataWarga(response?.data?.data)
         setFilteredOptions(response?.data?.data)
