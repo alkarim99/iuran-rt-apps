@@ -24,7 +24,7 @@ function RincianIuran() {
   const itemsPerPage = 20
   const [currentPage, setCurrentPage] = React.useState(1)
   const [totalPages, setTotalPages] = React.useState(itemsPerPage)
-  const pagesPerGroup = 5
+  const [pagesPerGroup, setPagesPerGroup] = React.useState(0)
 
   const todayDate = new Date()
   const firstDate = new Date(
@@ -51,6 +51,9 @@ function RincianIuran() {
       .then((response) => {
         setTotalPages(response?.data?.totalPages)
         setDataIuran(response?.data?.data)
+        setPagesPerGroup(
+          response?.data?.totalPages > 5 ? 5 : response?.data?.totalPages
+        )
       })
       .catch((error) => {
         console.log(error)
