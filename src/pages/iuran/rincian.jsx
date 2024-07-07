@@ -30,7 +30,7 @@ function RincianIuran() {
   const firstDate = new Date(
     todayDate.getFullYear(),
     todayDate.getUTCMonth(),
-    1
+    15
   )
   const payAtDate = firstDate.toISOString().split("T")[0]
   const [payAt, setPayAt] = React.useState(payAtDate)
