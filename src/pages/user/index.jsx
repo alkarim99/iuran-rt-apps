@@ -1,40 +1,43 @@
-import React from "react"
+import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import axios from "axios"
-import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+
+import Swal from "sweetalert2"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"
+import { getAllUser, deleteUser } from "../../services/UserServices"
 
 function IndexUser() {
   const navigate = useNavigate()
   const state = useSelector((reducer) => reducer.auth)
 
-  const [dataUser, setDataUser] = React.useState([])
-  const [isLoading, setIsLoading] = React.useState(false)
+  const [dataUser, setDataUser] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
 
-  React.useEffect(() => {
-    setIsLoading(true)
+  useEffect(() => {
     if (!state.auth) {
       navigate("/sign-in")
     }
-    handleGet()
+    setIsLoading(true)
+    handleGetUser()
   }, [state])
 
-  const handleGet = () => {
-    axios
-      .get(`${process.env.REACT_APP_BASE_URL}/users`)
-      .then((response) => {
-        setDataUser(response?.data?.data)
+  const handleGetUser = async () => {
+    try {
+      const data = await getAllUser()
+      setDataUser(data)
+    } catch (error) {
+      console.error("Error fetching user data:", error)
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to fetch user data.",
+        icon: "error",
       })
-      .catch((error) => {
-        console.log(error)
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleDelete = (id) => {
@@ -45,22 +48,19 @@ function IndexUser() {
       confirmButtonText: "Delete",
       denyButtonText: `Don't Delete`,
     }).then((result) => {
-      /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         setIsLoading(true)
-        axios
-          .delete(`${process.env.REACT_APP_BASE_URL}/users/${id}`)
+        deleteUser(id)
           .then((response) => {
             Swal.fire({
               title: "Delete Success!",
               text: response?.data?.message,
               icon: "success",
             }).then(() => {
-              handleGet()
+              handleGetUser()
             })
           })
           .catch((error) => {
-            console.log(error)
             Swal.fire({
               title: "Error!",
               text:
@@ -77,34 +77,31 @@ function IndexUser() {
     })
   }
 
-  if (isLoading) {
-    return (
+  return (
+    <>
       <div
-        className="d-flex justify-content-center align-items-center"
+        className="container d-flex p-3 mx-auto flex-column"
         style={{ height: "100vh" }}
       >
-        <div className="spinner-grow text-warning" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    )
-  } else {
-    return (
-      <>
-        <div
-          className="container d-flex p-3 mx-auto flex-column"
-          style={{ height: "100vh" }}
-        >
-          <Navbar />
+        <Navbar />
 
-          <h1>
-            Data User
-            <Link className="btn btn-primary ms-1" to="/user/create">
-              <FontAwesomeIcon icon={faPlus} />
-            </Link>
-          </h1>
+        <h1>
+          Data User
+          <Link className="btn btn-primary ms-1" to="/user/create">
+            <FontAwesomeIcon icon={faPlus} />
+          </Link>
+        </h1>
 
-          <div className="row">
+        <div className="row">
+          {isLoading ? (
+            <div className="col">
+              <div className="d-flex justify-content-center align-items-center">
+                <div className="spinner-grow text-warning" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            </div>
+          ) : (
             <div className="col-6">
               <table className="table">
                 <thead>
@@ -120,7 +117,7 @@ function IndexUser() {
                   {dataUser.map((user, index) => {
                     return (
                       <>
-                        <tr>
+                        <tr key={user?._id}>
                           <th scope="row">{index + 1}</th>
                           <td>{user?.name}</td>
                           <td>{user?.email}</td>
@@ -148,13 +145,13 @@ function IndexUser() {
                 </tbody>
               </table>
             </div>
-          </div>
-
-          <Footer />
+          )}
         </div>
-      </>
-    )
-  }
+
+        <Footer />
+      </div>
+    </>
+  )
 }
 
 export default IndexUser
