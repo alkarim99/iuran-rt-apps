@@ -1,9 +1,10 @@
-import React from "react"
+import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import axios from "axios"
-import Swal from "sweetalert2"
 import { useDispatch, useSelector } from "react-redux"
+
+import Swal from "sweetalert2"
 import { addAuth } from "../store/reducers/auth"
+import { login } from "../services/AuthService"
 
 import "../styles/SignIn.css"
 
@@ -12,23 +13,22 @@ function SignIn() {
   const dispatch = useDispatch()
   const state = useSelector((reducer) => reducer.auth)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (state.auth) {
       navigate("/")
     }
   }, [state])
 
-  const [email, setEmail] = React.useState("")
-  const [password, setPassword] = React.useState("")
-  const [isLoading, setIsLoading] = React.useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleLogin = () => {
     setIsLoading(true)
-    axios
-      .post(`${process.env.REACT_APP_BASE_URL}/auth/login`, {
-        email: email,
-        password: password,
-      })
+    login({
+      email: email,
+      password: password,
+    })
       .then((response) => {
         const token = response?.data?.token
         const userData = response?.data?.data

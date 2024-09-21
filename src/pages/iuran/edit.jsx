@@ -1,117 +1,35 @@
 import React from "react"
-import { useLocation } from "react-router"
-import { Link, useNavigate } from "react-router-dom"
-import axios from "axios"
-import Swal from "sweetalert2"
-import { useSelector } from "react-redux"
+import { Link } from "react-router-dom"
+
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
 import FormatDate from "../../helpers/FormatDate"
+import { useEditPayments } from "../../hooks/useEditPayments"
 
 function EditIuran() {
-  const navigate = useNavigate()
-  const state = useSelector((reducer) => reducer.auth)
-  const location = useLocation()
-  const id = location?.pathname?.split("/")[3]
-
-  const [wargaID, setWargaID] = React.useState("")
-  const [periodStart, setPeriodStart] = React.useState("")
-  const [periodEnd, setPeriodEnd] = React.useState("")
-  const [nominal, setNominal] = React.useState("")
-  const [paymentMethod, setPaymentMethod] = React.useState("")
-  const [payAt, setPayAt] = React.useState("")
-  const [dataWarga, setDataWarga] = React.useState([])
-  const [latestPeriod, setLatestPeriod] = React.useState(null)
-  const [isLoading, setIsLoading] = React.useState(false)
-
-  React.useEffect(() => {
-    if (!state.auth) {
-      navigate("/sign-in")
-    }
-    setIsLoading(true)
-    handleGetWarga()
-    handleGetIuran()
-    handleGetLatestPeriod()
-    setIsLoading(false)
-  }, [state])
-
-  const handleGetWarga = () => {
-    axios
-      .get(`${process.env.REACT_APP_BASE_URL}/wargas`)
-      .then((response) => {
-        setDataWarga(response?.data?.data)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-  }
-
-  const handleGetIuran = () => {
-    axios
-      .get(`${process.env.REACT_APP_BASE_URL}/payments/${id}`)
-      .then((response) => {
-        setWargaID(response?.data?.data?.warga?._id)
-        setPeriodStart(response?.data?.data?.period_start)
-        setPeriodEnd(response?.data?.data?.period_end)
-        setNominal(response?.data?.data?.nominal)
-        setPaymentMethod(response?.data?.data?.payment_method)
-        setPayAt(response?.data?.data?.pay_at)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-  }
-
-  const handleEdit = () => {
-    setIsLoading(true)
-    axios
-      .put(`${process.env.REACT_APP_BASE_URL}/payments`, {
-        id: id,
-        warga_id: wargaID,
-        period_start: periodStart,
-        period_end: periodEnd,
-        nominal: nominal,
-        payment_method: paymentMethod,
-        pay_at: payAt,
-      })
-      .then((response) => {
-        Swal.fire({
-          title: "Update Success!",
-          text: response?.data?.message,
-          icon: "success",
-        }).then(() => {
-          navigate("/iuran")
-        })
-      })
-      .catch((error) => {
-        console.log(error)
-        Swal.fire({
-          title: "Error!",
-          text: error?.response?.data?.message ?? "Something wrong in our App!",
-          icon: "error",
-        })
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
-  }
-
-  const handleGetLatestPeriod = () => {
-    axios
-      .get(`${process.env.REACT_APP_BASE_URL}/payments/latest/${id}`)
-      .then((response) => {
-        if (response?.data?.latest_period != undefined) {
-          setLatestPeriod(response?.data?.latest_period)
-        } else {
-          setLatestPeriod("Tidak ada")
-        }
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-  }
+  const {
+    wargaID,
+    searchTerm,
+    setSearchTerm,
+    filteredOptions,
+    handleGetLatestPeriod,
+    setWargaID,
+    periodStart,
+    setPeriodStart,
+    periodEnd,
+    setPeriodEnd,
+    nominal,
+    setNominal,
+    paymentMethod,
+    setPaymentMethod,
+    payAt,
+    setPayAt,
+    latestPeriod,
+    isLoading,
+    handleEdit,
+  } = useEditPayments()
 
   if (isLoading) {
     return (
@@ -148,23 +66,35 @@ function EditIuran() {
                   <label for="warga_id" className="form-label">
                     Warga
                   </label>
-                  <select
-                    id="warga_id"
-                    class="form-select"
-                    onChange={(e) => setWargaID(e.target.value)}
-                  >
-                    <option selected>Pilih Warga</option>
-                    {dataWarga.map((warga) => {
-                      return (
+                  <div>
+                    <select
+                      id="warga_id"
+                      className="form-select"
+                      onChange={(e) => {
+                        setWargaID(e.target.value)
+                        handleGetLatestPeriod(e.target.value)
+                      }}
+                      required
+                    >
+                      <option selected>Pilih Warga</option>
+                      {filteredOptions.map((warga) => (
                         <option
-                          value={warga?._id}
                           selected={wargaID == warga?._id ? "selected" : ""}
+                          value={warga?._id}
+                          key={warga?._id}
                         >
                           {warga?.address} | {warga?.name}
                         </option>
-                      )
-                    })}
-                  </select>
+                      ))}
+                    </select>
+                    <input
+                      type="text"
+                      placeholder="Cari dengan nama / alamat"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="form-control mt-2"
+                    />
+                  </div>
                 </div>
                 <p>
                   Periode bayar terakhir :{" "}
