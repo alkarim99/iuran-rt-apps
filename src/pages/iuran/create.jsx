@@ -1,7 +1,9 @@
 import React from "react"
 import { Link, useParams } from "react-router-dom"
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+
 import FormatDate from "../../helpers/FormatDate"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
@@ -10,17 +12,11 @@ import { useCreatePayments } from "../../hooks/useCreatePayments"
 function CreateIuran() {
   const params = useParams() // Add this to get route params
   const {
-    wargaID,
     setWargaID,
-    periodStart,
     setPeriodStart,
-    periodEnd,
     setPeriodEnd,
-    nominal,
     setNominal,
-    paymentMethod,
     setPaymentMethod,
-    payAt,
     setPayAt,
     filteredOptions,
     searchTerm,

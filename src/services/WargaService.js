@@ -13,7 +13,7 @@ export const getAllWarga = async (currentPage) => {
 
 export const getWargaOptions = async () => {
   try {
-    const response = await axios.get(`${BASE_URL}/wargas/options`)
+    const response = await axios.get(`${BASE_URL}/wargas/option`)
     return response
   } catch (error) {
     console.error("Failed to fetch warga data:", error)

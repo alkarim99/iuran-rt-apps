@@ -1,12 +1,16 @@
 import React from "react"
 import { Link, useNavigate } from "react-router-dom"
-import axios from "axios"
 import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"
 import FormatDate from "../../helpers/FormatDate"
 import FormatCurrency from "../../helpers/FormatCurrency"
+import {
+  getRincianPayment,
+  deletePayment,
+  searchPaymentsRincian,
+} from "../../services/IuranService"
 
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
@@ -44,10 +48,11 @@ function RincianIuran() {
   }, [state, currentPage])
 
   const handleGet = () => {
-    axios
-      .get(
-        `${process.env.REACT_APP_BASE_URL}/payments/rincian?page=${currentPage}&pay_at=${payAt}`
-      )
+    const payload = {
+      currentPage,
+      payAt,
+    }
+    getRincianPayment(payload)
       .then((response) => {
         setTotalPages(response?.data?.totalPages)
         setDataIuran(response?.data?.data)
@@ -74,8 +79,7 @@ function RincianIuran() {
       /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         setIsLoading(true)
-        axios
-          .delete(`${process.env.REACT_APP_BASE_URL}/payments/${id}`)
+        deletePayment(id)
           .then((response) => {
             Swal.fire({
               title: "Delete Success!",
@@ -105,30 +109,8 @@ function RincianIuran() {
 
   const handleSearch = () => {
     setIsLoading(true)
-    let url = `${process.env.REACT_APP_BASE_URL}/payments/rincian`
-    if (keyword != "") {
-      if (url.includes("?")) {
-        url = url + `&keyword=${keyword}`
-      } else {
-        url = url + `?keyword=${keyword}`
-      }
-    }
-    if (sortBy != "") {
-      if (url.includes("?")) {
-        url = url + `&sort_by=${sortBy}`
-      } else {
-        url = url + `?sort_by=${sortBy}`
-      }
-    }
-    if (payAt != "") {
-      if (url.includes("?")) {
-        url = url + `&pay_at=${payAt}`
-      } else {
-        url = url + `?pay_at=${payAt}`
-      }
-    }
-    axios
-      .get(url)
+    const payload = { keyword, sortBy, payAt }
+    searchPaymentsRincian(payload)
       .then((response) => {
         setDataIuran(response?.data?.data)
       })

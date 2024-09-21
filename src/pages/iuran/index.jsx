@@ -134,19 +134,47 @@ function IndexIuran() {
                     </td>
                     <td>{FormatCurrency(iuran?.nominal)}</td>
                     <td>
-                      <div className="btn-group">
-                        <Link
-                          to={`/iuran/edit/${iuran?._id}`}
-                          className="btn btn-sm btn-warning"
-                        >
-                          <FontAwesomeIcon icon={faPen} /> Edit
-                        </Link>
+                      <div class="btn-group">
                         <button
-                          onClick={() => handleDelete(iuran?._id)}
-                          className="btn btn-sm btn-danger"
+                          class="btn btn-primary btn-sm dropdown-toggle"
+                          type="button"
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false"
                         >
-                          <FontAwesomeIcon icon={faTrash} /> Hapus
+                          Menu
                         </button>
+                        <ul
+                          class="dropdown-menu dropdown-menu-end"
+                          style={{ minWidth: 200 }}
+                        >
+                          <li>
+                            <Link
+                              className="text-decoration-none text-black p-2"
+                              to={`/iuran/create/warga/${iuran?.warga?._id}`}
+                            >
+                              <FontAwesomeIcon icon={faPlus} /> Buat Pembayaran
+                            </Link>
+                          </li>
+                          <li>
+                            <Link
+                              className="text-decoration-none text-black p-2"
+                              to={`/iuran/edit/${iuran?._id}`}
+                            >
+                              <FontAwesomeIcon icon={faPen} /> Edit Pembayaran
+                            </Link>
+                          </li>
+                          <li>
+                            <Link
+                              className="text-decoration-none text-black p-2"
+                              onClick={() => {
+                                handleDelete(iuran?._id)
+                              }}
+                            >
+                              <FontAwesomeIcon icon={faTrash} /> Hapus
+                              Pembayaran
+                            </Link>
+                          </li>
+                        </ul>
                       </div>
                     </td>
                   </tr>
