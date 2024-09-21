@@ -1,4 +1,4 @@
-import React from "react"
+import { useState, useEffect } from "react"
 import { useLocation } from "react-router"
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+import { getWargaByID, updateWarga } from "../../services/WargaService"
 
 function EditWarga() {
   const navigate = useNavigate()
@@ -16,17 +17,20 @@ function EditWarga() {
   const location = useLocation()
   const id = location?.pathname?.split("/")[3]
 
-  const [name, setName] = React.useState("")
-  const [address, setAddress] = React.useState("")
-  const [isLoading, setIsLoading] = React.useState(false)
+  const [name, setName] = useState("")
+  const [address, setAddress] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!state.auth) {
       navigate("/sign-in")
     }
     setIsLoading(true)
-    axios
-      .get(`${process.env.REACT_APP_BASE_URL}/wargas/${id}`)
+    handleGet()
+  }, [state])
+
+  const handleGet = () => {
+    getWargaByID(id)
       .then((response) => {
         setName(response?.data?.data?.name)
         setAddress(response?.data?.data?.address)
@@ -37,16 +41,16 @@ function EditWarga() {
       .finally(() => {
         setIsLoading(false)
       })
-  }, [state])
+  }
 
   const handleEdit = () => {
     setIsLoading(true)
-    axios
-      .patch(`${process.env.REACT_APP_BASE_URL}/wargas`, {
-        id: id,
-        name: name,
-        address: address,
-      })
+    const payload = {
+      id: id,
+      name: name,
+      address: address,
+    }
+    updateWarga(payload)
       .then((response) => {
         Swal.fire({
           title: "Update Success!",

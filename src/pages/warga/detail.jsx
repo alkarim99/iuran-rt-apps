@@ -1,6 +1,5 @@
-import React from "react"
+import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import axios from "axios"
 import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -16,6 +15,12 @@ import FormatCurrency from "../../helpers/FormatCurrency"
 
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
+import { getWargaByID } from "../../services/WargaService"
+import {
+  getPaymentByWargaId,
+  getPaymentReport,
+  deletePayment,
+} from "../../services/IuranService"
 
 function DetailWarga() {
   const navigate = useNavigate()
@@ -23,14 +28,14 @@ function DetailWarga() {
   const location = useLocation()
   const id = location?.pathname?.split("/")[2]
 
-  const [dataWarga, setDataWarga] = React.useState({})
-  const [dataIuran, setDataIuran] = React.useState([])
-  const [dataReport, setDataReport] = React.useState([])
-  const [isLoading, setIsLoading] = React.useState(false)
+  const [dataWarga, setDataWarga] = useState({})
+  const [dataIuran, setDataIuran] = useState([])
+  const [dataReport, setDataReport] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
 
-  const [sortBy, setSortBy] = React.useState("")
+  const [sortBy, setSortBy] = useState("")
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!state.auth) {
       navigate("/sign-in")
     }
@@ -41,8 +46,7 @@ function DetailWarga() {
 
   const handleGet = () => {
     setIsLoading(true)
-    axios
-      .get(`${process.env.REACT_APP_BASE_URL}/wargas/${id}`)
+    getWargaByID(id)
       .then((response) => {
         setDataWarga(response?.data?.data)
       })
@@ -52,8 +56,7 @@ function DetailWarga() {
   }
 
   const handleGetPayment = () => {
-    axios
-      .get(`${process.env.REACT_APP_BASE_URL}/payments/warga/${id}`)
+    getPaymentByWargaId({ id })
       .then((response) => {
         setDataIuran(response?.data?.data)
       })
@@ -63,8 +66,7 @@ function DetailWarga() {
   }
 
   const handleGetReport = () => {
-    axios
-      .get(`${process.env.REACT_APP_BASE_URL}/payments/report/${id}`)
+    getPaymentReport({ id })
       .then((response) => {
         setDataReport(response?.data?.reports)
       })
@@ -87,8 +89,7 @@ function DetailWarga() {
       /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         setIsLoading(true)
-        axios
-          .delete(`${process.env.REACT_APP_BASE_URL}/payments/${id}`)
+        deletePayment(id)
           .then((response) => {
             Swal.fire({
               title: "Delete Success!",
@@ -120,20 +121,14 @@ function DetailWarga() {
 
   const handleSearch = () => {
     setIsLoading(true)
-    axios
-      .get(
-        `${process.env.REACT_APP_BASE_URL}/payments/warga/${id}?sort_by=${sortBy}`
-      )
+    getPaymentByWargaId({ id, sortBy })
       .then((response) => {
         setDataIuran(response?.data?.data)
       })
       .catch((error) => {
         console.log(error)
       })
-    axios
-      .get(
-        `${process.env.REACT_APP_BASE_URL}/payments/report/${id}?sort_by=${sortBy}`
-      )
+    getPaymentReport({ id, sortBy })
       .then((response) => {
         setDataReport(response?.data?.reports)
       })
