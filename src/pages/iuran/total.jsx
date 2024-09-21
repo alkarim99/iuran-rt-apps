@@ -1,4 +1,4 @@
-import React from "react"
+import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import { useSelector } from "react-redux"
@@ -9,6 +9,7 @@ import FormatCurrency from "../../helpers/FormatCurrency"
 import getFirstAndLastDateOfMonth from "../../helpers/FirstAndLastDate"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
+import { totalPayment } from "../../services/IuranService"
 
 function TotalIuran() {
   const navigate = useNavigate()
@@ -19,19 +20,19 @@ function TotalIuran() {
   const currentMonth = currentDate.getMonth() + 1
   const firstAndLastDate = getFirstAndLastDateOfMonth(currentYear, currentMonth)
 
-  const [start, setStart] = React.useState(firstAndLastDate.firstDate)
-  const [end, setEnd] = React.useState(firstAndLastDate.lastDate)
-  const [sortBy, setSortBy] = React.useState("")
-  const [total, setTotal] = React.useState(0)
-  const [dataIuran, setDataIuran] = React.useState([])
-  const [isLoading, setIsLoading] = React.useState(false)
+  const [start, setStart] = useState(firstAndLastDate.firstDate)
+  const [end, setEnd] = useState(firstAndLastDate.lastDate)
+  const [sortBy, setSortBy] = useState("")
+  const [total, setTotal] = useState(0)
+  const [dataIuran, setDataIuran] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
 
   const itemsPerPage = 20
-  const [currentPage, setCurrentPage] = React.useState(1)
-  const [totalPages, setTotalPages] = React.useState(itemsPerPage)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(itemsPerPage)
   const pagesPerGroup = 5
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!state.auth) {
       navigate("/sign-in")
     }
@@ -49,16 +50,8 @@ function TotalIuran() {
 
   const handleSearch = () => {
     setIsLoading(true)
-    let url = `${process.env.REACT_APP_BASE_URL}/payments/total?start=${start}&end=${end}&page=${currentPage}`
-    if (sortBy != "") {
-      if (url.includes("?")) {
-        url = url + `&sort_by=${sortBy}`
-      } else {
-        url = url + `?sort_by=${sortBy}`
-      }
-    }
-    axios
-      .get(url)
+    const payload = { start, end, sortBy, currentPage }
+    totalPayment(payload)
       .then((response) => {
         setTotal(response?.data?.totalIncome)
         setTotalPages(response?.data?.totalPages)

@@ -93,7 +93,6 @@ export const searchPayments = async (data) => {
 export const searchPaymentsRincian = async (data) => {
   try {
     const { keyword, sortBy, payAt } = data
-    console.log(keyword, sortBy, payAt)
     let url = `${BASE_URL}/payments/rincian`
     if (keyword) url += `?keyword=${keyword}`
     if (sortBy)
@@ -145,6 +144,25 @@ export const deletePayment = async (id) => {
     return response
   } catch (error) {
     console.error("Failed to delete payment data:", error)
+    throw error
+  }
+}
+
+export const totalPayment = async (data) => {
+  try {
+    const { start, end, sortBy, currentPage } = data
+    let url = `${BASE_URL}/payments/total?start=${start}&end=${end}&page=${currentPage}`
+    if (sortBy != "") {
+      if (url.includes("?")) {
+        url = url + `&sort_by=${sortBy}`
+      } else {
+        url = url + `?sort_by=${sortBy}`
+      }
+    }
+    const response = await axios.get(url)
+    return response
+  } catch (error) {
+    console.error("Failed to fetch total payment data:", error)
     throw error
   }
 }

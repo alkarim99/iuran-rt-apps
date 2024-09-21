@@ -30,7 +30,7 @@ function IndexWarga() {
 
   const itemsPerPage = 20
   const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(itemsPerPage)
+  const [totalPages, setTotalPages] = useState(1)
 
   useEffect(() => {
     setIsLoading(true)
