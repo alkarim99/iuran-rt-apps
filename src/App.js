@@ -1,28 +1,29 @@
 import "bootstrap/dist/css/bootstrap.css"
 import "bootstrap/dist/js/bootstrap.js"
-
+import React, { useEffect } from "react"
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
-// import store from "./store"
 import { Provider, useSelector } from "react-redux"
-import axios from "axios"
-import React from "react"
-import { store, persistor } from "./store"
 import { PersistGate } from "redux-persist/integration/react"
+import axios from "axios"
+import { store, persistor } from "./store"
 
 // import pages
-import Home from "./pages/Home"
-import SignIn from "./pages/SignIn"
-import IndexWarga from "./pages/warga"
-import CreateWarga from "./pages/warga/create"
-import EditWarga from "./pages/warga/edit"
-import DetailWarga from "./pages/warga/detail"
-import IndexIuran from "./pages/iuran"
-import CreateIuran from "./pages/iuran/create"
-import EditIuran from "./pages/iuran/edit"
-import TotalIuran from "./pages/iuran/total"
-import IndexUser from "./pages/user"
-import CreateUser from "./pages/user/create"
-import EditUser from "./pages/user/edit"
+import {
+  Home,
+  SignIn,
+  IndexWarga,
+  CreateWarga,
+  EditWarga,
+  DetailWarga,
+  IndexIuran,
+  RincianIuran,
+  CreateIuran,
+  EditIuran,
+  TotalIuran,
+  IndexUser,
+  CreateUser,
+  EditUser,
+} from "./pages"
 
 const router = createBrowserRouter([
   {
@@ -52,6 +53,10 @@ const router = createBrowserRouter([
   {
     path: "/iuran",
     element: <IndexIuran />,
+  },
+  {
+    path: "/iuran/rincian",
+    element: <RincianIuran />,
   },
   {
     path: "/iuran/create/warga/:id",
@@ -88,29 +93,31 @@ function App() {
     <div>
       <PersistGate loading={null} persistor={persistor}>
         <Provider store={store}>
-          <RunApp RouterProvider={RouterProvider} router={router} />
+          <RunApp router={router} />
         </Provider>
       </PersistGate>
     </div>
   )
 }
 
-function RunApp({ RouterProvider, router }) {
-  const state = useSelector((reducer) => reducer.auth)
-  React.useEffect(() => {
-    axios.interceptors.request.use(
+function useAxiosAuth(state) {
+  useEffect(() => {
+    const requestInterceptor = axios.interceptors.request.use(
       (config) => {
-        // console.log(state?.token)
-        if (state?.token !== "") {
-          config.headers["Authorization"] = `Bearer ${state?.token}`
+        if (state?.token) {
+          config.headers.Authorization = `Bearer ${state.token}`
         }
         return config
       },
-      (error) => {
-        Promise.reject(error)
-      }
+      (error) => Promise.reject(error)
     )
+    return () => axios.interceptors.request.eject(requestInterceptor)
   }, [state])
+}
+
+function RunApp({ router }) {
+  const state = useSelector((reducer) => reducer.auth)
+  useAxiosAuth(state)
   return <RouterProvider router={router} />
 }
 

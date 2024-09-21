@@ -1,25 +1,25 @@
-import React from "react"
-import { Link, useNavigate } from "react-router-dom"
-import axios from "axios"
-import Swal from "sweetalert2"
+import { useState, useEffect } from "react"
 import { useSelector } from "react-redux"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { Link, useNavigate } from "react-router-dom"
 
+import Swal from "sweetalert2"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+import { createUser } from "../../services/UserServices"
 
 function CreateUser() {
   const navigate = useNavigate()
   const state = useSelector((reducer) => reducer.auth)
 
-  const [name, setName] = React.useState("")
-  const [email, setEmail] = React.useState("")
-  const [password, setPassword] = React.useState("")
-  const [role, setRole] = React.useState("")
-  const [isLoading, setIsLoading] = React.useState(false)
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [role, setRole] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!state.auth) {
       navigate("/sign-in")
     }
@@ -27,13 +27,12 @@ function CreateUser() {
 
   const handleCreate = () => {
     setIsLoading(true)
-    axios
-      .post(`${process.env.REACT_APP_BASE_URL}/users`, {
-        name: name,
-        email: email,
-        password: password,
-        role: role,
-      })
+    createUser({
+      name: name,
+      email: email,
+      password: password,
+      role: role,
+    })
       .then((response) => {
         Swal.fire({
           title: "Create Success!",

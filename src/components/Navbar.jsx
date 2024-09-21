@@ -17,7 +17,9 @@ function Navbar() {
   return (
     <header className="mb-3 py-3">
       <div>
-        <h3 className="float-md-start mb-0">Iuran RT Apps</h3>
+        <h3 className="float-md-start mb-0">
+          Iuran RT Apps [{process.env.REACT_APP_ENV.toUpperCase()}]
+        </h3>
         <nav className="nav nav-masthead justify-content-center float-md-end">
           {state?.auth ? (
             <>
@@ -41,6 +43,13 @@ function Navbar() {
                 to="/iuran"
               >
                 Data Iuran
+              </Link>
+              <Link
+                className="nav-link fw-bold py-1 px-3"
+                aria-current="page"
+                to="/iuran/rincian"
+              >
+                Rincian Iuran
               </Link>
               <Link
                 className="nav-link fw-bold py-1 px-3"
