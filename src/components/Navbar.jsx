@@ -40,17 +40,61 @@ function Navbar() {
               <Link
                 className="nav-link fw-bold py-1 px-3"
                 aria-current="page"
-                to="/iuran"
+                to="/expense"
               >
-                Data Iuran
+                Data Pengeluaran
               </Link>
-              <Link
-                className="nav-link fw-bold py-1 px-3"
-                aria-current="page"
-                to="/iuran/rincian"
-              >
-                Rincian Iuran
-              </Link>
+
+              <div className="nav-item dropdown">
+                <a
+                  className="nav-link dropdown-toggle fw-bold py-1 px-3"
+                  href="#"
+                  id="iuranDropdown"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  Iuran
+                </a>
+                <ul className="dropdown-menu" aria-labelledby="iuranDropdown">
+                  <li>
+                    <Link className="dropdown-item" to="/iuran">
+                      Data Iuran
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className="dropdown-item" to="/iuran/rincian">
+                      Rincian Iuran
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="nav-item dropdown">
+                <a
+                  className="nav-link dropdown-toggle fw-bold py-1 px-3"
+                  href="#"
+                  id="laporanDropdown"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  Laporan
+                </a>
+                <ul className="dropdown-menu" aria-labelledby="laporanDropdown">
+                  <li>
+                    <Link className="dropdown-item" to="/iuran">
+                      Laporan Bu Agus
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className="dropdown-item" to="/iuran">
+                      Laporan Bu Harris
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
               <Link
                 className="nav-link fw-bold py-1 px-3"
                 aria-current="page"

@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react"
 import { useLocation } from "react-router"
-import { Link, useNavigate } from "react-router-dom"
-import axios from "axios"
-import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
+import { Link, useNavigate } from "react-router-dom"
+import Swal from "sweetalert2"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 import Navbar from "../../components/Navbar"

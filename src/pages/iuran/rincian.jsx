@@ -1,4 +1,4 @@
-import React from "react"
+import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
@@ -19,16 +19,16 @@ function RincianIuran() {
   const navigate = useNavigate()
   const state = useSelector((reducer) => reducer.auth)
 
-  const [dataIuran, setDataIuran] = React.useState([])
-  const [isLoading, setIsLoading] = React.useState(false)
+  const [dataIuran, setDataIuran] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
 
-  const [keyword, setKeyword] = React.useState("")
-  const [sortBy, setSortBy] = React.useState("")
+  const [keyword, setKeyword] = useState("")
+  const [sortBy, setSortBy] = useState("")
 
   const itemsPerPage = 20
-  const [currentPage, setCurrentPage] = React.useState(1)
-  const [totalPages, setTotalPages] = React.useState(itemsPerPage)
-  const [pagesPerGroup, setPagesPerGroup] = React.useState(0)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(itemsPerPage)
+  const [pagesPerGroup, setPagesPerGroup] = useState(0)
 
   const todayDate = new Date()
   const firstDate = new Date(
@@ -37,9 +37,9 @@ function RincianIuran() {
     15
   )
   const payAtDate = firstDate.toISOString().split("T")[0]
-  const [payAt, setPayAt] = React.useState(payAtDate)
+  const [payAt, setPayAt] = useState(payAtDate)
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsLoading(true)
     if (!state.auth) {
       navigate("/sign-in")
@@ -113,6 +113,10 @@ function RincianIuran() {
     searchPaymentsRincian(payload)
       .then((response) => {
         setDataIuran(response?.data?.data)
+        setTotalPages(response?.data?.totalPages)
+        setPagesPerGroup(
+          response?.data?.totalPages > 5 ? 5 : response?.data?.totalPages
+        )
       })
       .catch((error) => {
         console.log(error)
@@ -151,6 +155,7 @@ function RincianIuran() {
   }
 
   const getPageNumbers = () => {
+    console.log(totalPages)
     const pageNumbers = []
     const totalPagesDisplayed = Math.min(
       totalPages,

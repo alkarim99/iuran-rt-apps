@@ -23,6 +23,9 @@ import {
   IndexUser,
   CreateUser,
   EditUser,
+  IndexExpense,
+  CreateExpense,
+  EditExpense,
 } from "./pages"
 
 const router = createBrowserRouter([
@@ -85,6 +88,18 @@ const router = createBrowserRouter([
   {
     path: "/user/edit/:id",
     element: <EditUser />,
+  },
+  {
+    path: "/expense",
+    element: <IndexExpense />,
+  },
+  {
+    path: "/expense/create",
+    element: <CreateExpense />,
+  },
+  {
+    path: "/expense/edit/:id",
+    element: <EditExpense />,
   },
 ])
 
