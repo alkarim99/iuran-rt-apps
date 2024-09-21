@@ -1,4 +1,4 @@
-import React from "react"
+import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import Swal from "sweetalert2"
@@ -8,16 +8,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+import { createWarga } from "../../services/WargaService"
 
 function CreateWarga() {
   const navigate = useNavigate()
   const state = useSelector((reducer) => reducer.auth)
 
-  const [name, setName] = React.useState("")
-  const [address, setAddress] = React.useState("")
-  const [isLoading, setIsLoading] = React.useState(false)
+  const [name, setName] = useState("")
+  const [address, setAddress] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!state.auth) {
       navigate("/sign-in")
     }
@@ -25,11 +26,11 @@ function CreateWarga() {
 
   const handleCreate = () => {
     setIsLoading(true)
-    axios
-      .post(`${process.env.REACT_APP_BASE_URL}/wargas`, {
-        name: name,
-        address: address,
-      })
+    const payload = {
+      name: name,
+      address: address,
+    }
+    createWarga(payload)
       .then((response) => {
         Swal.fire({
           title: "Create Success!",

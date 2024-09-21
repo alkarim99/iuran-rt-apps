@@ -1,6 +1,5 @@
-import React from "react"
+import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import axios from "axios"
 import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -12,23 +11,28 @@ import {
 } from "@fortawesome/free-solid-svg-icons"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
+import {
+  getAllWarga,
+  searchWarga,
+  deleteWarga,
+} from "../../services/WargaService"
 
 function IndexWarga() {
   const navigate = useNavigate()
   const state = useSelector((reducer) => reducer.auth)
 
-  const [dataWarga, setDataWarga] = React.useState([])
-  const [isLoading, setIsLoading] = React.useState(false)
+  const [dataWarga, setDataWarga] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
 
-  const [keyword, setKeyword] = React.useState("")
-  const [sortBy, setSortBy] = React.useState("address")
-  const [order, setOrder] = React.useState(1)
+  const [keyword, setKeyword] = useState("")
+  const [sortBy, setSortBy] = useState("address")
+  const [order, setOrder] = useState(1)
 
   const itemsPerPage = 20
-  const [currentPage, setCurrentPage] = React.useState(1)
-  const [totalPages, setTotalPages] = React.useState(itemsPerPage)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(itemsPerPage)
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsLoading(true)
     if (!state.auth) {
       navigate("/sign-in")
@@ -37,8 +41,7 @@ function IndexWarga() {
   }, [state, currentPage])
 
   const handleGet = () => {
-    axios
-      .get(`${process.env.REACT_APP_BASE_URL}/wargas?page=${currentPage}`)
+    getAllWarga(currentPage)
       .then((response) => {
         setTotalPages(response?.data?.totalPages)
         setDataWarga(response?.data?.data)
@@ -62,8 +65,7 @@ function IndexWarga() {
       /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         setIsLoading(true)
-        axios
-          .delete(`${process.env.REACT_APP_BASE_URL}/wargas/${id}`)
+        deleteWarga(id)
           .then((response) => {
             Swal.fire({
               title: "Delete Success!",
@@ -93,30 +95,8 @@ function IndexWarga() {
 
   const handleSearch = () => {
     setIsLoading(true)
-    let url = `${process.env.REACT_APP_BASE_URL}/wargas`
-    if (keyword != "") {
-      if (url.includes("?")) {
-        url = url + `&keyword=${keyword}`
-      } else {
-        url = url + `?keyword=${keyword}`
-      }
-    }
-    if (sortBy != "") {
-      if (url.includes("?")) {
-        url = url + `&sort_by=${sortBy}`
-      } else {
-        url = url + `?sort_by=${sortBy}`
-      }
-    }
-    if (order != "") {
-      if (url.includes("?")) {
-        url = url + `&order=${order}`
-      } else {
-        url = url + `?order=${order}`
-      }
-    }
-    axios
-      .get(url)
+    const payload = { keyword, sortBy, order }
+    searchWarga(payload)
       .then((response) => {
         setDataWarga(response?.data?.data)
       })
@@ -131,7 +111,7 @@ function IndexWarga() {
   const handleReset = () => {
     setIsLoading(true)
     setKeyword("")
-    setSortBy("address")
+    setSortBy("warga.address")
     setOrder(1)
     handleGet()
   }

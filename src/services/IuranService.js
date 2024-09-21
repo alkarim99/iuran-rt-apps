@@ -21,12 +21,42 @@ export const getPaymentByID = async (id) => {
   }
 }
 
+export const getPaymentByWargaId = async (data) => {
+  try {
+    const { id, sortBy } = data
+    let url = `${BASE_URL}/payments/warga/${id}`
+    if (sortBy != "") {
+      url = url + `?sort_by=${sortBy}`
+    }
+    const response = await axios.get(url)
+    return response
+  } catch (error) {
+    console.error("Failed to fetch payment data:", error)
+    throw error
+  }
+}
+
 export const getRincianPayment = async (data) => {
   try {
     const { currentPage, payAt } = data
     const response = await axios.get(
       `${BASE_URL}/payments/rincian?page=${currentPage}&pay_at=${payAt}`
     )
+    return response
+  } catch (error) {
+    console.error("Failed to fetch payment data:", error)
+    throw error
+  }
+}
+
+export const getPaymentReport = async (data) => {
+  try {
+    const { id, sortBy } = data
+    let url = `${BASE_URL}/payments/report/${id}`
+    if (sortBy != "") {
+      url = url + `?sort_by=${sortBy}`
+    }
+    const response = await axios.get(url)
     return response
   } catch (error) {
     console.error("Failed to fetch payment data:", error)
