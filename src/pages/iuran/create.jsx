@@ -12,6 +12,7 @@ import { useCreatePayments } from "../../hooks/useCreatePayments"
 function CreateIuran() {
   const params = useParams() // Add this to get route params
   const {
+    wargaID,
     setWargaID,
     setPeriodStart,
     setPeriodEnd,
@@ -81,7 +82,11 @@ function CreateIuran() {
                   >
                     <option selected>Pilih Warga</option>
                     {filteredOptions.map((warga) => (
-                      <option value={warga?._id} key={warga?._id}>
+                      <option
+                        selected={wargaID == warga?._id ? "selected" : ""}
+                        value={warga?._id}
+                        key={warga?._id}
+                      >
                         {warga?.address} | {warga?.name}
                       </option>
                     ))}
