@@ -166,3 +166,31 @@ export const totalPayment = async (data) => {
     throw error
   }
 }
+
+export const getPaymentByMethod = async (data) => {
+  try {
+    const { pay_at, payment_method } = data
+    let url = `${BASE_URL}/payments/method`
+    if (pay_at != "") {
+      if (url.includes("?")) {
+        url = url + `&pay_at=${pay_at}`
+      } else {
+        url = url + `?pay_at=${pay_at}`
+      }
+    }
+
+    if (payment_method != "") {
+      if (url.includes("?")) {
+        url = url + `&payment_method=${payment_method}`
+      } else {
+        url = url + `?payment_method=${payment_method}`
+      }
+    }
+
+    const response = await axios.get(url)
+    return response
+  } catch (error) {
+    console.error("Failed to fetch payment data:", error)
+    throw error
+  }
+}

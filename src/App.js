@@ -26,6 +26,8 @@ import {
   IndexExpense,
   CreateExpense,
   EditExpense,
+  ReportCash,
+  ReportTransfer,
 } from "./pages"
 
 const router = createBrowserRouter([
@@ -100,6 +102,14 @@ const router = createBrowserRouter([
   {
     path: "/expense/edit/:id",
     element: <EditExpense />,
+  },
+  {
+    path: "/report/cash",
+    element: <ReportCash />,
+  },
+  {
+    path: "/report/transfer",
+    element: <ReportTransfer />,
   },
 ])
 

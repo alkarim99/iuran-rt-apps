@@ -51,6 +51,18 @@ export const getExpenseByID = async (id) => {
   }
 }
 
+export const getExpenseByTransactionAt = async (transaction_at) => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/expense/periode?transaction_at=${transaction_at}`
+    )
+    return response
+  } catch (error) {
+    console.error("Failed to fetch expenses data:", error)
+    throw error
+  }
+}
+
 export const createExpense = async (data) => {
   try {
     const response = await axios.post(`${BASE_URL}/expense`, data)
