@@ -83,12 +83,12 @@ function Navbar() {
                 </a>
                 <ul className="dropdown-menu" aria-labelledby="laporanDropdown">
                   <li>
-                    <Link className="dropdown-item" to="/iuran">
+                    <Link className="dropdown-item" to="/report/cash">
                       Laporan Bu Agus
                     </Link>
                   </li>
                   <li>
-                    <Link className="dropdown-item" to="/iuran">
+                    <Link className="dropdown-item" to="/report/transfer">
                       Laporan Bu Harris
                     </Link>
                   </li>
