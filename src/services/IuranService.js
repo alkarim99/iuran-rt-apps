@@ -130,7 +130,7 @@ export const createPayment = async (data) => {
 
 export const editPayment = async (data) => {
   try {
-    const response = await axios.patch(`${BASE_URL}/payments`, data)
+    const response = await axios.put(`${BASE_URL}/payments`, data)
     return response
   } catch (error) {
     console.error("Failed to edit payment data:", error)
