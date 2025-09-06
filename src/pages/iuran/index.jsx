@@ -41,9 +41,22 @@ function IndexIuran() {
     setCurrentPage(1)
   }
 
-  const handlePageClick = (page) => {
-    setCurrentPage(page)
+  // Helper for pagination range centered on current page
+  const getPaginationRange = (current, total, siblingCount = 2) => {
+    const totalPageNumbers = siblingCount * 2 + 1 // 5 pages total
+    if (total <= totalPageNumbers) {
+      return Array.from({ length: total }, (_, i) => i + 1)
+    }
+    const left = Math.max(current - siblingCount, 1)
+    const right = Math.min(left + totalPageNumbers - 1, total)
+    const rangeStart = Math.max(Math.min(left, total - totalPageNumbers + 1), 1)
+    return Array.from(
+      { length: Math.min(totalPageNumbers, total) },
+      (_, i) => rangeStart + i
+    )
   }
+
+  const paginationRange = getPaginationRange(currentPage, totalPages)
 
   return (
     <>
@@ -134,9 +147,9 @@ function IndexIuran() {
                     </td>
                     <td>{FormatCurrency(iuran?.nominal)}</td>
                     <td>
-                      <div class="btn-group">
+                      <div className="btn-group">
                         <button
-                          class="btn btn-primary btn-sm dropdown-toggle"
+                          className="btn btn-primary btn-sm dropdown-toggle"
                           type="button"
                           data-bs-toggle="dropdown"
                           aria-expanded="false"
@@ -144,7 +157,7 @@ function IndexIuran() {
                           Menu
                         </button>
                         <ul
-                          class="dropdown-menu dropdown-menu-end"
+                          className="dropdown-menu dropdown-menu-end"
                           style={{ minWidth: 200 }}
                         >
                           <li>
@@ -170,8 +183,7 @@ function IndexIuran() {
                                 handleDelete(iuran?._id)
                               }}
                             >
-                              <FontAwesomeIcon icon={faTrash} /> Hapus
-                              Pembayaran
+                              <FontAwesomeIcon icon={faTrash} /> Hapus Pembayaran
                             </Link>
                           </li>
                         </ul>
@@ -185,21 +197,60 @@ function IndexIuran() {
             {/* Pagination */}
             <nav>
               <ul className="pagination">
-                {[...Array(totalPages)].map((_, index) => (
+                {/* Previous group arrow */}
+                <li
+                  className={`page-item ${
+                    currentPage <= 3 ? "disabled" : ""
+                  }`}
+                >
+                  <button
+                    className="page-link"
+                    onClick={() =>
+                      currentPage > 3 &&
+                      setCurrentPage(paginationRange[0] - 1)
+                    }
+                    aria-label="Previous group"
+                  >
+                    Previous
+                  </button>
+                </li>
+
+                {/* Page numbers */}
+                {paginationRange.map((page) => (
                   <li
-                    key={index}
+                    key={page}
                     className={`page-item ${
-                      currentPage === index + 1 ? "active" : ""
+                      currentPage === page ? "active" : ""
                     }`}
                   >
                     <button
                       className="page-link"
-                      onClick={() => handlePageClick(index + 1)}
+                      onClick={() => setCurrentPage(page)}
                     >
-                      {index + 1}
+                      {page}
                     </button>
                   </li>
                 ))}
+
+                {/* Next group arrow */}
+                <li
+                  className={`page-item ${
+                    paginationRange[paginationRange.length - 1] >= totalPages
+                      ? "disabled"
+                      : ""
+                  }`}
+                >
+                  <button
+                    className="page-link"
+                    onClick={() =>
+                      paginationRange[paginationRange.length - 1] < totalPages &&
+                      setCurrentPage(paginationRange[paginationRange.length - 1] + 1)
+                    }
+                    aria-label="Next group"
+                  >
+                    Next
+                  </button>
+                </li>
               </ul>
             </nav>
           </div>

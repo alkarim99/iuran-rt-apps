@@ -29,20 +29,20 @@ function IndexExpense() {
     setIsLoading(true)
     if (!state.auth) {
       navigate("/sign-in")
-      return null
+      return
     }
     handleGet()
-  }, [keyword, sortBy, currentPage, itemsPerPage])
+  }, [keyword, sortBy, currentPage, itemsPerPage]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleGet = () => {
     const payload = { keyword, sortBy, page: currentPage, limit: itemsPerPage }
     getAllExpense(payload)
       .then((response) => {
-        setDataExpense(response?.data?.data)
-        setTotalPages(response?.data?.totalPages)
+        setDataExpense(response?.data?.data || [])
+        setTotalPages(response?.data?.totalPages || 1)
       })
       .catch((error) => {
-        console.log(error)
+        console.error(error)
       })
       .finally(() => {
         setIsLoading(false)
@@ -53,11 +53,10 @@ function IndexExpense() {
     setIsLoading(true)
     setKeyword("")
     setSortBy("transaction_at")
-    handleGet()
+    setCurrentPage(1)
   }
 
   const handleDelete = (id) => {
-    setIsLoading(true)
     Swal.fire({
       title: "Do you want to delete this data?",
       showDenyButton: true,
@@ -65,7 +64,6 @@ function IndexExpense() {
       confirmButtonText: "Delete",
       denyButtonText: `Don't Delete`,
     }).then((result) => {
-      /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         setIsLoading(true)
         deleteExpense(id)
@@ -79,7 +77,7 @@ function IndexExpense() {
             })
           })
           .catch((error) => {
-            console.log(error)
+            console.error(error)
             Swal.fire({
               title: "Error!",
               text:
@@ -91,7 +89,7 @@ function IndexExpense() {
             setIsLoading(false)
           })
       } else if (result.isDenied) {
-        Swal.fire("Warga are not deleted", "", "info")
+        Swal.fire("Data was not deleted", "", "info")
       }
     })
   }
@@ -99,6 +97,23 @@ function IndexExpense() {
   const handlePageClick = (page) => {
     setCurrentPage(page)
   }
+
+  // Helper to get pagination page numbers centered on currentPage
+  const getPaginationRange = (current, total, siblingCount = 2) => {
+    const totalPageNumbers = siblingCount * 2 + 1 // 5 pages total
+    if (total <= totalPageNumbers) {
+      return Array.from({ length: total }, (_, i) => i + 1)
+    }
+    const left = Math.max(current - siblingCount, 1)
+    const right = Math.min(left + totalPageNumbers - 1, total)
+    const rangeStart = Math.max(Math.min(left, total - totalPageNumbers + 1), 1)
+    return Array.from(
+      { length: Math.min(totalPageNumbers, total) },
+      (_, i) => rangeStart + i
+    )
+  }
+
+  const paginationRange = getPaginationRange(currentPage, totalPages)
 
   return (
     <>
@@ -182,9 +197,9 @@ function IndexExpense() {
                     <td>{expense?.description}</td>
                     <td>{FormatCurrency(expense?.nominal)}</td>
                     <td>
-                      <div class="btn-group">
+                      <div className="btn-group">
                         <button
-                          class="btn btn-primary btn-sm dropdown-toggle"
+                          className="btn btn-primary btn-sm dropdown-toggle"
                           type="button"
                           data-bs-toggle="dropdown"
                           aria-expanded="false"
@@ -192,7 +207,7 @@ function IndexExpense() {
                           Menu
                         </button>
                         <ul
-                          class="dropdown-menu dropdown-menu-end"
+                          className="dropdown-menu dropdown-menu-end"
                           style={{ minWidth: 200 }}
                         >
                           <li>
@@ -210,8 +225,7 @@ function IndexExpense() {
                                 handleDelete(expense?._id)
                               }}
                             >
-                              <FontAwesomeIcon icon={faTrash} /> Hapus
-                              Pengeluaran
+                              <FontAwesomeIcon icon={faTrash} /> Hapus Pengeluaran
                             </Link>
                           </li>
                         </ul>
@@ -225,21 +239,60 @@ function IndexExpense() {
             {/* Pagination */}
             <nav>
               <ul className="pagination">
-                {[...Array(totalPages)].map((_, index) => (
+                {/* Previous group arrow */}
+                <li
+                  className={`page-item ${
+                    currentPage <= 3 ? "disabled" : ""
+                  }`}
+                >
+                  <button
+                    className="page-link"
+                    onClick={() =>
+                      currentPage > 3 &&
+                      setCurrentPage(paginationRange[0] - 1)
+                    }
+                    aria-label="Previous group"
+                  >
+                    Previous
+                  </button>
+                </li>
+
+                {/* Page numbers */}
+                {paginationRange.map((page) => (
                   <li
-                    key={index}
+                    key={page}
                     className={`page-item ${
-                      currentPage === index + 1 ? "active" : ""
+                      currentPage === page ? "active" : ""
                     }`}
                   >
                     <button
                       className="page-link"
-                      onClick={() => handlePageClick(index + 1)}
+                      onClick={() => handlePageClick(page)}
                     >
-                      {index + 1}
+                      {page}
                     </button>
                   </li>
                 ))}
+
+                {/* Next group arrow */}
+                <li
+                  className={`page-item ${
+                    paginationRange[paginationRange.length - 1] >= totalPages
+                      ? "disabled"
+                      : ""
+                  }`}
+                >
+                  <button
+                    className="page-link"
+                    onClick={() =>
+                      paginationRange[paginationRange.length - 1] < totalPages &&
+                      setCurrentPage(paginationRange[paginationRange.length - 1] + 1)
+                    }
+                    aria-label="Next group"
+                  >
+                    Next
+                  </button>
+                </li>
               </ul>
             </nav>
           </div>
