@@ -12,7 +12,7 @@ export const usePayments = (currentPage, itemsPerPage, keyword, sortBy) => {
   const fetchPayments = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await getAllPayments(currentPage);
+      const response = await getAllPayments(currentPage, itemsPerPage);
       setTotalPages(response?.data?.totalPages);
       setDataIuran(response?.data?.data);
     } catch (error) {
@@ -20,7 +20,7 @@ export const usePayments = (currentPage, itemsPerPage, keyword, sortBy) => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage]);
+  }, [currentPage, itemsPerPage]);
 
   useEffect(() => {
     if (!keyword && !sortBy) {
@@ -29,8 +29,14 @@ export const usePayments = (currentPage, itemsPerPage, keyword, sortBy) => {
       const searchAndSortPayments = async () => {
         setIsLoading(true);
         try {
-          const response = await searchPayments({ keyword, sortBy });
+          const response = await searchPayments({
+            keyword,
+            sortBy,
+            page: currentPage,
+            limit: itemsPerPage,
+          });
           setDataIuran(response?.data?.data);
+          setTotalPages(response?.data?.totalPages);
         } catch (error) {
           console.error(error);
         } finally {
@@ -39,7 +45,7 @@ export const usePayments = (currentPage, itemsPerPage, keyword, sortBy) => {
       };
       searchAndSortPayments();
     }
-  }, [fetchPayments, keyword, sortBy]);
+  }, [fetchPayments, keyword, sortBy, currentPage, itemsPerPage]);
 
   // Now fetchPayments can be reused in handleDelete
   const handleDelete = async (id) => {

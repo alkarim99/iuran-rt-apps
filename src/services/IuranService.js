@@ -1,9 +1,11 @@
 import axios from "axios"
 import { BASE_URL } from "./config"
 
-export const getAllPayments = async (currentPage) => {
+export const getAllPayments = async (currentPage, limit) => {
   try {
-    const response = await axios.get(`${BASE_URL}/payments?page=${currentPage}`)
+    const response = await axios.get(
+      `${BASE_URL}/payments?page=${currentPage}&limit=${limit}`
+    )
     return response
   } catch (error) {
     console.error("Failed to fetch payments data:", error)
@@ -66,22 +68,19 @@ export const getPaymentReport = async (data) => {
 
 export const searchPayments = async (data) => {
   try {
-    const { keyword, sortBy } = data
+    const { keyword, sortBy, page, limit } = data
     let url = `${BASE_URL}/payments`
-    if (keyword != "") {
-      if (url.includes("?")) {
-        url = url + `&keyword=${keyword}`
-      } else {
-        url = url + `?keyword=${keyword}`
-      }
+    const params = []
+
+    if (keyword) params.push(`keyword=${keyword}`)
+    if (sortBy) params.push(`sort_by=${sortBy}`)
+    if (page) params.push(`page=${page}`)
+    if (limit) params.push(`limit=${limit}`)
+
+    if (params.length > 0) {
+      url += `?${params.join("&")}`
     }
-    if (sortBy != "") {
-      if (url.includes("?")) {
-        url = url + `&sort_by=${sortBy}`
-      } else {
-        url = url + `?sort_by=${sortBy}`
-      }
-    }
+
     const response = await axios.get(url)
     return response
   } catch (error) {
