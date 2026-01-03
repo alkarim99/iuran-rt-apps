@@ -14,10 +14,15 @@ function CreateIuran() {
   const {
     wargaID,
     setWargaID,
+    periodStart,
     setPeriodStart,
+    periodEnd,
     setPeriodEnd,
+    nominal,
     setNominal,
+    paymentMethod,
     setPaymentMethod,
+    payAt,
     setPayAt,
     filteredOptions,
     searchTerm,
@@ -74,16 +79,16 @@ function CreateIuran() {
                   <select
                     id="warga_id"
                     className="form-select"
+                    value={wargaID}
                     onChange={(e) => {
                       setWargaID(e.target.value)
                       handleGetLatestPeriod(e.target.value)
                     }}
                     required
                   >
-                    <option selected>Pilih Warga</option>
+                    <option value="">Pilih Warga</option>
                     {filteredOptions.map((warga) => (
                       <option
-                        selected={wargaID == warga?._id ? "selected" : ""}
                         value={warga?._id}
                         key={warga?._id}
                       >
@@ -116,6 +121,7 @@ function CreateIuran() {
                   type="date"
                   className="form-control"
                   id="pay_at"
+                  value={payAt}
                   onChange={(e) => setPayAt(e.target.value)}
                   required
                 />
@@ -128,6 +134,7 @@ function CreateIuran() {
                   type="date"
                   className="form-control"
                   id="period_start"
+                  value={periodStart}
                   onChange={(e) => setPeriodStart(e.target.value)}
                   required
                 />
@@ -140,6 +147,7 @@ function CreateIuran() {
                   type="date"
                   className="form-control"
                   id="period_end"
+                  value={periodEnd}
                   onChange={(e) => setPeriodEnd(e.target.value)}
                   required
                 />
@@ -152,6 +160,7 @@ function CreateIuran() {
                   type="number"
                   className="form-control"
                   id="nominal"
+                  value={nominal}
                   onChange={(e) => setNominal(e.target.value)}
                   required
                 />
@@ -163,10 +172,11 @@ function CreateIuran() {
                 <select
                   id="payment_method"
                   className="form-select"
+                  value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value)}
                   required
                 >
-                  <option selected>Pilih Metode Pembayaran</option>
+                  <option value="">Pilih Metode Pembayaran</option>
                   <option value="cash">Cash</option>
                   <option value="transfer">Transfer</option>
                 </select>
