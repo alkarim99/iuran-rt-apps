@@ -65,7 +65,7 @@ function CreateIuran() {
 
         <div className="row">
           <div className="col-6">
-            <form onSubmit={(e) => e.preventDefault()}>
+            <form onSubmit={handleCreate}>
               <div className="mb-3">
                 <label for="warga_id" className="form-label">
                   Warga
@@ -174,7 +174,6 @@ function CreateIuran() {
               <button
                 className="btn btn-primary py-2"
                 type="submit"
-                onClick={handleCreate}
               >
                 {isLoading ? "Loading..." : "Submit"}
               </button>
