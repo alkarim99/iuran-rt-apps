@@ -76,7 +76,8 @@ export const useCreatePayments = () => {
       })
   }
 
-  const handleCreate = () => {
+  const handleCreate = (e) => {
+    e.preventDefault()
     setIsLoading(true)
     const payload = {
       warga_id: wargaID,
