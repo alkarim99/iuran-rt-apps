@@ -27,7 +27,7 @@ export const getPaymentByWargaId = async (data) => {
   try {
     const { id, sortBy } = data;
     let url = `${BASE_URL}/payments/warga/${id}`;
-    if (sortBy != "") {
+    if (sortBy !== "") {
       url = url + `?sort_by=${sortBy}`;
     }
     const response = await axios.get(url);
@@ -55,7 +55,7 @@ export const getPaymentReport = async (data) => {
   try {
     const { id, sortBy } = data;
     let url = `${BASE_URL}/payments/report/${id}`;
-    if (sortBy != "") {
+    if (sortBy !== "") {
       url = url + `?sort_by=${sortBy}`;
     }
     const response = await axios.get(url);
@@ -151,7 +151,7 @@ export const totalPayment = async (data) => {
   try {
     const { start, end, sortBy, currentPage } = data;
     let url = `${BASE_URL}/payments/total?start=${start}&end=${end}&page=${currentPage}`;
-    if (sortBy != "") {
+    if (sortBy !== "") {
       if (url.includes("?")) {
         url = url + `&sort_by=${sortBy}`;
       } else {
@@ -170,7 +170,7 @@ export const getPaymentByMethod = async (data) => {
   try {
     const { pay_at, payment_method } = data;
     let url = `${BASE_URL}/payments/method`;
-    if (pay_at != "") {
+    if (pay_at !== "") {
       if (url.includes("?")) {
         url = url + `&pay_at=${pay_at}`;
       } else {
@@ -178,7 +178,7 @@ export const getPaymentByMethod = async (data) => {
       }
     }
 
-    if (payment_method != "") {
+    if (payment_method !== "") {
       if (url.includes("?")) {
         url = url + `&payment_method=${payment_method}`;
       } else {

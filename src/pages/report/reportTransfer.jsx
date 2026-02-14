@@ -21,7 +21,7 @@ function ReportTransfer() {
   )
   const payAtDate = firstDate.toISOString().split("T")[0]
   const [payAt, setPayAt] = useState(payAtDate)
-  const [paymentMethod, setPaymentMethod] = useState("transfer")
+  const [paymentMethod] = useState("transfer")
 
   const [total, setTotal] = useState(0)
   const [dataIuran, setDataIuran] = useState([])
@@ -88,7 +88,7 @@ function ReportTransfer() {
             </div>
           </div>
         </form>
-        {total != 0 ? (
+        {total !== 0 ? (
           <>
             <p className="my-3">
               Periode {FormatDate(payAt)} <br /> Total = {FormatCurrency(total)}

@@ -22,7 +22,7 @@ function ReportCash() {
   )
   const payAtDate = firstDate.toISOString().split("T")[0]
   const [payAt, setPayAt] = useState(payAtDate)
-  const [paymentMethod, setPaymentMethod] = useState("cash")
+  const [paymentMethod] = useState("cash")
 
   const [total, setTotal] = useState(0)
   const [totalExpense, setTotalExpense] = useState(0)
@@ -104,7 +104,7 @@ function ReportCash() {
 
         <div className="row">
           <div className="col">
-            {total != 0 ? (
+            {total !== 0 ? (
               <>
                 <p className="my-3">
                   Periode {FormatDate(payAt)} <br /> Total Pemasukan ={" "}
@@ -156,7 +156,7 @@ function ReportCash() {
             </div>
           </div>
           <div className="col">
-            {totalExpense != 0 ? (
+            {totalExpense !== 0 ? (
               <>
                 <br />
                 <p className="my-3">

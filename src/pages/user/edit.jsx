@@ -53,7 +53,7 @@ function EditUser() {
       email: email,
       role: role,
     }
-    if (password != "") {
+    if (password !== "") {
       payload.password = password
     }
     editUser(payload)
@@ -145,13 +145,13 @@ function EditUser() {
                   <option selected>Pilih Role User</option>
                   <option
                     value="admin"
-                    selected={role == "admin" ? "selected" : ""}
+                    selected={role === "admin" ? "selected" : ""}
                   >
                     Admin
                   </option>
                   <option
                     value="user"
-                    selected={role == "user" ? "selected" : ""}
+                    selected={role === "user" ? "selected" : ""}
                   >
                     User
                   </option>

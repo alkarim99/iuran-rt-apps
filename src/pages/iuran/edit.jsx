@@ -79,7 +79,7 @@ function EditIuran() {
                       <option selected>Pilih Warga</option>
                       {filteredOptions.map((warga) => (
                         <option
-                          selected={wargaID == warga?._id ? "selected" : ""}
+                          selected={wargaID === warga?._id ? "selected" : ""}
                           value={warga?._id}
                           key={warga?._id}
                         >
@@ -102,7 +102,7 @@ function EditIuran() {
                     ? `${FormatDate(latestPeriod)}`
                     : "Pilih warga dahulu"}
                 </p>
-                {payAt != "" ? (
+                {payAt !== "" ? (
                   <div className="mb-3">
                     <label for="pay_at" className="form-label">
                       Tanggal Bayar
@@ -119,7 +119,7 @@ function EditIuran() {
                 ) : (
                   <></>
                 )}
-                {periodStart != "" ? (
+                {periodStart !== "" ? (
                   <div className="mb-3">
                     <label for="period_start" className="form-label">
                       Period Mulai
@@ -137,7 +137,7 @@ function EditIuran() {
                 ) : (
                   <></>
                 )}
-                {periodEnd != "" ? (
+                {periodEnd !== "" ? (
                   <div className="mb-3">
                     <label for="period_end" className="form-label">
                       Period Akhir
@@ -179,13 +179,13 @@ function EditIuran() {
                     <option selected>Pilih Metode Pembayaran</option>
                     <option
                       value="cash"
-                      selected={paymentMethod == "cash" ? "selected" : ""}
+                      selected={paymentMethod === "cash" ? "selected" : ""}
                     >
                       Cash
                     </option>
                     <option
                       value="transfer"
-                      selected={paymentMethod == "transfer" ? "selected" : ""}
+                      selected={paymentMethod === "transfer" ? "selected" : ""}
                     >
                       Transfer
                     </option>
