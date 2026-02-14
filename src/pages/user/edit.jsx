@@ -8,7 +8,7 @@ import Footer from "../../components/Footer"
 import { useSelector } from "react-redux"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
-import { getUserByID, editUser } from "../../services/UserServices"
+import { getUserByID, editUser } from "../../services/UserService"
 
 function EditUser() {
   const navigate = useNavigate()

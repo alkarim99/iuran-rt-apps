@@ -7,7 +7,7 @@ import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
-import { createUser } from "../../services/UserServices"
+import { createUser } from "../../services/UserService"
 
 function CreateUser() {
   const navigate = useNavigate()

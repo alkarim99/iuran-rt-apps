@@ -15,6 +15,7 @@ import FormatCurrency from "../../helpers/FormatCurrency"
 
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
+import PrintButton from "../../components/PrintButton"
 import { getWargaByID } from "../../services/WargaService"
 import {
   getPaymentByWargaId,
@@ -177,10 +178,16 @@ function DetailWarga() {
           <div className="mb-3">
             <h3>
               Detail Warga
-              <Link className="btn btn-warning mx-1" to={`/warga/edit/${id}`}>
+              <Link className="btn btn-warning mx-1 no-print" to={`/warga/edit/${id}`}>
                 <FontAwesomeIcon icon={faPen} />
               </Link>
+              <PrintButton />
             </h3>
+
+            <div className="print-header">
+              <h2>Detail Iuran Warga</h2>
+              <p>{dataWarga?.name} — {dataWarga?.address}</p>
+            </div>
             <div className="row">
               <div className="col-2">Name</div>
               <div className="col">: {dataWarga?.name}</div>

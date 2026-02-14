@@ -7,6 +7,7 @@ import FormatDate from "../../helpers/FormatDate"
 import FormatCurrency from "../../helpers/FormatCurrency"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
+import PrintButton from "../../components/PrintButton"
 import { getPaymentByMethod } from "../../services/IuranService"
 
 function ReportTransfer() {
@@ -56,10 +57,16 @@ function ReportTransfer() {
         style={{ height: "100vh" }}
       >
         <Navbar />
-        <div className="mb-3">
+        <div className="mb-3 no-print">
           <Link className="btn btn-primary me-1" to="/iuran">
             <FontAwesomeIcon icon={faArrowLeft} />
           </Link>
+          <PrintButton label="Cetak Laporan Transfer" />
+        </div>
+
+        <div className="print-header">
+          <h2>Laporan Penerimaan Transfer</h2>
+          <p>Periode: {FormatDate(payAt)}</p>
         </div>
         <form onSubmit={(e) => e.preventDefault()}>
           <div className="row d-flex align-items-end">

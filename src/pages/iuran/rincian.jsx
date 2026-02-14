@@ -14,6 +14,7 @@ import {
 
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
+import PrintButton from "../../components/PrintButton"
 
 function RincianIuran() {
   const navigate = useNavigate()
@@ -191,13 +192,19 @@ function RincianIuran() {
 
           <h1>
             Rincian Iuran
-            <Link className="btn btn-primary ms-1" to="/iuran/create">
+            <Link className="btn btn-primary ms-1 no-print" to="/iuran/create">
               <FontAwesomeIcon icon={faPlus} />
             </Link>
-            <Link className="btn btn-primary ms-1" to="/iuran/total">
+            <Link className="btn btn-primary ms-1 no-print" to="/iuran/total">
               Total
             </Link>
+            <PrintButton />
           </h1>
+
+          <div className="print-header">
+            <h2>Rincian Iuran RT</h2>
+            <p>Periode: {FormatDate(payAt).split(" ")[1] + " " + FormatDate(payAt).split(" ")[2]}</p>
+          </div>
 
           <div className="my-4">
             <form onSubmit={(e) => e.preventDefault()}>

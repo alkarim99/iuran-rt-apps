@@ -1,11 +1,14 @@
-import "bootstrap/dist/css/bootstrap.css"
-import "bootstrap/dist/js/bootstrap.js"
-import React, { useEffect } from "react"
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
-import { Provider, useSelector } from "react-redux"
-import { PersistGate } from "redux-persist/integration/react"
-import axios from "axios"
-import { store, persistor } from "./store"
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap/dist/js/bootstrap.js";
+import "./styles/print.css";
+import React from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import axios from "axios";
+import { store, persistor } from "./store";
+
+import PrivateRoute from "./components/PrivateRoute";
 
 // import pages
 import {
@@ -28,7 +31,7 @@ import {
   EditExpense,
   ReportCash,
   ReportTransfer,
-} from "./pages"
+} from "./pages";
 
 const router = createBrowserRouter([
   {
@@ -41,109 +44,174 @@ const router = createBrowserRouter([
   },
   {
     path: "/warga",
-    element: <IndexWarga />,
+    element: (
+      <PrivateRoute>
+        <IndexWarga />
+      </PrivateRoute>
+    ),
   },
   {
     path: "/warga/create",
-    element: <CreateWarga />,
+    element: (
+      <PrivateRoute>
+        <CreateWarga />
+      </PrivateRoute>
+    ),
   },
   {
     path: "/warga/edit/:id",
-    element: <EditWarga />,
+    element: (
+      <PrivateRoute>
+        <EditWarga />
+      </PrivateRoute>
+    ),
   },
   {
     path: "/warga/:id",
-    element: <DetailWarga />,
+    element: (
+      <PrivateRoute>
+        <DetailWarga />
+      </PrivateRoute>
+    ),
   },
   {
     path: "/iuran",
-    element: <IndexIuran />,
+    element: (
+      <PrivateRoute>
+        <IndexIuran />
+      </PrivateRoute>
+    ),
   },
   {
     path: "/iuran/rincian",
-    element: <RincianIuran />,
+    element: (
+      <PrivateRoute>
+        <RincianIuran />
+      </PrivateRoute>
+    ),
   },
   {
     path: "/iuran/create/warga/:id",
-    element: <CreateIuran />,
+    element: (
+      <PrivateRoute>
+        <CreateIuran />
+      </PrivateRoute>
+    ),
   },
   {
     path: "/iuran/create",
-    element: <CreateIuran />,
+    element: (
+      <PrivateRoute>
+        <CreateIuran />
+      </PrivateRoute>
+    ),
   },
   {
     path: "/iuran/edit/:id",
-    element: <EditIuran />,
+    element: (
+      <PrivateRoute>
+        <EditIuran />
+      </PrivateRoute>
+    ),
   },
   {
     path: "/iuran/total",
-    element: <TotalIuran />,
+    element: (
+      <PrivateRoute>
+        <TotalIuran />
+      </PrivateRoute>
+    ),
   },
   {
     path: "/user",
-    element: <IndexUser />,
+    element: (
+      <PrivateRoute>
+        <IndexUser />
+      </PrivateRoute>
+    ),
   },
   {
     path: "/user/create",
-    element: <CreateUser />,
+    element: (
+      <PrivateRoute>
+        <CreateUser />
+      </PrivateRoute>
+    ),
   },
   {
     path: "/user/edit/:id",
-    element: <EditUser />,
+    element: (
+      <PrivateRoute>
+        <EditUser />
+      </PrivateRoute>
+    ),
   },
   {
     path: "/expense",
-    element: <IndexExpense />,
+    element: (
+      <PrivateRoute>
+        <IndexExpense />
+      </PrivateRoute>
+    ),
   },
   {
     path: "/expense/create",
-    element: <CreateExpense />,
+    element: (
+      <PrivateRoute>
+        <CreateExpense />
+      </PrivateRoute>
+    ),
   },
   {
     path: "/expense/edit/:id",
-    element: <EditExpense />,
+    element: (
+      <PrivateRoute>
+        <EditExpense />
+      </PrivateRoute>
+    ),
   },
   {
     path: "/report/cash",
-    element: <ReportCash />,
+    element: (
+      <PrivateRoute>
+        <ReportCash />
+      </PrivateRoute>
+    ),
   },
   {
     path: "/report/transfer",
-    element: <ReportTransfer />,
+    element: (
+      <PrivateRoute>
+        <ReportTransfer />
+      </PrivateRoute>
+    ),
   },
-])
+]);
 
 function App() {
   return (
     <div>
-      <PersistGate loading={null} persistor={persistor}>
-        <Provider store={store}>
-          <RunApp router={router} />
-        </Provider>
-      </PersistGate>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <RouterProvider router={router} />
+        </PersistGate>
+      </Provider>
     </div>
-  )
+  );
 }
 
-function useAxiosAuth(state) {
-  useEffect(() => {
-    const requestInterceptor = axios.interceptors.request.use(
-      (config) => {
-        if (state?.token) {
-          config.headers.Authorization = `Bearer ${state.token}`
-        }
-        return config
-      },
-      (error) => Promise.reject(error)
-    )
-    return () => axios.interceptors.request.eject(requestInterceptor)
-  }, [state])
-}
+// Register axios interceptor at module level — runs synchronously before any
+// component renders, so the token is always attached even on page refresh.
+// Reads directly from the Redux store (which is rehydrated by redux-persist).
+axios.interceptors.request.use(
+  (config) => {
+    const state = store.getState()?.auth;
+    if (state?.token) {
+      config.headers.Authorization = `Bearer ${state.token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
 
-function RunApp({ router }) {
-  const state = useSelector((reducer) => reducer.auth)
-  useAxiosAuth(state)
-  return <RouterProvider router={router} />
-}
-
-export default App
+export default App;
