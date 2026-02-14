@@ -1,11 +1,11 @@
-import "bootstrap/dist/css/bootstrap.css"
-import "bootstrap/dist/js/bootstrap.js"
-import React, { useEffect } from "react"
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
-import { Provider, useSelector } from "react-redux"
-import { PersistGate } from "redux-persist/integration/react"
-import axios from "axios"
-import { store, persistor } from "./store"
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap/dist/js/bootstrap.js";
+import React, { useEffect } from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Provider, useSelector } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import axios from "axios";
+import { store, persistor } from "./store";
 
 // import pages
 import {
@@ -28,7 +28,8 @@ import {
   EditExpense,
   ReportCash,
   ReportTransfer,
-} from "./pages"
+  ReportPricingTier,
+} from "./pages";
 
 const router = createBrowserRouter([
   {
@@ -111,7 +112,11 @@ const router = createBrowserRouter([
     path: "/report/transfer",
     element: <ReportTransfer />,
   },
-])
+  {
+    path: "/report/pricing-tier",
+    element: <ReportPricingTier />,
+  },
+]);
 
 function App() {
   return (
@@ -122,7 +127,7 @@ function App() {
         </Provider>
       </PersistGate>
     </div>
-  )
+  );
 }
 
 function useAxiosAuth(state) {
@@ -130,20 +135,20 @@ function useAxiosAuth(state) {
     const requestInterceptor = axios.interceptors.request.use(
       (config) => {
         if (state?.token) {
-          config.headers.Authorization = `Bearer ${state.token}`
+          config.headers.Authorization = `Bearer ${state.token}`;
         }
-        return config
+        return config;
       },
-      (error) => Promise.reject(error)
-    )
-    return () => axios.interceptors.request.eject(requestInterceptor)
-  }, [state])
+      (error) => Promise.reject(error),
+    );
+    return () => axios.interceptors.request.eject(requestInterceptor);
+  }, [state]);
 }
 
 function RunApp({ router }) {
-  const state = useSelector((reducer) => reducer.auth)
-  useAxiosAuth(state)
-  return <RouterProvider router={router} />
+  const state = useSelector((reducer) => reducer.auth);
+  useAxiosAuth(state);
+  return <RouterProvider router={router} />;
 }
 
-export default App
+export default App;
