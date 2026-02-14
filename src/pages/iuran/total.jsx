@@ -169,7 +169,7 @@ function TotalIuran() {
             </div>
           </div>
         </form>
-        {total !== 0 ? (
+        {total != 0 ? (
           <>
             <p className="my-3">
               Periode {FormatDate(start)} s.d. {FormatDate(end)} <br /> Total

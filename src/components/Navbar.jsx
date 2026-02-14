@@ -46,15 +46,16 @@ function Navbar() {
               </Link>
 
               <div className="nav-item dropdown">
-                <button
-                  className="nav-link dropdown-toggle fw-bold py-1 px-3 btn btn-link"
+                <a
+                  className="nav-link dropdown-toggle fw-bold py-1 px-3"
+                  href="#"
                   id="iuranDropdown"
-                  type="button"
+                  role="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
                   Iuran
-                </button>
+                </a>
                 <ul className="dropdown-menu" aria-labelledby="iuranDropdown">
                   <li>
                     <Link className="dropdown-item" to="/iuran">
@@ -70,15 +71,16 @@ function Navbar() {
               </div>
 
               <div className="nav-item dropdown">
-                <button
-                  className="nav-link dropdown-toggle fw-bold py-1 px-3 btn btn-link"
+                <a
+                  className="nav-link dropdown-toggle fw-bold py-1 px-3"
+                  href="#"
                   id="laporanDropdown"
-                  type="button"
+                  role="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
                   Laporan
-                </button>
+                </a>
                 <ul className="dropdown-menu" aria-labelledby="laporanDropdown">
                   <li>
                     <Link className="dropdown-item" to="/report/cash">
