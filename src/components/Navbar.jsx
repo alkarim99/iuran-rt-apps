@@ -92,6 +92,11 @@ function Navbar() {
                       Laporan Bu Harris
                     </Link>
                   </li>
+                  <li>
+                    <Link className="dropdown-item" to="/report/pricing-tier">
+                      Laporan Pricing Tier
+                    </Link>
+                  </li>
                 </ul>
               </div>
 
