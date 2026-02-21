@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 
-export const useTableState = (storageKey, defaultLimit = 20) => {
+export const useTableState = (
+  storageKey,
+  defaultLimit = 20,
+  defaultSortBy = "",
+  defaultOrder = 1,
+) => {
   // Try loading from session storage
   const getInitialState = (key, fallback) => {
     const saved = sessionStorage.getItem(`${storageKey}_${key}`);
@@ -12,8 +17,12 @@ export const useTableState = (storageKey, defaultLimit = 20) => {
     getInitialState("limit", defaultLimit),
   );
   const [keyword, setKeyword] = useState(() => getInitialState("keyword", ""));
-  const [sortBy, setSortBy] = useState(() => getInitialState("sortBy", ""));
-  const [order, setOrder] = useState(() => getInitialState("order", 1)); // 1: Asc, -1: Desc
+  const [sortBy, setSortBy] = useState(() =>
+    getInitialState("sortBy", defaultSortBy),
+  );
+  const [order, setOrder] = useState(() =>
+    getInitialState("order", defaultOrder),
+  ); // 1: Asc, -1: Desc
 
   // Save changes to sessionStorage whenever variables change
   useEffect(() => {

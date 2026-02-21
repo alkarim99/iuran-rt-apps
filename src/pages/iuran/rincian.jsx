@@ -29,6 +29,7 @@ function RincianIuran() {
 
   const [dataIuran, setDataIuran] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const {
     page,
@@ -41,7 +42,7 @@ function RincianIuran() {
     setSortBy,
     order,
     setOrder,
-  } = useTableState("rincianIuran");
+  } = useTableState("rincianIuran", 20, "warga.address", 1);
 
   const [totalPages, setTotalPages] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
@@ -130,30 +131,81 @@ function RincianIuran() {
   const handleReset = () => {
     setIsLoading(true);
     setKeyword("");
-    setSortBy("");
+    setSortBy("warga.address");
     setOrder(1);
     setPage(1);
     handleGet();
   };
 
-  const handleExportExcel = () => {
-    const dataToExport = dataIuran.map((iuran, index) => ({
-      No: getStartingIndex() + index,
-      "Tanggal Input": FormatDate(iuran?.created_at),
-      "Tanggal Bayar": FormatDate(iuran?.pay_at),
-      Warga: `${iuran?.warga?.address} | ${iuran?.warga?.name}`,
-      Periode: iuran?.number_of_period,
-      Nominal: iuran?.nominal,
-      RT: iuran?.details_payment?.rt,
-      PKK: iuran?.details_payment?.pkk,
-      Sosial: iuran?.details_payment?.sosial,
-      Kematian: iuran?.details_payment?.kematian,
-      Keterangan: `${FormatDate(iuran?.period_start)} - ${FormatDate(iuran?.period_end)}`,
-    }));
-    exportToExcel(
-      dataToExport,
-      `Rincian_Iuran_${FormatDate(payAt).split(" ").join("_")}`,
-    );
+  const handleExportExcel = async () => {
+    if (totalCount === 0) {
+      Swal.fire(
+        "Info",
+        "Tidak ada data untuk diekspor pada periode ini.",
+        "info",
+      );
+      return;
+    }
+    setIsExporting(true);
+    try {
+      // Fetch all data bounded by totalCount
+      const payload = {
+        keyword,
+        sortBy,
+        order,
+        page: 1,
+        limit: totalCount,
+        payAt,
+      };
+      const response = await searchPaymentsRincian(payload);
+      const allData = response?.data?.data || [];
+
+      const dataToExport = allData.map((iuran, index) => ({
+        No: index + 1,
+        Blok: iuran?.warga?.address?.split("-")[0] || "",
+        Nama: iuran?.warga?.name,
+        Alamat: iuran?.warga?.address,
+        "Tanggal Bayar": FormatDate(iuran?.pay_at).split(" ")[0],
+        Jumlah: iuran?.nominal,
+        "Periode Bulan": iuran?.number_of_period,
+        RT: iuran?.details_payment?.rt,
+        PKK: iuran?.details_payment?.pkk,
+        Sosial: iuran?.details_payment?.sosial,
+        Kematian: iuran?.details_payment?.kematian,
+        Keterangan: `${FormatDate(iuran?.period_start)} - ${FormatDate(iuran?.period_end)}`,
+      }));
+
+      const titleMonthYear =
+        `${FormatDate(payAt).split(" ")[1] || ""} ${FormatDate(payAt).split(" ")[2] || ""}`
+          .trim()
+          .toUpperCase();
+
+      const prefixRows = [
+        ["LAPORAN KAS BENDAHARA"],
+        ["RT 08 RW 11 LINGKUNGAN PONDOK BLIMBING INDAH"],
+        ["KELURAHAN PURWODADI KECAMATAN BLIMBING KOTA MALANG"],
+        [],
+        ["PERINCIAN PEMBAGIAN UANG IURAN"],
+        [],
+        [`PERIODE : ${titleMonthYear}`],
+        [],
+      ];
+
+      exportToExcel(
+        dataToExport,
+        `Rincian_Iuran_${FormatDate(payAt).split(" ").join("_")}`,
+        { prefixRows },
+      );
+    } catch (error) {
+      console.error("Export Error:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Gagal mengekspor data.",
+        icon: "error",
+      });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const getStartingIndex = () => {
@@ -191,9 +243,11 @@ function RincianIuran() {
             <button
               className="btn btn-success ms-1 no-print"
               onClick={handleExportExcel}
+              disabled={isExporting}
               title="Export Excel"
             >
-              <FontAwesomeIcon icon={faFileExcel} /> Export Excel
+              <FontAwesomeIcon icon={faFileExcel} />{" "}
+              {isExporting ? "Exporting..." : "Export Excel"}
             </button>
           </h1>
 
@@ -287,18 +341,37 @@ function RincianIuran() {
             <table className="table">
               <thead>
                 <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Tanggal Input</th>
-                  <th scope="col">Tanggal Bayar</th>
-                  <th scope="col">Warga</th>
-                  <th scope="col">Periode</th>
-                  <th scope="col">Nominal</th>
-                  <th scope="col">RT</th>
-                  <th scope="col">PKK</th>
-                  <th scope="col">Sosial</th>
-                  <th scope="col">Kematian</th>
+                  <th scope="col" className="text-center">
+                    #
+                  </th>
+                  <th scope="col">Blok</th>
+                  <th scope="col">Nama</th>
+                  <th scope="col">Alamat</th>
+                  <th scope="col" className="text-center">
+                    Tanggal Bayar
+                  </th>
+                  <th scope="col" className="text-end">
+                    Jumlah
+                  </th>
+                  <th scope="col" className="text-center">
+                    Periode Bulan
+                  </th>
+                  <th scope="col" className="text-end">
+                    RT
+                  </th>
+                  <th scope="col" className="text-end">
+                    PKK
+                  </th>
+                  <th scope="col" className="text-end">
+                    Sosial
+                  </th>
+                  <th scope="col" className="text-end">
+                    Kematian
+                  </th>
                   <th scope="col">Keterangan</th>
-                  <th scope="col">Action</th>
+                  <th scope="col" className="text-center">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -307,27 +380,38 @@ function RincianIuran() {
                   return (
                     <>
                       <tr>
-                        <th scope="row">{currentIndex}</th>
-                        <td>{FormatDate(iuran?.created_at)}</td>
-                        <td>{FormatDate(iuran?.pay_at)}</td>
-                        <td>
-                          {iuran?.warga?.address} | {iuran?.warga?.name}
+                        <th scope="row" className="text-center">
+                          {currentIndex}
+                        </th>
+                        <td>{iuran?.warga?.address?.split("-")[0] || ""}</td>
+                        <td>{iuran?.warga?.name}</td>
+                        <td>{iuran?.warga?.address}</td>
+                        <td className="text-center">
+                          {FormatDate(iuran?.pay_at).split(" ")[0]}
                         </td>
-                        <td>{iuran?.number_of_period}</td>
-                        <td>{FormatCurrency(iuran?.nominal)}</td>
-                        <td>{FormatCurrency(iuran?.details_payment?.rt)}</td>
-                        <td>{FormatCurrency(iuran?.details_payment?.pkk)}</td>
-                        <td>
+                        <td className="text-end fw-bold">
+                          {FormatCurrency(iuran?.nominal)}
+                        </td>
+                        <td className="text-center">
+                          {iuran?.number_of_period}
+                        </td>
+                        <td className="text-end">
+                          {FormatCurrency(iuran?.details_payment?.rt)}
+                        </td>
+                        <td className="text-end">
+                          {FormatCurrency(iuran?.details_payment?.pkk)}
+                        </td>
+                        <td className="text-end">
                           {FormatCurrency(iuran?.details_payment?.sosial)}
                         </td>
-                        <td>
+                        <td className="text-end">
                           {FormatCurrency(iuran?.details_payment?.kematian)}
                         </td>
                         <td>
                           {FormatDate(iuran?.period_start)} -{" "}
                           {FormatDate(iuran?.period_end)}
                         </td>
-                        <td>
+                        <td className="text-center">
                           <div class="btn-group">
                             <button
                               class="btn btn-primary btn-sm dropdown-toggle"
