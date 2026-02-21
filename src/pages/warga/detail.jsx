@@ -15,7 +15,6 @@ import FormatCurrency from "../../helpers/FormatCurrency"
 
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
-import PrintButton from "../../components/PrintButton"
 import { getWargaByID } from "../../services/WargaService"
 import {
   getPaymentByWargaId,
@@ -181,7 +180,6 @@ function DetailWarga() {
               <Link className="btn btn-warning mx-1 no-print" to={`/warga/edit/${id}`}>
                 <FontAwesomeIcon icon={faPen} />
               </Link>
-              <PrintButton />
             </h3>
 
             <div className="print-header">

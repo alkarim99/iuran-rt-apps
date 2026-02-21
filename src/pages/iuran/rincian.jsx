@@ -3,9 +3,10 @@ import { Link, useNavigate } from "react-router-dom"
 import Swal from "sweetalert2"
 import { useSelector } from "react-redux"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"
+import { faPen, faPlus, faTrash, faFileExcel } from "@fortawesome/free-solid-svg-icons"
 import FormatDate from "../../helpers/FormatDate"
 import FormatCurrency from "../../helpers/FormatCurrency"
+import { exportToExcel } from "../../helpers/exportToExcel"
 import {
   getRincianPayment,
   deletePayment,
@@ -14,7 +15,6 @@ import {
 
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
-import PrintButton from "../../components/PrintButton"
 
 function RincianIuran() {
   const navigate = useNavigate()
@@ -135,20 +135,32 @@ function RincianIuran() {
   }
 
   const handlePreviousPage = () => {
-    const newGroupStartPage = Math.max(1, currentPage - pagesPerGroup)
-    setCurrentPage(newGroupStartPage)
+    setCurrentPage(Math.max(1, currentPage - 1))
   }
 
   const handleNextPage = () => {
-    const newGroupStartPage = Math.min(
-      currentPage + pagesPerGroup,
-      totalPages - pagesPerGroup + 1
-    )
-    setCurrentPage(newGroupStartPage)
+    setCurrentPage(Math.min(currentPage + 1, totalPages))
   }
 
   const handlePageClick = (page) => {
     setCurrentPage(page)
+  }
+
+  const handleExportExcel = () => {
+    const dataToExport = dataIuran.map((iuran, index) => ({
+      No: getStartingIndex() + index,
+      "Tanggal Input": FormatDate(iuran?.created_at),
+      "Tanggal Bayar": FormatDate(iuran?.pay_at),
+      Warga: `${iuran?.warga?.address} | ${iuran?.warga?.name}`,
+      Periode: iuran?.number_of_period,
+      Nominal: iuran?.nominal,
+      RT: iuran?.details_payment?.rt,
+      PKK: iuran?.details_payment?.pkk,
+      Sosial: iuran?.details_payment?.sosial,
+      Kematian: iuran?.details_payment?.kematian,
+      Keterangan: `${FormatDate(iuran?.period_start)} - ${FormatDate(iuran?.period_end)}`,
+    }))
+    exportToExcel(dataToExport, `Rincian_Iuran_${FormatDate(payAt).split(" ").join("_")}`)
   }
 
   const getStartingIndex = () => {
@@ -198,7 +210,9 @@ function RincianIuran() {
             <Link className="btn btn-primary ms-1 no-print" to="/iuran/total">
               Total
             </Link>
-            <PrintButton />
+            <button className="btn btn-success ms-1 no-print" onClick={handleExportExcel} title="Export Excel">
+              <FontAwesomeIcon icon={faFileExcel} /> Export Excel
+            </button>
           </h1>
 
           <div className="print-header">

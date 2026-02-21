@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
 import { getWargaOptions } from "../services/WargaService";
 import { getLatestPayment, createPayment } from "../services/IuranService";
+import FormatCurrency from "../helpers/FormatCurrency";
 
 export const useCreatePayments = () => {
   const navigate = useNavigate();
@@ -14,8 +15,14 @@ export const useCreatePayments = () => {
   const [periodStart, setPeriodStart] = useState("");
   const [periodEnd, setPeriodEnd] = useState("");
   const [nominal, setNominal] = useState("");
+  const [rt, setRt] = useState("");
+  const [pkk, setPkk] = useState("");
+  const [sosial, setSosial] = useState("");
+  const [kematian, setKematian] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [payAt, setPayAt] = useState("");
+  const isCustomNominal =
+    nominal && nominal > 0 && nominal % 75000 !== 0 && nominal % 110000 !== 0;
   const [dataWarga, setDataWarga] = useState([]);
   const [latestPeriod, setLatestPeriod] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -87,6 +94,24 @@ export const useCreatePayments = () => {
       payment_method: paymentMethod,
       pay_at: payAt,
     };
+    if (isCustomNominal) {
+      const sum = Number(rt) + Number(pkk) + Number(sosial) + Number(kematian);
+      if (sum !== Number(nominal)) {
+        Swal.fire({
+          title: "Warning!",
+          text: `Total rincian (${FormatCurrency(sum)}) tidak sama dengan nominal (${FormatCurrency(nominal)}). Harap perbaiki nilai rincian.`,
+          icon: "warning",
+        });
+        setIsLoading(false);
+        return;
+      }
+      payload.details_payment = {
+        rt: Number(rt),
+        pkk: Number(pkk),
+        sosial: Number(sosial),
+        kematian: Number(kematian),
+      };
+    }
     createPayment(payload)
       .then((response) => {
         Swal.fire({
@@ -118,6 +143,15 @@ export const useCreatePayments = () => {
     setPeriodEnd,
     nominal,
     setNominal,
+    rt,
+    setRt,
+    pkk,
+    setPkk,
+    sosial,
+    setSosial,
+    kematian,
+    setKematian,
+    isCustomNominal,
     paymentMethod,
     setPaymentMethod,
     payAt,

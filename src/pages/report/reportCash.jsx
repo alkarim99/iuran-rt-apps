@@ -2,12 +2,12 @@ import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+import { faArrowLeft, faFileExcel } from "@fortawesome/free-solid-svg-icons"
 import FormatDate from "../../helpers/FormatDate"
 import FormatCurrency from "../../helpers/FormatCurrency"
+import { exportToExcel } from "../../helpers/exportToExcel"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
-import PrintButton from "../../components/PrintButton"
 import { getPaymentByMethod } from "../../services/IuranService"
 import { getExpenseByTransactionAt } from "../../services/ExpenseService"
 
@@ -63,6 +63,56 @@ function ReportCash() {
       })
   }
 
+  const combinedData = []
+  dataIuran.forEach((iuran) => {
+    combinedData.push({
+      id: `iuran_${iuran._id}`,
+      tanggal: iuran.pay_at,
+      created_at: iuran.created_at,
+      deskripsi: `Iuran Cash: ${iuran.warga?.address} | ${iuran.warga?.name} (${FormatDate(iuran.period_start)} - ${FormatDate(iuran.period_end)})`,
+      debit: iuran.nominal || 0,
+      credit: 0,
+    })
+  })
+
+  dataExpense.forEach((expense) => {
+    combinedData.push({
+      id: `expense_${expense._id}`,
+      tanggal: expense.transaction_at,
+      created_at: expense.created_at,
+      deskripsi: `Pengeluaran: ${expense.description}`,
+      debit: 0,
+      credit: expense.nominal || 0,
+    })
+  })
+
+  combinedData.sort((a, b) => {
+    const dateA = new Date(a.tanggal)
+    const dateB = new Date(b.tanggal)
+    if (dateA.getTime() === dateB.getTime()) {
+      return new Date(a.created_at) - new Date(b.created_at)
+    }
+    return dateA - dateB
+  })
+
+  let currentSaldo = 0
+  combinedData.forEach((item) => {
+    currentSaldo += item.debit - item.credit
+    item.saldo = currentSaldo
+  })
+
+  const handleExportExcel = () => {
+    const dataToExport = combinedData.map((item, index) => ({
+      No: index + 1,
+      Tanggal: FormatDate(item.tanggal),
+      Deskripsi: item.deskripsi,
+      "Pemasukan (Debit)": item.debit,
+      "Pengeluaran (Kredit)": item.credit,
+      Saldo: item.saldo,
+    }))
+    exportToExcel(dataToExport, `Laporan_Cash_${FormatDate(payAt).split(" ").join("_")}`)
+  }
+
   return (
     <>
       <div
@@ -74,7 +124,9 @@ function ReportCash() {
           <Link className="btn btn-primary me-1" to="/iuran">
             <FontAwesomeIcon icon={faArrowLeft} />
           </Link>
-          <PrintButton label="Cetak Laporan Cash" />
+          <button className="btn btn-success ms-1" onClick={handleExportExcel} title="Export Excel">
+            <FontAwesomeIcon icon={faFileExcel} /> Export Excel
+          </button>
         </div>
 
         <div className="print-header">
@@ -110,96 +162,49 @@ function ReportCash() {
         </form>
 
         <div className="row">
-          <div className="col">
-            {total != 0 ? (
-              <>
-                <p className="my-3">
-                  Periode {FormatDate(payAt)} <br /> Total Pemasukan ={" "}
-                  {FormatCurrency(total)}
+          <div className="col-12">
+            {(total != 0 || totalExpense != 0) && (
+              <div className="d-flex justify-content-between my-3">
+                <p>
+                  Periode {FormatDate(payAt)}
                 </p>
-              </>
-            ) : (
-              <></>
-            )}
-
-            <div className="container d-flex justify-content-center align-items-center flex-column">
-              <div>
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th scope="col">#</th>
-                      <th scope="col">Tanggal Input</th>
-                      <th scope="col">Tanggal Bayar</th>
-                      <th scope="col">Warga</th>
-                      <th scope="col">Periode</th>
-                      <th scope="col">Nominal</th>
-                      <th scope="col">Metode Pembayaran</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dataIuran.map((iuran, index) => {
-                      return (
-                        <>
-                          <tr>
-                            <th scope="row">{index + 1}</th>
-                            <td>{FormatDate(iuran?.created_at)}</td>
-                            <td>{FormatDate(iuran?.pay_at)}</td>
-                            <td>
-                              {iuran?.warga?.address} | {iuran?.warga?.name}
-                            </td>
-                            <td>
-                              {FormatDate(iuran?.period_start)} -{" "}
-                              {FormatDate(iuran?.period_end)}
-                            </td>
-                            <td>{FormatCurrency(iuran?.nominal)}</td>
-                            <td>{iuran?.payment_method?.toUpperCase()}</td>
-                          </tr>
-                        </>
-                      )
-                    })}
-                  </tbody>
-                </table>
+                <div className="text-end">
+                  <p className="mb-0">Total Pemasukan: <span className="text-success fw-bold">{FormatCurrency(total)}</span></p>
+                  <p className="mb-0">Total Pengeluaran: <span className="text-danger fw-bold">{FormatCurrency(totalExpense)}</span></p>
+                </div>
               </div>
-            </div>
-          </div>
-          <div className="col">
-            {totalExpense != 0 ? (
-              <>
-                <br />
-                <p className="my-3">
-                  Total Pengeluaran = {FormatCurrency(totalExpense)}
-                </p>
-              </>
-            ) : (
-              <></>
             )}
 
-            <div className="container d-flex justify-content-center align-items-center flex-column">
-              <div>
-                <table className="table">
-                  <thead>
+            <div className="container d-flex justify-content-center align-items-center flex-column px-0">
+              <div className="w-100 table-responsive">
+                <table className="table table-bordered table-striped mt-3">
+                  <thead className="table-light">
                     <tr>
-                      <th scope="col">#</th>
-                      <th scope="col">Tanggal Input</th>
-                      <th scope="col">Tanggal Transaksi</th>
+                      <th scope="col" className="text-center">#</th>
+                      <th scope="col">Tanggal</th>
                       <th scope="col">Deskripsi</th>
-                      <th scope="col">Nominal</th>
+                      <th scope="col" className="text-end">Pemasukan (Debit)</th>
+                      <th scope="col" className="text-end">Pengeluaran (Kredit)</th>
+                      <th scope="col" className="text-end">Saldo</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {dataExpense.map((expense, index) => {
-                      return (
-                        <>
-                          <tr>
-                            <th scope="row">{index + 1}</th>
-                            <td>{FormatDate(expense?.created_at)}</td>
-                            <td>{FormatDate(expense?.transaction_at)}</td>
-                            <td>{expense?.description}</td>
-                            <td>{FormatCurrency(expense?.nominal)}</td>
-                          </tr>
-                        </>
-                      )
-                    })}
+                    {combinedData.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className="text-center text-muted py-3">Tidak ada data transaksi.</td>
+                      </tr>
+                    ) : (
+                      combinedData.map((item, index) => (
+                        <tr key={item.id}>
+                          <th scope="row" className="text-center">{index + 1}</th>
+                          <td>{FormatDate(item.tanggal)}</td>
+                          <td>{item.deskripsi}</td>
+                          <td className="text-end text-success">{item.debit > 0 ? FormatCurrency(item.debit) : "-"}</td>
+                          <td className="text-end text-danger">{item.credit > 0 ? FormatCurrency(item.credit) : "-"}</td>
+                          <td className="text-end fw-bold">{FormatCurrency(item.saldo)}</td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>

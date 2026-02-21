@@ -5,10 +5,11 @@ import { useSelector } from "react-redux"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"
+import { faPen, faPlus, faTrash, faFileExcel } from "@fortawesome/free-solid-svg-icons"
 
 import FormatDate from "../../helpers/FormatDate"
 import FormatCurrency from "../../helpers/FormatCurrency"
+import { exportToExcel } from "../../helpers/exportToExcel"
 import { usePayments } from "../../hooks/usePayments"
 
 function IndexIuran() {
@@ -56,6 +57,18 @@ function IndexIuran() {
     )
   }
 
+  const handleExportExcel = () => {
+    const dataToExport = dataIuran.map((iuran, index) => ({
+      No: (currentPage - 1) * itemsPerPage + index + 1,
+      "Tanggal Input": FormatDate(iuran?.created_at),
+      "Tanggal Bayar": FormatDate(iuran?.pay_at),
+      Warga: `${iuran?.warga?.address} | ${iuran?.warga?.name}`,
+      Periode: `${FormatDate(iuran?.period_start)} - ${FormatDate(iuran?.period_end)}`,
+      Nominal: iuran?.nominal,
+    }))
+    exportToExcel(dataToExport, "Data_Iuran")
+  }
+
   const paginationRange = getPaginationRange(currentPage, totalPages)
 
   return (
@@ -68,6 +81,9 @@ function IndexIuran() {
           <Link className="btn btn-primary ms-1" to="/iuran/create">
             <FontAwesomeIcon icon={faPlus} />
           </Link>
+          <button className="btn btn-success ms-1" onClick={handleExportExcel} title="Export Excel">
+            <FontAwesomeIcon icon={faFileExcel} /> Export Excel
+          </button>
         </h1>
 
         {/* Search & Sort Form */}
@@ -197,19 +213,19 @@ function IndexIuran() {
             {/* Pagination */}
             <nav>
               <ul className="pagination">
-                {/* Previous group arrow */}
+                {/* Previous page arrow */}
                 <li
                   className={`page-item ${
-                    currentPage <= 3 ? "disabled" : ""
+                    currentPage <= 1 ? "disabled" : ""
                   }`}
                 >
                   <button
                     className="page-link"
                     onClick={() =>
-                      currentPage > 3 &&
-                      setCurrentPage(paginationRange[0] - 1)
+                      currentPage > 1 &&
+                      setCurrentPage(currentPage - 1)
                     }
-                    aria-label="Previous group"
+                    aria-label="Previous page"
                   >
                     Previous
                   </button>
@@ -232,10 +248,10 @@ function IndexIuran() {
                   </li>
                 ))}
 
-                {/* Next group arrow */}
+                {/* Next page arrow */}
                 <li
                   className={`page-item ${
-                    paginationRange[paginationRange.length - 1] >= totalPages
+                    currentPage >= totalPages
                       ? "disabled"
                       : ""
                   }`}
@@ -243,10 +259,10 @@ function IndexIuran() {
                   <button
                     className="page-link"
                     onClick={() =>
-                      paginationRange[paginationRange.length - 1] < totalPages &&
-                      setCurrentPage(paginationRange[paginationRange.length - 1] + 1)
+                      currentPage < totalPages &&
+                      setCurrentPage(currentPage + 1)
                     }
-                    aria-label="Next group"
+                    aria-label="Next page"
                   >
                     Next
                   </button>

@@ -9,12 +9,13 @@ import {
   faMoneyBillWave,
   faCreditCard,
   faHandHoldingDollar,
+  faFileExcel,
 } from "@fortawesome/free-solid-svg-icons"
 import FormatDate from "../../helpers/FormatDate"
 import FormatCurrency from "../../helpers/FormatCurrency"
+import { exportToExcel } from "../../helpers/exportToExcel"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
-import PrintButton from "../../components/PrintButton"
 import { getPricingTierReport } from "../../services/IuranService"
 import "../../styles/ReportPricingTier.css"
 
@@ -150,6 +151,24 @@ function ReportPricingTier() {
 
   const closeModal = () => setModalData(null)
 
+  const handleExportExcel = () => {
+    const dataToExport = []
+    report.forEach((month) => {
+      ;(month.payment_methods || []).forEach((pm) => {
+        ;(pm.breakdown || []).forEach((bk) => {
+          dataToExport.push({
+            Bulan: monthLabel(month.month),
+            "Metode Pembayaran": pm.payment_method,
+            Kategori: bk.label,
+            Jumlah: bk.count,
+            "Total Nominal": bk.total_nominal,
+          })
+        })
+      })
+    })
+    exportToExcel(dataToExport, `Laporan_Pricing_Tier_${startDate}_${endDate}`)
+  }
+
   // ── Render ─────────────────────────────────────────────────
   return (
     <>
@@ -164,7 +183,9 @@ function ReportPricingTier() {
           <Link className="btn btn-primary me-1" to="/iuran">
             <FontAwesomeIcon icon={faArrowLeft} />
           </Link>
-          <PrintButton label="Cetak Laporan Pricing Tier" />
+          <button className="btn btn-success ms-1" onClick={handleExportExcel} title="Export Excel">
+            <FontAwesomeIcon icon={faFileExcel} /> Export Excel
+          </button>
         </div>
 
         {/* ── Print header ── */}

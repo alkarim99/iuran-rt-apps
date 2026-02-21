@@ -6,6 +6,7 @@ import Footer from "../../components/Footer"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
 import FormatDate from "../../helpers/FormatDate"
+import FormatCurrency from "../../helpers/FormatCurrency"
 import { useEditPayments } from "../../hooks/useEditPayments"
 
 function EditIuran() {
@@ -22,6 +23,15 @@ function EditIuran() {
     setPeriodEnd,
     nominal,
     setNominal,
+    rt,
+    setRt,
+    pkk,
+    setPkk,
+    sosial,
+    setSosial,
+    kematian,
+    setKematian,
+    isCustomNominal,
     paymentMethod,
     setPaymentMethod,
     payAt,
@@ -166,7 +176,40 @@ function EditIuran() {
                     defaultValue={nominal}
                     onChange={(e) => setNominal(e.target.value)}
                   />
+                  {nominal && <small className="text-muted">{FormatCurrency(nominal)}</small>}
                 </div>
+
+                {isCustomNominal && (
+                  <div className="card mb-3 border-warning">
+                    <div className="card-header bg-warning text-dark">
+                      <strong>Input Manual Rincian Iuran</strong>
+                      <br/>
+                      <small>Nominal di luar pricing tier 75k/110k, harap masukkan rincian secara manual.</small>
+                    </div>
+                    <div className="card-body">
+                      <div className="mb-2">
+                        <label className="form-label">RT</label>
+                        <input type="number" className="form-control" defaultValue={rt} onChange={(e) => setRt(e.target.value)} required />
+                        {rt && <small className="text-muted">{FormatCurrency(rt)}</small>}
+                      </div>
+                      <div className="mb-2">
+                        <label className="form-label">PKK</label>
+                        <input type="number" className="form-control" defaultValue={pkk} onChange={(e) => setPkk(e.target.value)} required />
+                        {pkk && <small className="text-muted">{FormatCurrency(pkk)}</small>}
+                      </div>
+                      <div className="mb-2">
+                        <label className="form-label">Sosial</label>
+                        <input type="number" className="form-control" defaultValue={sosial} onChange={(e) => setSosial(e.target.value)} required />
+                        {sosial && <small className="text-muted">{FormatCurrency(sosial)}</small>}
+                      </div>
+                      <div className="mb-2">
+                        <label className="form-label">Kematian</label>
+                        <input type="number" className="form-control" defaultValue={kematian} onChange={(e) => setKematian(e.target.value)} required />
+                        {kematian && <small className="text-muted">{FormatCurrency(kematian)}</small>}
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="mb-3">
                   <label for="payment_method" className="form-label">
                     Metode Pembayaran
