@@ -1,17 +1,17 @@
-import React from "react"
-import { Link, useParams } from "react-router-dom"
+import React from "react";
+import { Link, useParams } from "react-router-dom";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
-import FormatDate from "../../helpers/FormatDate"
-import FormatCurrency from "../../helpers/FormatCurrency"
-import Navbar from "../../components/Navbar"
-import Footer from "../../components/Footer"
-import { useCreatePayments } from "../../hooks/useCreatePayments"
+import FormatDate from "../../helpers/FormatDate";
+import FormatCurrency from "../../helpers/FormatCurrency";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import { useCreatePayments } from "../../hooks/useCreatePayments";
 
 function CreateIuran() {
-  const params = useParams() // Add this to get route params
+  const params = useParams(); // Add this to get route params
   const {
     wargaID,
     setWargaID,
@@ -41,7 +41,7 @@ function CreateIuran() {
     isLoading,
     handleCreate,
     handleGetLatestPeriod,
-  } = useCreatePayments()
+  } = useCreatePayments();
 
   if (isLoading) {
     return (
@@ -53,7 +53,7 @@ function CreateIuran() {
           <span className="visually-hidden">Loading...</span>
         </div>
       </div>
-    )
+    );
   } else {
     return (
       <div
@@ -91,17 +91,14 @@ function CreateIuran() {
                     className="form-select"
                     value={wargaID}
                     onChange={(e) => {
-                      setWargaID(e.target.value)
-                      handleGetLatestPeriod(e.target.value)
+                      setWargaID(e.target.value);
+                      handleGetLatestPeriod(e.target.value);
                     }}
                     required
                   >
                     <option value="">Pilih Warga</option>
                     {filteredOptions.map((warga) => (
-                      <option
-                        value={warga?._id}
-                        key={warga?._id}
-                      >
+                      <option value={warga?._id} key={warga?._id}>
                         {warga?.address} | {warga?.name}
                       </option>
                     ))}
@@ -172,38 +169,90 @@ function CreateIuran() {
                   id="nominal"
                   value={nominal}
                   onChange={(e) => setNominal(e.target.value)}
+                  onWheel={(e) => e.target.blur()}
                   required
                 />
-                {nominal && <small className="text-muted">{FormatCurrency(nominal)}</small>}
+                {nominal && (
+                  <small className="text-muted">
+                    {FormatCurrency(nominal)}
+                  </small>
+                )}
               </div>
 
               {isCustomNominal && (
                 <div className="card mb-3 border-warning">
                   <div className="card-header bg-warning text-dark">
                     <strong>Input Manual Rincian Iuran</strong>
-                    <br/>
-                    <small>Nominal di luar pricing tier 75k/110k, harap masukkan rincian secara manual.</small>
+                    <br />
+                    <small>
+                      Nominal di luar pricing tier 75k/110k, harap masukkan
+                      rincian secara manual.
+                    </small>
                   </div>
                   <div className="card-body">
                     <div className="mb-2">
                       <label className="form-label">RT</label>
-                      <input type="number" className="form-control" value={rt} onChange={(e) => setRt(e.target.value)} required />
-                      {rt && <small className="text-muted">{FormatCurrency(rt)}</small>}
+                      <input
+                        type="number"
+                        className="form-control"
+                        value={rt}
+                        onChange={(e) => setRt(e.target.value)}
+                        onWheel={(e) => e.target.blur()}
+                        required
+                      />
+                      {rt && (
+                        <small className="text-muted">
+                          {FormatCurrency(rt)}
+                        </small>
+                      )}
                     </div>
                     <div className="mb-2">
                       <label className="form-label">PKK</label>
-                      <input type="number" className="form-control" value={pkk} onChange={(e) => setPkk(e.target.value)} required />
-                      {pkk && <small className="text-muted">{FormatCurrency(pkk)}</small>}
+                      <input
+                        type="number"
+                        className="form-control"
+                        value={pkk}
+                        onChange={(e) => setPkk(e.target.value)}
+                        onWheel={(e) => e.target.blur()}
+                        required
+                      />
+                      {pkk && (
+                        <small className="text-muted">
+                          {FormatCurrency(pkk)}
+                        </small>
+                      )}
                     </div>
                     <div className="mb-2">
                       <label className="form-label">Sosial</label>
-                      <input type="number" className="form-control" value={sosial} onChange={(e) => setSosial(e.target.value)} required />
-                      {sosial && <small className="text-muted">{FormatCurrency(sosial)}</small>}
+                      <input
+                        type="number"
+                        className="form-control"
+                        value={sosial}
+                        onChange={(e) => setSosial(e.target.value)}
+                        onWheel={(e) => e.target.blur()}
+                        required
+                      />
+                      {sosial && (
+                        <small className="text-muted">
+                          {FormatCurrency(sosial)}
+                        </small>
+                      )}
                     </div>
                     <div className="mb-2">
                       <label className="form-label">Kematian</label>
-                      <input type="number" className="form-control" value={kematian} onChange={(e) => setKematian(e.target.value)} required />
-                      {kematian && <small className="text-muted">{FormatCurrency(kematian)}</small>}
+                      <input
+                        type="number"
+                        className="form-control"
+                        value={kematian}
+                        onChange={(e) => setKematian(e.target.value)}
+                        onWheel={(e) => e.target.blur()}
+                        required
+                      />
+                      {kematian && (
+                        <small className="text-muted">
+                          {FormatCurrency(kematian)}
+                        </small>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -224,10 +273,7 @@ function CreateIuran() {
                   <option value="transfer">Transfer</option>
                 </select>
               </div>
-              <button
-                className="btn btn-primary py-2"
-                type="submit"
-              >
+              <button className="btn btn-primary py-2" type="submit">
                 {isLoading ? "Loading..." : "Submit"}
               </button>
             </form>
@@ -236,8 +282,8 @@ function CreateIuran() {
 
         <Footer />
       </div>
-    )
+    );
   }
 }
 
-export default CreateIuran
+export default CreateIuran;

@@ -1,13 +1,13 @@
-import React from "react"
-import { Link } from "react-router-dom"
+import React from "react";
+import { Link } from "react-router-dom";
 
-import Navbar from "../../components/Navbar"
-import Footer from "../../components/Footer"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
-import FormatDate from "../../helpers/FormatDate"
-import FormatCurrency from "../../helpers/FormatCurrency"
-import { useEditPayments } from "../../hooks/useEditPayments"
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import FormatDate from "../../helpers/FormatDate";
+import FormatCurrency from "../../helpers/FormatCurrency";
+import { useEditPayments } from "../../hooks/useEditPayments";
 
 function EditIuran() {
   const {
@@ -39,7 +39,7 @@ function EditIuran() {
     latestPeriod,
     isLoading,
     handleEdit,
-  } = useEditPayments()
+  } = useEditPayments();
 
   if (isLoading) {
     return (
@@ -51,7 +51,7 @@ function EditIuran() {
           <span className="visually-hidden">Loading...</span>
         </div>
       </div>
-    )
+    );
   } else {
     return (
       <>
@@ -81,8 +81,8 @@ function EditIuran() {
                       id="warga_id"
                       className="form-select"
                       onChange={(e) => {
-                        setWargaID(e.target.value)
-                        handleGetLatestPeriod(e.target.value)
+                        setWargaID(e.target.value);
+                        handleGetLatestPeriod(e.target.value);
                       }}
                       required
                     >
@@ -175,37 +175,89 @@ function EditIuran() {
                     id="nominal"
                     defaultValue={nominal}
                     onChange={(e) => setNominal(e.target.value)}
+                    onWheel={(e) => e.target.blur()}
                   />
-                  {nominal && <small className="text-muted">{FormatCurrency(nominal)}</small>}
+                  {nominal && (
+                    <small className="text-muted">
+                      {FormatCurrency(nominal)}
+                    </small>
+                  )}
                 </div>
 
                 {isCustomNominal && (
                   <div className="card mb-3 border-warning">
                     <div className="card-header bg-warning text-dark">
                       <strong>Input Manual Rincian Iuran</strong>
-                      <br/>
-                      <small>Nominal di luar pricing tier 75k/110k, harap masukkan rincian secara manual.</small>
+                      <br />
+                      <small>
+                        Nominal di luar pricing tier 75k/110k, harap masukkan
+                        rincian secara manual.
+                      </small>
                     </div>
                     <div className="card-body">
                       <div className="mb-2">
                         <label className="form-label">RT</label>
-                        <input type="number" className="form-control" defaultValue={rt} onChange={(e) => setRt(e.target.value)} required />
-                        {rt && <small className="text-muted">{FormatCurrency(rt)}</small>}
+                        <input
+                          type="number"
+                          className="form-control"
+                          defaultValue={rt}
+                          onChange={(e) => setRt(e.target.value)}
+                          onWheel={(e) => e.target.blur()}
+                          required
+                        />
+                        {rt && (
+                          <small className="text-muted">
+                            {FormatCurrency(rt)}
+                          </small>
+                        )}
                       </div>
                       <div className="mb-2">
                         <label className="form-label">PKK</label>
-                        <input type="number" className="form-control" defaultValue={pkk} onChange={(e) => setPkk(e.target.value)} required />
-                        {pkk && <small className="text-muted">{FormatCurrency(pkk)}</small>}
+                        <input
+                          type="number"
+                          className="form-control"
+                          defaultValue={pkk}
+                          onChange={(e) => setPkk(e.target.value)}
+                          onWheel={(e) => e.target.blur()}
+                          required
+                        />
+                        {pkk && (
+                          <small className="text-muted">
+                            {FormatCurrency(pkk)}
+                          </small>
+                        )}
                       </div>
                       <div className="mb-2">
                         <label className="form-label">Sosial</label>
-                        <input type="number" className="form-control" defaultValue={sosial} onChange={(e) => setSosial(e.target.value)} required />
-                        {sosial && <small className="text-muted">{FormatCurrency(sosial)}</small>}
+                        <input
+                          type="number"
+                          className="form-control"
+                          defaultValue={sosial}
+                          onChange={(e) => setSosial(e.target.value)}
+                          onWheel={(e) => e.target.blur()}
+                          required
+                        />
+                        {sosial && (
+                          <small className="text-muted">
+                            {FormatCurrency(sosial)}
+                          </small>
+                        )}
                       </div>
                       <div className="mb-2">
                         <label className="form-label">Kematian</label>
-                        <input type="number" className="form-control" defaultValue={kematian} onChange={(e) => setKematian(e.target.value)} required />
-                        {kematian && <small className="text-muted">{FormatCurrency(kematian)}</small>}
+                        <input
+                          type="number"
+                          className="form-control"
+                          defaultValue={kematian}
+                          onChange={(e) => setKematian(e.target.value)}
+                          onWheel={(e) => e.target.blur()}
+                          required
+                        />
+                        {kematian && (
+                          <small className="text-muted">
+                            {FormatCurrency(kematian)}
+                          </small>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -248,8 +300,8 @@ function EditIuran() {
           <Footer />
         </div>
       </>
-    )
+    );
   }
 }
 
-export default EditIuran
+export default EditIuran;
