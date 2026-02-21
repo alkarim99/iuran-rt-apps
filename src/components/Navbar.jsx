@@ -1,18 +1,19 @@
-import React from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { useDispatch, useSelector } from "react-redux"
-import { addAuth } from "../store/reducers/auth"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { addAuth } from "../store/reducers/auth";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { clearTableState } from "../hooks/useTableState";
 import {
   faArrowRightFromBracket,
   faArrowRightToBracket,
   faHouse,
-} from "@fortawesome/free-solid-svg-icons"
+} from "@fortawesome/free-solid-svg-icons";
 
 function Navbar() {
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const state = useSelector((reducer) => reducer.auth)
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const state = useSelector((reducer) => reducer.auth);
 
   return (
     <header className="mb-3 py-3">
@@ -27,6 +28,7 @@ function Navbar() {
                 className="nav-link fw-bold py-1 px-3"
                 aria-current="page"
                 to="/user"
+                onClick={clearTableState}
               >
                 Data User
               </Link>
@@ -34,6 +36,7 @@ function Navbar() {
                 className="nav-link fw-bold py-1 px-3"
                 aria-current="page"
                 to="/warga"
+                onClick={clearTableState}
               >
                 Data Warga
               </Link>
@@ -41,6 +44,7 @@ function Navbar() {
                 className="nav-link fw-bold py-1 px-3"
                 aria-current="page"
                 to="/expense"
+                onClick={clearTableState}
               >
                 Data Pengeluaran
               </Link>
@@ -58,12 +62,20 @@ function Navbar() {
                 </a>
                 <ul className="dropdown-menu" aria-labelledby="iuranDropdown">
                   <li>
-                    <Link className="dropdown-item" to="/iuran">
+                    <Link
+                      className="dropdown-item"
+                      to="/iuran"
+                      onClick={clearTableState}
+                    >
                       Data Iuran
                     </Link>
                   </li>
                   <li>
-                    <Link className="dropdown-item" to="/iuran/rincian">
+                    <Link
+                      className="dropdown-item"
+                      to="/iuran/rincian"
+                      onClick={clearTableState}
+                    >
                       Rincian Iuran
                     </Link>
                   </li>
@@ -83,17 +95,29 @@ function Navbar() {
                 </a>
                 <ul className="dropdown-menu" aria-labelledby="laporanDropdown">
                   <li>
-                    <Link className="dropdown-item" to="/report/cash">
+                    <Link
+                      className="dropdown-item"
+                      to="/report/cash"
+                      onClick={clearTableState}
+                    >
                       Laporan Bu Agus
                     </Link>
                   </li>
                   <li>
-                    <Link className="dropdown-item" to="/report/transfer">
+                    <Link
+                      className="dropdown-item"
+                      to="/report/transfer"
+                      onClick={clearTableState}
+                    >
                       Laporan Bu Harris
                     </Link>
                   </li>
                   <li>
-                    <Link className="dropdown-item" to="/report/pricing-tier">
+                    <Link
+                      className="dropdown-item"
+                      to="/report/pricing-tier"
+                      onClick={clearTableState}
+                    >
                       Laporan Pricing Tier
                     </Link>
                   </li>
@@ -104,6 +128,7 @@ function Navbar() {
                 className="nav-link fw-bold py-1 px-3"
                 aria-current="page"
                 to="/"
+                onClick={clearTableState}
               >
                 <FontAwesomeIcon icon={faHouse} className="text-black" />
               </Link>
@@ -118,9 +143,9 @@ function Navbar() {
                 className="nav-link fw-bold py-1 px-3"
                 aria-current="page"
                 onClick={() => {
-                  localStorage.clear()
-                  dispatch(addAuth({ auth: false, userData: {}, token: "" }))
-                  navigate("/")
+                  localStorage.clear();
+                  dispatch(addAuth({ auth: false, userData: {}, token: "" }));
+                  navigate("/");
                 }}
               >
                 <FontAwesomeIcon
@@ -147,7 +172,7 @@ function Navbar() {
         </nav>
       </div>
     </header>
-  )
+  );
 }
 
-export default Navbar
+export default Navbar;

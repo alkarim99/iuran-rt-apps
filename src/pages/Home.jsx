@@ -1,11 +1,12 @@
-import React from "react"
-import { Link } from "react-router-dom"
-import { useSelector } from "react-redux"
-import Navbar from "../components/Navbar"
-import Footer from "../components/Footer"
+import React from "react";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import { clearTableState } from "../hooks/useTableState";
 
 function Home() {
-  const state = useSelector((reducer) => reducer.auth)
+  const state = useSelector((reducer) => reducer.auth);
 
   return (
     <div
@@ -31,13 +32,25 @@ function Home() {
       {state?.auth ? (
         <>
           <div className="text-center">
-            <Link className="btn btn-primary mx-3" to="/user">
+            <Link
+              className="btn btn-primary mx-3"
+              to="/user"
+              onClick={clearTableState}
+            >
               Data User
             </Link>
-            <Link className="btn btn-primary mx-3" to="/warga">
+            <Link
+              className="btn btn-primary mx-3"
+              to="/warga"
+              onClick={clearTableState}
+            >
               Data Warga
             </Link>
-            <Link className="btn btn-primary mx-3" to="/iuran">
+            <Link
+              className="btn btn-primary mx-3"
+              to="/iuran"
+              onClick={clearTableState}
+            >
               Data Iuran
             </Link>
           </div>
@@ -48,7 +61,7 @@ function Home() {
 
       <Footer />
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;

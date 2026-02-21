@@ -59,3 +59,20 @@ export const useTableState = (storageKey, defaultLimit = 20) => {
     resetTable,
   };
 };
+
+export const clearTableState = () => {
+  const keysToRemove = [];
+  for (let i = 0; i < sessionStorage.length; i++) {
+    const key = sessionStorage.key(i);
+    if (
+      key.includes("_page") ||
+      key.includes("_limit") ||
+      key.includes("_keyword") ||
+      key.includes("_sortBy") ||
+      key.includes("_order")
+    ) {
+      keysToRemove.push(key);
+    }
+  }
+  keysToRemove.forEach((key) => sessionStorage.removeItem(key));
+};

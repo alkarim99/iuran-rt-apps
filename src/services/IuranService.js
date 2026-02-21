@@ -37,9 +37,10 @@ export const getPaymentByWargaId = async (data) => {
 
 export const getRincianPayment = async (data) => {
   try {
-    const { currentPage, payAt } = data;
+    const { currentPage, limit, payAt } = data;
     const url = buildUrl("/payments/rincian", {
       page: currentPage,
+      limit,
       pay_at: payAt,
     });
     const response = await axios.get(url);
@@ -82,10 +83,13 @@ export const searchPayments = async (data) => {
 
 export const searchPaymentsRincian = async (data) => {
   try {
-    const { keyword, sortBy, payAt } = data;
+    const { keyword, sortBy, order, page, limit, payAt } = data;
     const url = buildUrl("/payments/rincian", {
       keyword,
       sort_by: sortBy,
+      order,
+      page,
+      limit,
       pay_at: payAt,
     });
     const response = await axios.get(url);
