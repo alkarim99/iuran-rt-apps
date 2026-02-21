@@ -1,6 +1,6 @@
 import axios from "axios";
-import { buildUrl } from "../helpers/urlBuilder";;
-import { BASE_URL } from "./config";;
+import { buildUrl } from "../helpers/urlBuilder";
+import { BASE_URL } from "./config";
 
 export const getAllPayments = async (currentPage, limit) => {
   try {
@@ -10,25 +10,17 @@ export const getAllPayments = async (currentPage, limit) => {
   } catch (error) {
     console.error("Failed to fetch payments data:", error);
     throw error;
-    console.error("Failed to fetch payments data:", error);
-    throw error;
   }
-};
 };
 
 export const getPaymentByID = async (id) => {
   try {
     const response = await axios.get(`${BASE_URL}/payments/${id}`);
     return response;
-    const response = await axios.get(`${BASE_URL}/payments/${id}`);
-    return response;
   } catch (error) {
     console.error("Failed to fetch payment data:", error);
     throw error;
-    console.error("Failed to fetch payment data:", error);
-    throw error;
   }
-};
 };
 
 export const getPaymentByWargaId = async (data) => {
@@ -40,10 +32,7 @@ export const getPaymentByWargaId = async (data) => {
   } catch (error) {
     console.error("Failed to fetch payment data:", error);
     throw error;
-    console.error("Failed to fetch payment data:", error);
-    throw error;
   }
-};
 };
 
 export const getRincianPayment = async (data) => {
@@ -58,10 +47,7 @@ export const getRincianPayment = async (data) => {
   } catch (error) {
     console.error("Failed to fetch payment data:", error);
     throw error;
-    console.error("Failed to fetch payment data:", error);
-    throw error;
   }
-};
 };
 
 export const getPaymentReport = async (data) => {
@@ -73,10 +59,7 @@ export const getPaymentReport = async (data) => {
   } catch (error) {
     console.error("Failed to fetch payment data:", error);
     throw error;
-    console.error("Failed to fetch payment data:", error);
-    throw error;
   }
-};
 };
 
 export const searchPayments = async (data) => {
@@ -93,10 +76,7 @@ export const searchPayments = async (data) => {
   } catch (error) {
     console.error("Failed to fetch payments data:", error);
     throw error;
-    console.error("Failed to fetch payments data:", error);
-    throw error;
   }
-};
 };
 
 export const searchPaymentsRincian = async (data) => {
@@ -112,70 +92,47 @@ export const searchPaymentsRincian = async (data) => {
   } catch (error) {
     console.error("Failed to fetch payments data:", error);
     throw error;
-    console.error("Failed to fetch payments data:", error);
-    throw error;
   }
-};
 };
 
 export const getLatestPayment = async (id) => {
   try {
     const response = await axios.get(`${BASE_URL}/payments/latest/${id}`);
     return response;
-    const response = await axios.get(`${BASE_URL}/payments/latest/${id}`);
-    return response;
   } catch (error) {
     console.error("Failed to fetch latest payment data:", error);
     throw error;
-    console.error("Failed to fetch latest payment data:", error);
-    throw error;
   }
-};
 };
 
 export const createPayment = async (data) => {
   try {
     const response = await axios.post(`${BASE_URL}/payments`, data);
     return response;
-    const response = await axios.post(`${BASE_URL}/payments`, data);
-    return response;
   } catch (error) {
     console.error("Failed to create payment data:", error);
     throw error;
-    console.error("Failed to create payment data:", error);
-    throw error;
   }
-};
 };
 
 export const editPayment = async (data) => {
   try {
     const response = await axios.put(`${BASE_URL}/payments`, data);
     return response;
-    const response = await axios.put(`${BASE_URL}/payments`, data);
-    return response;
   } catch (error) {
     console.error("Failed to edit payment data:", error);
     throw error;
-    console.error("Failed to edit payment data:", error);
-    throw error;
   }
-};
 };
 
 export const deletePayment = async (id) => {
   try {
     const response = await axios.delete(`${BASE_URL}/payments/${id}`);
     return response;
-    const response = await axios.delete(`${BASE_URL}/payments/${id}`);
-    return response;
   } catch (error) {
     console.error("Failed to delete payment data:", error);
     throw error;
-    console.error("Failed to delete payment data:", error);
-    throw error;
   }
-};
 };
 
 export const totalPayment = async (data) => {
@@ -192,10 +149,7 @@ export const totalPayment = async (data) => {
   } catch (error) {
     console.error("Failed to fetch total payment data:", error);
     throw error;
-    console.error("Failed to fetch total payment data:", error);
-    throw error;
   }
-};
 };
 
 export const getPaymentByMethod = async (data) => {
@@ -207,10 +161,7 @@ export const getPaymentByMethod = async (data) => {
   } catch (error) {
     console.error("Failed to fetch payment data:", error);
     throw error;
-    console.error("Failed to fetch payment data:", error);
-    throw error;
   }
-};
 };
 
 export const getPricingTierReport = async (data) => {

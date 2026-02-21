@@ -1,14 +1,14 @@
-import "bootstrap/dist/css/bootstrap.css";;
-import "bootstrap/dist/js/bootstrap.js";;
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap/dist/js/bootstrap.js";
 import "./styles/print.css";
-import React from "react";;
-import { createBrowserRouter, RouterProvider } from "react-router-dom";;
-import { Provider } from "react-redux";;
-import { PersistGate } from "redux-persist/integration/react";;
-import axios from "axios";;
+import React from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import axios from "axios";
 import { store, persistor } from "./store";
 
-import PrivateRoute from "./components/PrivateRoute";;
+import PrivateRoute from "./components/PrivateRoute";
 
 // import pages
 import {
@@ -32,7 +32,7 @@ import {
   ReportCash,
   ReportTransfer,
   ReportPricingTier,
-} from "./pages";;
+} from "./pages";
 
 const router = createBrowserRouter([
   {
@@ -191,7 +191,7 @@ const router = createBrowserRouter([
     path: "/report/pricing-tier",
     element: <ReportPricingTier />,
   },
-]);;
+]);
 
 function App() {
   return (
