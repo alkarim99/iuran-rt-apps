@@ -11,17 +11,20 @@ Aplikasi frontend untuk pencatatan iuran warga RT.
 - **Routing:** React Router DOM v6
 - **Icons:** Font Awesome
 - **Notifications:** SweetAlert2
+- **Data Export:** xlsx (SheetJS)
 
 ## Fitur
 
 - 🔐 **Login/Logout** — Autentikasi dengan JWT (persisted di localStorage)
 - 👥 **Data Warga** — Kelola data warga RT (CRUD + detail + riwayat iuran)
-- 💰 **Data Iuran** — Catat dan kelola pembayaran iuran warga
+- 💰 **Data Iuran** — Catat dan kelola pembayaran iuran warga (termasuk form dinamis custom nominal di luar tier)
 - 📋 **Rincian Iuran** — Lihat breakdown iuran per periode (RT/PKK/Sosial/Kematian)
+- 📥 **Ekspor Excel** — Download otomatis laporan dan tabel secara langsung di rincian laporan kas RT
 - 📤 **Data Pengeluaran** — Catat pengeluaran kas RT
-- 📊 **Laporan Bu Agus** — Laporan pemasukan cash + pengeluaran
-- 📊 **Laporan Bu Harris** — Laporan pemasukan transfer
+- 📊 **Laporan Bu Agus** — Laporan rekapitulasi akuntansi untuk pemasukan cash + pengeluaran
+- 📊 **Laporan Bu Harris** — Laporan rekapitulasi akuntansi untuk pemasukan transfer
 - 👤 **Data User** — Kelola pengguna aplikasi
+- 🚀 **UI UX Enhancements** — Menyediakan Select Limit tabel fleksibel, dan persistensi pagination via `sessionStorage`.
 
 ## Struktur Folder
 

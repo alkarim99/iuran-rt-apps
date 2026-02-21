@@ -2,9 +2,9 @@ import axios from "axios";
 import { buildUrl } from "../helpers/urlBuilder";
 import { BASE_URL } from "./config";
 
-export const getAllWarga = async (currentPage) => {
+export const getAllWarga = async (currentPage, limit) => {
   try {
-    const url = buildUrl("/wargas", { page: currentPage });
+    const url = buildUrl("/wargas", { page: currentPage, limit });
     const response = await axios.get(url);
     return response;
   } catch (error) {
@@ -35,11 +35,13 @@ export const getWargaByID = async (id) => {
 
 export const searchWarga = async (data) => {
   try {
-    const { keyword, sortBy, order } = data;
+    const { keyword, sortBy, order, page, limit } = data;
     const url = buildUrl("/wargas", {
       keyword,
       sort_by: sortBy,
       order,
+      page,
+      limit,
     });
     const response = await axios.get(url);
     return response;

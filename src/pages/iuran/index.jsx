@@ -11,20 +11,33 @@ import FormatDate from "../../helpers/FormatDate"
 import FormatCurrency from "../../helpers/FormatCurrency"
 import { exportToExcel } from "../../helpers/exportToExcel"
 import { usePayments } from "../../hooks/usePayments"
+import { useTableState } from "../../hooks/useTableState"
+import TableFooter from "../../components/TableFooter"
 
 function IndexIuran() {
   const navigate = useNavigate()
   const state = useSelector((reducer) => reducer.auth)
-  const itemsPerPage = 20
-  const [currentPage, setCurrentPage] = useState(1)
-  const [keyword, setKeyword] = useState("")
-  const [sortBy, setSortBy] = useState("")
-
-  const { dataIuran, totalPages, isLoading, handleDelete } = usePayments(
-    currentPage,
-    itemsPerPage,
+  const {
+    page,
+    setPage,
+    limit,
+    setLimit,
     keyword,
-    sortBy
+    setKeyword,
+    sortBy,
+    setSortBy,
+    order,
+    setOrder,
+    handleSort,
+    resetTable,
+  } = useTableState("iuran", 20)
+
+  const { dataIuran, totalPages, totalCount, isLoading, handleDelete } = usePayments(
+    page,
+    limit,
+    keyword,
+    sortBy,
+    order
   )
 
   if (!state.auth) {
@@ -32,34 +45,18 @@ function IndexIuran() {
     return null
   }
 
-  const handleSearch = () => {
-    setCurrentPage(1)
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault()
+    setPage(1)
   }
 
   const handleReset = () => {
-    setKeyword("")
-    setSortBy("")
-    setCurrentPage(1)
-  }
-
-  // Helper for pagination range centered on current page
-  const getPaginationRange = (current, total, siblingCount = 2) => {
-    const totalPageNumbers = siblingCount * 2 + 1 // 5 pages total
-    if (total <= totalPageNumbers) {
-      return Array.from({ length: total }, (_, i) => i + 1)
-    }
-    const left = Math.max(current - siblingCount, 1)
-    const right = Math.min(left + totalPageNumbers - 1, total)
-    const rangeStart = Math.max(Math.min(left, total - totalPageNumbers + 1), 1)
-    return Array.from(
-      { length: Math.min(totalPageNumbers, total) },
-      (_, i) => rangeStart + i
-    )
+    resetTable("", 1)
   }
 
   const handleExportExcel = () => {
     const dataToExport = dataIuran.map((iuran, index) => ({
-      No: (currentPage - 1) * itemsPerPage + index + 1,
+      No: (page - 1) * limit + index + 1,
       "Tanggal Input": FormatDate(iuran?.created_at),
       "Tanggal Bayar": FormatDate(iuran?.pay_at),
       Warga: `${iuran?.warga?.address} | ${iuran?.warga?.name}`,
@@ -68,8 +65,6 @@ function IndexIuran() {
     }))
     exportToExcel(dataToExport, "Data_Iuran")
   }
-
-  const paginationRange = getPaginationRange(currentPage, totalPages)
 
   return (
     <>
@@ -88,7 +83,7 @@ function IndexIuran() {
 
         {/* Search & Sort Form */}
         <div className="my-4">
-          <form onSubmit={(e) => e.preventDefault()}>
+          <form onSubmit={handleSearchSubmit}>
             <div className="row d-flex align-items-end">
               <div className="col-3">
                 <input
@@ -111,7 +106,7 @@ function IndexIuran() {
                 </select>
               </div>
               <div className="col-3">
-                <button className="btn btn-primary" onClick={handleSearch}>
+                <button className="btn btn-primary" type="submit">
                   {isLoading ? "Loading..." : "Search"}
                 </button>
                 <button
@@ -134,23 +129,27 @@ function IndexIuran() {
           </div>
         ) : (
           <div>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Tanggal Input</th>
-                  <th>Tanggal Bayar</th>
-                  <th>Warga</th>
-                  <th>Periode</th>
-                  <th>Nominal</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
+              <table className="table table-hover">
+                <thead className="table-light">
+                  <tr>
+                    <th>#</th>
+                    <th style={{cursor: "pointer"}} onClick={() => handleSort("created_at")}>
+                      Tanggal Input {sortBy === "created_at" && (order === 1 ? "▲" : "▼")}
+                    </th>
+                    <th style={{cursor: "pointer"}} onClick={() => handleSort("pay_at")}>
+                      Tanggal Bayar {sortBy === "pay_at" && (order === 1 ? "▲" : "▼")}
+                    </th>
+                    <th>Warga</th>
+                    <th>Periode</th>
+                    <th>Nominal</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
               <tbody>
                 {dataIuran.map((iuran, index) => (
                   <tr key={iuran._id}>
                     <th scope="row">
-                      {(currentPage - 1) * itemsPerPage + index + 1}
+                      {(page - 1) * limit + index + 1}
                     </th>
                     <td>{FormatDate(iuran?.created_at)}</td>
                     <td>{FormatDate(iuran?.pay_at)}</td>
@@ -207,68 +206,25 @@ function IndexIuran() {
                     </td>
                   </tr>
                 ))}
+                {dataIuran.length === 0 && (
+                  <tr>
+                    <td colSpan="7" className="text-center">Tidak ada data ditemukan</td>
+                  </tr>
+                )}
               </tbody>
             </table>
 
-            {/* Pagination */}
-            <nav>
-              <ul className="pagination">
-                {/* Previous page arrow */}
-                <li
-                  className={`page-item ${
-                    currentPage <= 1 ? "disabled" : ""
-                  }`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={() =>
-                      currentPage > 1 &&
-                      setCurrentPage(currentPage - 1)
-                    }
-                    aria-label="Previous page"
-                  >
-                    Previous
-                  </button>
-                </li>
-
-                {/* Page numbers */}
-                {paginationRange.map((page) => (
-                  <li
-                    key={page}
-                    className={`page-item ${
-                      currentPage === page ? "active" : ""
-                    }`}
-                  >
-                    <button
-                      className="page-link"
-                      onClick={() => setCurrentPage(page)}
-                    >
-                      {page}
-                    </button>
-                  </li>
-                ))}
-
-                {/* Next page arrow */}
-                <li
-                  className={`page-item ${
-                    currentPage >= totalPages
-                      ? "disabled"
-                      : ""
-                  }`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={() =>
-                      currentPage < totalPages &&
-                      setCurrentPage(currentPage + 1)
-                    }
-                    aria-label="Next page"
-                  >
-                    Next
-                  </button>
-                </li>
-              </ul>
-            </nav>
+            <TableFooter
+              currentPage={page}
+              totalPages={totalPages}
+              totalCount={totalCount}
+              itemsPerPage={limit}
+              onPageChange={setPage}
+              onLimitChange={(newLimit) => {
+                setLimit(newLimit)
+                setPage(1)
+              }}
+            />
           </div>
         )}
       </div>

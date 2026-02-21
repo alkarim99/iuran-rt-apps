@@ -11,8 +11,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
+import TableFooter from "../../components/TableFooter"
+import { useTableState } from "../../hooks/useTableState"
 import {
-  getAllWarga,
   searchWarga,
   deleteWarga,
 } from "../../services/WargaService"
@@ -24,27 +25,40 @@ function IndexWarga() {
   const [dataWarga, setDataWarga] = useState([])
   const [isLoading, setIsLoading] = useState(false)
 
-  const [keyword, setKeyword] = useState("")
-  const [sortBy, setSortBy] = useState("address")
-  const [order, setOrder] = useState(1)
+  const {
+    page,
+    setPage,
+    limit,
+    setLimit,
+    keyword,
+    setKeyword,
+    sortBy,
+    setSortBy,
+    order,
+    setOrder,
+    handleSort,
+    resetTable,
+  } = useTableState("warga", 20)
 
-  const itemsPerPage = 20
-  const [currentPage, setCurrentPage] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
 
   useEffect(() => {
-    setIsLoading(true)
     if (!state.auth) {
       navigate("/sign-in")
+    } else {
+      fetchWargaData()
     }
-    handleGet()
-  }, [state, currentPage])
+  }, [state, page, limit, sortBy, order])
 
-  const handleGet = () => {
-    getAllWarga(currentPage)
+  const fetchWargaData = () => {
+    setIsLoading(true)
+    const payload = { keyword, sortBy, order, page, limit }
+    searchWarga(payload)
       .then((response) => {
-        setTotalPages(response?.data?.totalPages)
-        setDataWarga(response?.data?.data)
+        setTotalPages(response?.data?.totalPages || 1)
+        setTotalCount(response?.data?.totalCount || 0)
+        setDataWarga(response?.data?.data || [])
       })
       .catch((error) => {
         console.log(error)
@@ -72,7 +86,7 @@ function IndexWarga() {
               text: response?.data?.message,
               icon: "success",
             }).then(() => {
-              handleGet()
+              fetchWargaData()
             })
           })
           .catch((error) => {
@@ -93,39 +107,23 @@ function IndexWarga() {
     })
   }
 
-  const handleSearch = () => {
-    setIsLoading(true)
-    const payload = { keyword, sortBy, order }
-    searchWarga(payload)
-      .then((response) => {
-        setDataWarga(response?.data?.data)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
+  const handleSearchSubmit = () => {
+    if (page === 1) {
+      fetchWargaData()
+    } else {
+      setPage(1)
+    }
   }
 
   const handleReset = () => {
-    setIsLoading(true)
-    setKeyword("")
-    setSortBy("warga.address")
-    setOrder(1)
-    handleGet()
-  }
-
-  const handlePreviousPage = () => {
-    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
-  }
-
-  const handleNextPage = () => {
-    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
+    resetTable("address", 1)
+    setTimeout(() => {
+      fetchWargaData() // Ensure it pulls generic data after clearing if batch states hadn't fully synchronously caught
+    }, 0)
   }
 
   const getStartingIndex = () => {
-    return (currentPage - 1) * itemsPerPage + 1
+    return (page - 1) * limit + 1
   }
 
   if (isLoading) {
@@ -188,7 +186,7 @@ function IndexWarga() {
                   <button
                     className="btn btn-primary py-2 me-2"
                     type="submit"
-                    onClick={handleSearch}
+                    onClick={handleSearchSubmit}
                   >
                     {isLoading ? "Loading..." : "Search"}
                   </button>
@@ -197,7 +195,7 @@ function IndexWarga() {
                     type="button"
                     onClick={handleReset}
                   >
-                    {isLoading ? "Loading..." : "Reset"}
+                    Reset
                   </button>
                 </div>
               </div>
@@ -205,13 +203,17 @@ function IndexWarga() {
           </div>
 
           <div className="row">
-            <div className="col-8">
-              <table className="table">
-                <thead>
+            <div className="col-12">
+              <table className="table table-hover">
+                <thead className="table-light">
                   <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Address</th>
+                    <th scope="col" style={{cursor: "pointer"}} onClick={() => handleSort("name")}>
+                      Name {sortBy === "name" && (order === 1 ? "▲" : "▼")}
+                    </th>
+                    <th scope="col" style={{cursor: "pointer"}} onClick={() => handleSort("address")}>
+                      Address {sortBy === "address" && (order === 1 ? "▲" : "▼")}
+                    </th>
                     <th scope="col">Action</th>
                   </tr>
                 </thead>
@@ -250,54 +252,25 @@ function IndexWarga() {
                       </>
                     )
                   })}
+                  {dataWarga.length === 0 && (
+                    <tr>
+                      <td colSpan="4" className="text-center">Tidak ada data ditemukan</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
-              {/* Pagination */}
-              <nav aria-label="Page navigation example">
-                <ul className="pagination justify-content-center">
-                  <li
-                    className={`page-item ${
-                      currentPage === 1 ? "disabled" : ""
-                    }`}
-                  >
-                    <button
-                      className="page-link"
-                      onClick={handlePreviousPage}
-                      disabled={currentPage === 1}
-                    >
-                      Previous
-                    </button>
-                  </li>
-                  {Array.from({ length: totalPages }, (_, i) => (
-                    <li
-                      key={i}
-                      className={`page-item ${
-                        i + 1 === currentPage ? "active" : ""
-                      }`}
-                    >
-                      <button
-                        className="page-link"
-                        onClick={() => setCurrentPage(i + 1)}
-                      >
-                        {i + 1}
-                      </button>
-                    </li>
-                  ))}
-                  <li
-                    className={`page-item ${
-                      currentPage === totalPages ? "disabled" : ""
-                    }`}
-                  >
-                    <button
-                      className="page-link"
-                      onClick={handleNextPage}
-                      disabled={currentPage === totalPages}
-                    >
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
+
+              <TableFooter
+                currentPage={page}
+                totalPages={totalPages}
+                totalCount={totalCount}
+                itemsPerPage={limit}
+                onPageChange={setPage}
+                onLimitChange={(newLimit) => {
+                  setLimit(newLimit)
+                  setPage(1)
+                }}
+              />
             </div>
           </div>
 

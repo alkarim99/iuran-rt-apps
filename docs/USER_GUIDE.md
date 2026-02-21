@@ -10,6 +10,7 @@ Aplikasi **Iuran RT** adalah sistem pencatatan keuangan digital untuk lingkungan
 - 💰 **Mencatat pembayaran iuran** — siapa yang bayar, kapan, berapa, dan metode pembayaran
 - 📤 **Mencatat pengeluaran** — pengeluaran kas RT
 - 📊 **Melihat laporan keuangan** — laporan pemasukan dan pengeluaran per bulan
+- 📥 **Ekspor Data** — Mendownload laporan dan data warga/iuran langsung ke format Excel (.xlsx)
 
 ---
 
@@ -54,6 +55,8 @@ Setelah login, tersedia menu berikut:
 - Buka menu **Data Warga**
 - Daftar warga ditampilkan dalam tabel, diurutkan berdasarkan alamat
 - Gunakan kolom **Cari** untuk mencari berdasarkan nama atau alamat
+- Klik pada judul kolom ( Nama / Alamat ) untuk mengurutkan data (_Ascending / Descending_)
+- Anda dapat memilih jumlah baris yang ditampilkan per halaman dari opsi dropdown di sudut kiri bawah layar (10, 20, 25, 50, 100). Sistem akan secara otomatis mengingat preferensi Anda dan halaman terakhir saat Anda keluar.
 
 ### Menambah Warga Baru
 
@@ -96,15 +99,16 @@ Setelah login, tersedia menu berikut:
 1. Buka **Iuran → Data Iuran** atau halaman **Detail Warga**, lalu klik tombol **+**
 2. Isi formulir:
 
-| Field                      | Keterangan                                                         |
-| -------------------------- | ------------------------------------------------------------------ |
-| **Warga**                  | Pilih warga dari dropdown. Bisa dicari dengan mengetik nama/alamat |
-| **Periode Bayar Terakhir** | Otomatis tampil setelah memilih warga — sebagai referensi          |
-| **Tanggal Bayar**          | Tanggal warga melakukan pembayaran                                 |
-| **Periode Mulai**          | Awal bulan yang dibayar                                            |
-| **Periode Akhir**          | Akhir bulan yang dibayar                                           |
-| **Nominal**                | Total uang yang dibayarkan                                         |
-| **Metode Pembayaran**      | Pilih **Cash** atau **Transfer**                                   |
+| Field                      | Keterangan                                                                                                                                                                                     |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Warga**                  | Pilih warga dari dropdown. Bisa dicari dengan mengetik nama/alamat                                                                                                                             |
+| **Periode Bayar Terakhir** | Otomatis tampil setelah memilih warga — sebagai referensi                                                                                                                                      |
+| **Tanggal Bayar**          | Tanggal warga melakukan pembayaran                                                                                                                                                             |
+| **Periode Mulai**          | Awal bulan yang dibayar                                                                                                                                                                        |
+| **Periode Akhir**          | Akhir bulan yang dibayar                                                                                                                                                                       |
+| **Nominal**                | Total uang yang dibayarkan                                                                                                                                                                     |
+| **Rincian Khusus**         | Jika nominal di luar ketentuan tier biasa, form isian manual untuk RT, PKK, Sosial, dan Kematian akan terbuka secara dinamis. Total isian rincian harus sama persis dengan total nominal bayar |
+| **Metode Pembayaran**      | Pilih **Cash** atau **Transfer**                                                                                                                                                               |
 
 3. Klik **Submit**
 
@@ -156,11 +160,13 @@ Halaman ini menampilkan **semua pembayaran iuran** dalam satu periode (bulan) be
 | RT / PKK / Sosial / Kematian | Rincian pembagian nominal     |
 | Keterangan                   | Rentang periode (dari–sampai) |
 
-**Filter yang tersedia:**
+**Filter dan Fungsionalitas:**
 
 - **Cari** — berdasarkan nama atau alamat
-- **Urutkan** — berdasarkan tanggal bayar, tanggal input, nama warga, atau alamat
+- **Urutkan** — berdasarkan tanggal bayar, tanggal input, nama warga, atau alamat, bisa pula dengan mengklik _header_ tabel
+- **Excel Export** — Tombol untuk mendownload tabel rincian Iuran langsung dalam format Excel `.xlsx`
 - **Periode** — pilih bulan yang ingin dilihat
+- **Persistensi Halaman** — Posisi limit pagination dan halaman Anda dipertahankan (_tersimpan otomatis_) meski berpindah menu.
 
 Dari halaman ini Anda juga bisa langsung **membuat pembayaran baru**, **edit**, atau **hapus** pembayaran melalui tombol **Menu** di setiap baris.
 
@@ -205,12 +211,17 @@ Menampilkan total pemasukan dalam rentang tanggal tertentu:
 1. Buka **Laporan → Laporan Bu Agus**
 2. Pilih **Periode** (bulan)
 3. Klik **Search**
-4. Sistem menampilkan **2 tabel berdampingan**:
+4. Sistem menampilkan tabel pembukuan bergaya akuntansi:
 
-| Kolom Kiri — Pemasukan Cash | Kolom Kanan — Pengeluaran |
-| --------------------------- | ------------------------- |
-| Daftar pembayaran via cash  | Daftar pengeluaran RT     |
-| **Total Pemasukan**         | **Total Pengeluaran**     |
+| Kolom       | Keterangan                                          |
+| ----------- | --------------------------------------------------- |
+| Tanggal     | Waktu transaksi / input                             |
+| Keterangan  | Detail warga / transaksi nota pengeluaran           |
+| Pemasukan   | Nilai uang masuk (Debit)                            |
+| Pengeluaran | Nilai uang keluar (Kredit)                          |
+| Saldo       | Jumlah kas (bersih) kumulatif hingga baris tersebut |
+
+> **Tombol "Export Excel"** tersedia di setiap halaman pelaporan untuk membackup / membagikan file laporan.
 
 ### Laporan Bu Harris — Pemasukan Transfer
 

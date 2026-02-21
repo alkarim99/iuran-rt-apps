@@ -64,10 +64,11 @@ export const getPaymentReport = async (data) => {
 
 export const searchPayments = async (data) => {
   try {
-    const { keyword, sortBy, page, limit } = data;
+    const { keyword, sortBy, order, page, limit } = data;
     const url = buildUrl("/payments", {
       keyword,
       sort_by: sortBy,
+      order,
       page,
       limit,
     });
