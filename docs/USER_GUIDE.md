@@ -152,12 +152,13 @@ Halaman ini menampilkan **semua pembayaran iuran** dalam satu periode (bulan) be
 
 | Kolom                        | Isi                           |
 | ---------------------------- | ----------------------------- |
-| Tanggal Input                | Kapan data dicatat di sistem  |
+| Blok                         | Nomor blok rumah warga        |
+| Nama                         | Nama warga yang membayar      |
+| Alamat                       | Alamat lengkap warga          |
 | Tanggal Bayar                | Kapan warga membayar          |
-| Warga                        | Alamat dan nama warga         |
-| Periode                      | Jumlah bulan yang dibayar     |
-| Nominal                      | Total pembayaran              |
-| RT / PKK / Sosial / Kematian | Rincian pembagian nominal     |
+| Jumlah                       | Total pembayaran iuran        |
+| Periode Bulan                | Jumlah bulan yang dibayar     |
+| RT / PKK / Sosial / Kematian | Rincian pembagian pembayaran  |
 | Keterangan                   | Rentang periode (dari–sampai) |
 
 **Filter dan Fungsionalitas:**
