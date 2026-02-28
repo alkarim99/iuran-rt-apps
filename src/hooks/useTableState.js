@@ -36,8 +36,12 @@ export const useTableState = (
   // Handlers for sorting logic
   const handleSort = (columnKey) => {
     if (sortBy === columnKey) {
-      // Toggle order if clicking exactly same column
-      setOrder((prev) => (prev === 1 ? -1 : 1));
+      if (order === 1) {
+        setOrder(-1);
+      } else {
+        setSortBy("");
+        setOrder(1);
+      }
     } else {
       // New column, reset to ascending
       setSortBy(columnKey);

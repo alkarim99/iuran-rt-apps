@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
 import { getWargaOptions } from "../services/WargaService";
@@ -9,6 +9,7 @@ import FormatCurrency from "../helpers/FormatCurrency";
 export const useCreatePayments = () => {
   const navigate = useNavigate();
   const params = useParams();
+  const location = useLocation();
   const state = useSelector((reducer) => reducer.auth);
 
   const [wargaID, setWargaID] = useState(params?.id ?? "");
@@ -119,7 +120,7 @@ export const useCreatePayments = () => {
           text: response?.data?.message,
           icon: "success",
         }).then(() => {
-          navigate("/iuran");
+          navigate(location.state?.from || "/iuran");
         });
       })
       .catch((error) => {

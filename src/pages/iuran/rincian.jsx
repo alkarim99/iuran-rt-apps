@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,6 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import FormatDate from "../../helpers/FormatDate";
 import FormatCurrency from "../../helpers/FormatCurrency";
+import FormatPeriod from "../../helpers/FormatPeriod";
 import { exportToExcel } from "../../helpers/exportToExcel";
 import {
   getRincianPayment,
@@ -25,6 +26,7 @@ import { useTableState } from "../../hooks/useTableState";
 
 function RincianIuran() {
   const navigate = useNavigate();
+  const location = useLocation();
   const state = useSelector((reducer) => reducer.auth);
 
   const [dataIuran, setDataIuran] = useState([]);
@@ -172,7 +174,7 @@ function RincianIuran() {
         PKK: iuran?.details_payment?.pkk,
         Sosial: iuran?.details_payment?.sosial,
         Kematian: iuran?.details_payment?.kematian,
-        Keterangan: `${FormatDate(iuran?.period_start)} - ${FormatDate(iuran?.period_end)}`,
+        Keterangan: FormatPeriod(iuran?.period_start, iuran?.period_end),
       }));
 
       const titleMonthYear =
@@ -234,7 +236,11 @@ function RincianIuran() {
 
           <h1>
             Rincian Iuran
-            <Link className="btn btn-primary ms-1 no-print" to="/iuran/create">
+            <Link
+              className="btn btn-primary ms-1 no-print"
+              to="/iuran/create"
+              state={{ from: location.pathname + location.search }}
+            >
               <FontAwesomeIcon icon={faPlus} />
             </Link>
             <Link className="btn btn-primary ms-1 no-print" to="/iuran/total">
@@ -408,8 +414,7 @@ function RincianIuran() {
                           {FormatCurrency(iuran?.details_payment?.kematian)}
                         </td>
                         <td>
-                          {FormatDate(iuran?.period_start)} -{" "}
-                          {FormatDate(iuran?.period_end)}
+                          {FormatPeriod(iuran?.period_start, iuran?.period_end)}
                         </td>
                         <td className="text-center">
                           <div class="btn-group">
@@ -429,6 +434,9 @@ function RincianIuran() {
                                 <Link
                                   className="text-decoration-none text-black p-2"
                                   to={`/iuran/create/warga/${iuran?.warga?._id}`}
+                                  state={{
+                                    from: location.pathname + location.search,
+                                  }}
                                 >
                                   <FontAwesomeIcon icon={faPlus} /> Buat
                                   Pembayaran

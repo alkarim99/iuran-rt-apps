@@ -11,17 +11,19 @@ import Footer from "../../components/Footer";
 import { getPaymentByMethod } from "../../services/IuranService";
 import { getExpenseByTransactionAt } from "../../services/ExpenseService";
 
+import FormatPeriod from "../../helpers/FormatPeriod";
+
 function ReportCash() {
   const navigate = useNavigate();
   const state = useSelector((reducer) => reducer.auth);
 
   const todayDate = new Date();
-  const firstDate = new Date(
-    todayDate.getFullYear(),
-    todayDate.getUTCMonth(),
-    15,
-  );
-  const payAtDate = firstDate.toISOString().split("T")[0];
+  const getLocalMonthYear = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    return `${year}-${month}-01`;
+  };
+  const payAtDate = getLocalMonthYear(todayDate);
   const [payAt, setPayAt] = useState(payAtDate);
   const [paymentMethod, setPaymentMethod] = useState("cash");
 
@@ -112,7 +114,7 @@ function ReportCash() {
     }));
     exportToExcel(
       dataToExport,
-      `Laporan_Cash_${FormatDate(payAt).split(" ").join("_")}`,
+      `Laporan_Cash_${FormatPeriod(payAt, payAt).split(" ").join("_")}`,
     );
   };
 
@@ -139,18 +141,19 @@ function ReportCash() {
 
         <div className="print-header">
           <h2>Laporan Penerimaan Cash</h2>
-          <p>Periode: {FormatDate(payAt)}</p>
+          <p>Periode: {FormatPeriod(payAt, payAt)}</p>
         </div>
         <form onSubmit={(e) => e.preventDefault()}>
           <div className="row d-flex align-items-end">
             <div className="col-3">
-              <label for="start" className="form-label">
+              <label htmlFor="start" className="form-label">
                 Periode
               </label>
               <input
                 type="date"
                 className="form-control"
                 id="start"
+                value={payAt}
                 onChange={(e) => {
                   setPayAt(e.target.value);
                 }}
@@ -173,7 +176,7 @@ function ReportCash() {
           <div className="col-12">
             {(total != 0 || totalExpense != 0) && (
               <div className="d-flex justify-content-between my-3">
-                <p>Periode {FormatDate(payAt)}</p>
+                <p>Periode {FormatPeriod(payAt, payAt)}</p>
                 <div className="text-end">
                   <p className="mb-0">
                     Total Pemasukan:{" "}

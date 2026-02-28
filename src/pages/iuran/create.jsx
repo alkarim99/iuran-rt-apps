@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
@@ -12,6 +12,7 @@ import { useCreatePayments } from "../../hooks/useCreatePayments";
 
 function CreateIuran() {
   const params = useParams(); // Add this to get route params
+  const location = useLocation();
   const {
     wargaID,
     setWargaID,
@@ -64,13 +65,19 @@ function CreateIuran() {
 
         {params?.id != null ? (
           <div className="mb-3">
-            <Link className="btn btn-primary me-1" to={`/warga/${params?.id}`}>
+            <Link
+              className="btn btn-primary me-1"
+              to={location.state?.from || `/warga/${params?.id}`}
+            >
               <FontAwesomeIcon icon={faArrowLeft} />
             </Link>
           </div>
         ) : (
           <div className="mb-3">
-            <Link className="btn btn-primary me-1" to="/iuran">
+            <Link
+              className="btn btn-primary me-1"
+              to={location.state?.from || "/iuran"}
+            >
               <FontAwesomeIcon icon={faArrowLeft} />
             </Link>
           </div>
