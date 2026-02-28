@@ -50,12 +50,9 @@ function RincianIuran() {
   const [totalCount, setTotalCount] = useState(0);
 
   const todayDate = new Date();
-  const firstDate = new Date(
-    todayDate.getFullYear(),
-    todayDate.getUTCMonth(),
-    15,
-  );
-  const payAtDate = firstDate.toISOString().split("T")[0];
+  const currentYear = todayDate.getFullYear();
+  const currentMonth = String(todayDate.getMonth() + 1).padStart(2, "0");
+  const payAtDate = `${currentYear}-${currentMonth}-01`;
   const [payAt, setPayAt] = useState(payAtDate);
 
   useEffect(() => {
@@ -177,10 +174,8 @@ function RincianIuran() {
         Keterangan: FormatPeriod(iuran?.period_start, iuran?.period_end),
       }));
 
-      const titleMonthYear =
-        `${FormatDate(payAt).split(" ")[1] || ""} ${FormatDate(payAt).split(" ")[2] || ""}`
-          .trim()
-          .toUpperCase();
+      const formattedPeriod = FormatPeriod(payAt, payAt);
+      const titleMonthYear = formattedPeriod.toUpperCase();
 
       const prefixRows = [
         ["LAPORAN KAS BENDAHARA"],
@@ -195,7 +190,7 @@ function RincianIuran() {
 
       exportToExcel(
         dataToExport,
-        `Rincian_Iuran_${FormatDate(payAt).split(" ").join("_")}`,
+        `Rincian_Iuran_${formattedPeriod.split(" ").join("_")}`,
         { prefixRows },
       );
     } catch (error) {
