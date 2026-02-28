@@ -7,6 +7,7 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import axios from "axios";
 import { store, persistor } from "./store";
+import { addAuth } from "./store/reducers/auth";
 
 import PrivateRoute from "./components/PrivateRoute";
 
@@ -217,6 +218,20 @@ axios.interceptors.request.use(
     return config;
   },
   (error) => Promise.reject(error),
+);
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.clear();
+      store.dispatch(addAuth({ auth: false, userData: {}, token: "" }));
+      if (window.location.pathname !== "/sign-in") {
+        window.location.href = "/sign-in";
+      }
+    }
+    return Promise.reject(error);
+  },
 );
 
 export default App;
