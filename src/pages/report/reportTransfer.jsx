@@ -47,9 +47,18 @@ function ReportTransfer() {
     const payload = { start_date: startDate, end_date: endDate };
     getKasRekeningReport(payload)
       .then((response) => {
-        setTotalIncome(response?.data?.data?.total_income || 0);
-        setTotalExpense(response?.data?.data?.total_expense || 0);
-        setReportData(response?.data?.data?.transactions || []);
+        const transactions = response?.data?.data || [];
+
+        let inTotal = 0;
+        let outTotal = 0;
+        transactions.forEach((t) => {
+          inTotal += t.debit || 0;
+          outTotal += t.kredit || 0;
+        });
+
+        setTotalIncome(inTotal);
+        setTotalExpense(outTotal);
+        setReportData(transactions);
       })
       .catch((error) => {
         console.log(error);
@@ -59,19 +68,15 @@ function ReportTransfer() {
       });
   };
 
-  let currentSaldo = 0;
-  const combinedData = reportData.map((item) => {
-    currentSaldo += (item.debit || 0) - (item.credit || 0);
-    return { ...item, saldo: currentSaldo };
-  });
+  const combinedData = reportData;
 
   const handleExportExcel = () => {
     const dataToExport = combinedData.map((item, index) => ({
       No: index + 1,
-      Tanggal: FormatDate(item.tanggal),
-      Deskripsi: item.description || item.deskripsi,
+      Tanggal: FormatDate(item.date),
+      Deskripsi: item.description,
       "Pemasukan (Debit)": item.debit,
-      "Pengeluaran (Kredit)": item.credit,
+      "Pengeluaran (Kredit)": item.kredit,
       Saldo: item.saldo,
     }));
 
@@ -207,14 +212,14 @@ function ReportTransfer() {
                           <th scope="row" className="text-center">
                             {index + 1}
                           </th>
-                          <td>{FormatDate(item.tanggal)}</td>
-                          <td>{item.description || item.deskripsi}</td>
+                          <td>{FormatDate(item.date)}</td>
+                          <td>{item.description}</td>
                           <td className="text-end text-success">
                             {item.debit > 0 ? FormatCurrency(item.debit) : "-"}
                           </td>
                           <td className="text-end text-danger">
-                            {item.credit > 0
-                              ? FormatCurrency(item.credit)
+                            {item.kredit > 0
+                              ? FormatCurrency(item.kredit)
                               : "-"}
                           </td>
                           <td className="text-end fw-bold">

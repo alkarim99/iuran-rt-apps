@@ -238,7 +238,11 @@ function RincianIuran() {
             >
               <FontAwesomeIcon icon={faPlus} />
             </Link>
-            <Link className="btn btn-primary ms-1 no-print" to="/iuran/total">
+            <Link
+              className="btn btn-primary ms-1 no-print"
+              to="/iuran/total"
+              state={{ from: location.pathname + location.search }}
+            >
               Total
             </Link>
             <button

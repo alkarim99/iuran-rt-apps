@@ -23,8 +23,8 @@ function IndexOtherIncome() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [keyword, setKeyword] = useState("");
-  const [sortBy, setSortBy] = useState("");
-  const [order, setOrder] = useState("");
+  const [sortBy, setSortBy] = useState("transaction_at");
+  const [order, setOrder] = useState(-1);
 
   const [isLoading, setIsLoading] = useState(false);
   const [dataOtherIncome, setDataOtherIncome] = useState([]);
@@ -56,7 +56,7 @@ function IndexOtherIncome() {
     setIsLoading(true);
     setKeyword("");
     setSortBy("transaction_at");
-    setOrder("");
+    setOrder(-1);
     setCurrentPage(1);
   };
 
@@ -129,7 +129,11 @@ function IndexOtherIncome() {
 
         <h1>
           Data Pemasukan Lainnya
-          <Link className="btn btn-primary ms-1" to="/income/create">
+          <Link
+            className="btn btn-primary ms-1"
+            to="/income/create"
+            state={{ from: "/other-income" }}
+          >
             <FontAwesomeIcon icon={faPlus} /> Catat Pemasukan
           </Link>
         </h1>

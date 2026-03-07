@@ -1,104 +1,108 @@
-import { useState, useEffect } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { useSelector } from "react-redux"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
-import FormatDate from "../../helpers/FormatDate"
-import FormatCurrency from "../../helpers/FormatCurrency"
-import getFirstAndLastDateOfMonth from "../../helpers/FirstAndLastDate"
-import Navbar from "../../components/Navbar"
-import Footer from "../../components/Footer"
-import { totalPayment } from "../../services/IuranService"
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import FormatDate from "../../helpers/FormatDate";
+import FormatCurrency from "../../helpers/FormatCurrency";
+import getFirstAndLastDateOfMonth from "../../helpers/FirstAndLastDate";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import { totalPayment } from "../../services/IuranService";
 
 function TotalIuran() {
-  const navigate = useNavigate()
-  const state = useSelector((reducer) => reducer.auth)
+  const navigate = useNavigate();
+  const location = useLocation();
+  const state = useSelector((reducer) => reducer.auth);
 
-  const currentDate = new Date()
-  const currentYear = currentDate.getFullYear()
-  const currentMonth = currentDate.getMonth() + 1
-  const firstAndLastDate = getFirstAndLastDateOfMonth(currentYear, currentMonth)
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth() + 1;
+  const firstAndLastDate = getFirstAndLastDateOfMonth(
+    currentYear,
+    currentMonth,
+  );
 
-  const [start, setStart] = useState(firstAndLastDate.firstDate)
-  const [end, setEnd] = useState(firstAndLastDate.lastDate)
-  const [sortBy, setSortBy] = useState("")
-  const [total, setTotal] = useState(0)
-  const [dataIuran, setDataIuran] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [start, setStart] = useState(firstAndLastDate.firstDate);
+  const [end, setEnd] = useState(firstAndLastDate.lastDate);
+  const [sortBy, setSortBy] = useState("");
+  const [total, setTotal] = useState(0);
+  const [dataIuran, setDataIuran] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const itemsPerPage = 20
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(itemsPerPage)
-  const pagesPerGroup = 5
+  const itemsPerPage = 20;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(itemsPerPage);
+  const pagesPerGroup = 5;
 
   useEffect(() => {
     if (!state.auth) {
-      navigate("/sign-in")
+      navigate("/sign-in");
     }
-    const currentDate = new Date()
-    const currentYear = currentDate.getFullYear()
-    const currentMonth = currentDate.getMonth() + 1
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1;
     const firstAndLastDate = getFirstAndLastDateOfMonth(
       currentYear,
-      currentMonth
-    )
-    setStart(firstAndLastDate.firstDate)
-    setEnd(firstAndLastDate.lastDate)
-    handleSearch()
-  }, [state])
+      currentMonth,
+    );
+    setStart(firstAndLastDate.firstDate);
+    setEnd(firstAndLastDate.lastDate);
+    handleSearch();
+  }, [state]);
 
   const handleSearch = () => {
-    setIsLoading(true)
-    const payload = { start, end, sortBy, currentPage }
+    setIsLoading(true);
+    const payload = { start, end, sortBy, currentPage };
     totalPayment(payload)
       .then((response) => {
-        setTotal(response?.data?.totalIncome)
-        setTotalPages(response?.data?.totalPages)
-        setDataIuran(response?.data?.data)
+        setTotal(response?.data?.totalIncome);
+        setTotalPages(response?.data?.totalPages);
+        setDataIuran(response?.data?.data);
       })
       .catch((error) => {
-        console.log(error)
+        console.log(error);
       })
-      .finally(() => setIsLoading(false))
-  }
+      .finally(() => setIsLoading(false));
+  };
 
   const handlePreviousPage = () => {
-    const newGroupStartPage = Math.max(1, currentPage - pagesPerGroup)
-    setCurrentPage(newGroupStartPage)
-    handleSearch()
-  }
+    const newGroupStartPage = Math.max(1, currentPage - pagesPerGroup);
+    setCurrentPage(newGroupStartPage);
+    handleSearch();
+  };
 
   const handleNextPage = () => {
     const newGroupStartPage = Math.min(
       currentPage + pagesPerGroup,
-      totalPages - pagesPerGroup + 1
-    )
-    setCurrentPage(newGroupStartPage)
-    handleSearch()
-  }
+      totalPages - pagesPerGroup + 1,
+    );
+    setCurrentPage(newGroupStartPage);
+    handleSearch();
+  };
 
   const handlePageClick = (page) => {
-    setCurrentPage(page)
-    handleSearch()
-  }
+    setCurrentPage(page);
+    handleSearch();
+  };
 
   const getStartingIndex = () => {
-    return (currentPage - 1) * itemsPerPage + 1
-  }
+    return (currentPage - 1) * itemsPerPage + 1;
+  };
 
   const getPageNumbers = () => {
-    const pageNumbers = []
+    const pageNumbers = [];
     const totalPagesDisplayed = Math.min(
       totalPages,
-      currentPage + pagesPerGroup - 1
-    )
+      currentPage + pagesPerGroup - 1,
+    );
 
     for (let i = currentPage; i <= totalPagesDisplayed; i++) {
-      pageNumbers.push(i)
+      pageNumbers.push(i);
     }
 
-    return pageNumbers
-  }
+    return pageNumbers;
+  };
 
   return (
     <>
@@ -108,7 +112,10 @@ function TotalIuran() {
       >
         <Navbar />
         <div className="mb-3">
-          <Link className="btn btn-primary me-1" to="/iuran">
+          <Link
+            className="btn btn-primary me-1"
+            to={location.state?.from || "/iuran"}
+          >
             <FontAwesomeIcon icon={faArrowLeft} />
           </Link>
         </div>
@@ -123,7 +130,7 @@ function TotalIuran() {
                 className="form-control"
                 id="start"
                 onChange={(e) => {
-                  setStart(e.target.value)
+                  setStart(e.target.value);
                 }}
                 required
               />
@@ -137,7 +144,7 @@ function TotalIuran() {
                 className="form-control"
                 id="end"
                 onChange={(e) => {
-                  setEnd(e.target.value)
+                  setEnd(e.target.value);
                 }}
                 required
               />
@@ -196,7 +203,7 @@ function TotalIuran() {
               </thead>
               <tbody>
                 {dataIuran.map((iuran, index) => {
-                  const currentIndex = getStartingIndex() + index
+                  const currentIndex = getStartingIndex() + index;
                   return (
                     <>
                       <tr>
@@ -214,7 +221,7 @@ function TotalIuran() {
                         <td>{iuran?.payment_method?.toUpperCase()}</td>
                       </tr>
                     </>
-                  )
+                  );
                 })}
               </tbody>
             </table>
@@ -269,7 +276,7 @@ function TotalIuran() {
         <Footer />
       </div>
     </>
-  )
+  );
 }
 
-export default TotalIuran
+export default TotalIuran;

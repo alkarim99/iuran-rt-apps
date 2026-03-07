@@ -81,9 +81,36 @@ function ReportNeraca() {
     const startDate = `${payAt}-01`;
     const endDate = `${payAt}-${String(lastDay).padStart(2, "0")}`;
 
+    const monthNames = [
+      "JANUARI",
+      "FEBRUARI",
+      "MARET",
+      "APRIL",
+      "MEI",
+      "JUNI",
+      "JULI",
+      "AGUSTUS",
+      "SEPTEMBER",
+      "OKTOBER",
+      "NOVEMBER",
+      "DESEMBER",
+    ];
+    const monthIndex = parseInt(month, 10) - 1;
+    const periodText = `${monthNames[monthIndex]} ${year}`;
+
+    const prefixRows = [
+      ["LAPORAN KAS BENDAHARA"],
+      ["RT 08 RW 11 LINGKUNGAN PONDOK BLIMBING INDAH"],
+      ["KELURAHAN PURWODADI KECAMATAN BLIMBING KOTA MALANG"],
+      ["-"],
+      [`PERIODE : ${periodText}`],
+      [""], // Baris kosong pembatas sebelum nama kolom tabel dasar
+    ];
+
     exportToExcel(
       dataToExport,
       `Laporan_Neraca_${FormatPeriod(startDate, endDate).split(" ").join("_")}`,
+      { prefixRows },
     );
   };
 
