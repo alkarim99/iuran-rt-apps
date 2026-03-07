@@ -23,7 +23,7 @@ function CreateIncome() {
   const [oiTransactionAt, setOiTransactionAt] = useState("");
   const [oiNominal, setOiNominal] = useState("");
   const [oiDescription, setOiDescription] = useState("");
-  const [oiPaymentMethod, setOiPaymentMethod] = useState("Cash");
+  const [oiPaymentMethod, setOiPaymentMethod] = useState("cash");
   const [oiIsLoading, setOiIsLoading] = useState(false);
 
   // States specific to Iuran (from existing hook)
@@ -72,10 +72,17 @@ function CreateIncome() {
       .then((response) => {
         Swal.fire({
           title: "Create Success!",
-          text: response?.data?.message,
+          html: `Pemasukan Lainnya <b>${FormatCurrency(oiNominal)}</b> berhasil dicatat.`,
           icon: "success",
-        }).then(() => {
-          navigate(location.state?.from || "/other-income");
+          showCancelButton: true,
+          confirmButtonText: "Lihat Neraca Kas",
+          cancelButtonText: "Tutup",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate("/report/neraca");
+          } else {
+            navigate(location.state?.from || "/other-income");
+          }
         });
       })
       .catch((error) => {
@@ -294,8 +301,8 @@ function CreateIncome() {
                   required
                 >
                   <option value="">Pilih Metode Pembayaran</option>
-                  <option value="Cash">Cash / Petty Cash</option>
-                  <option value="Transfer">Transfer / Kas Rekening</option>
+                  <option value="cash">Cash / Petty Cash</option>
+                  <option value="transfer">Transfer / Kas Rekening</option>
                 </select>
               </div>
               <button className="btn btn-primary py-2" type="submit">
@@ -351,8 +358,8 @@ function CreateIncome() {
                   onChange={(e) => setOiPaymentMethod(e.target.value)}
                   required
                 >
-                  <option value="Cash">Cash / Petty Cash</option>
-                  <option value="Transfer">Transfer / Kas Rekening</option>
+                  <option value="cash">Cash / Petty Cash</option>
+                  <option value="transfer">Transfer / Kas Rekening</option>
                 </select>
               </div>
               <button className="btn btn-primary py-2" type="submit">

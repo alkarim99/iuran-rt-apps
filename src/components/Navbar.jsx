@@ -136,6 +136,15 @@ function Navbar() {
                     <li>
                       <Link
                         className="dropdown-item"
+                        to="/iuran/total"
+                        onClick={clearTableState}
+                      >
+                        Kalkulasi Iuran Total
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        className="dropdown-item"
                         to="/other-income"
                         onClick={clearTableState}
                       >
@@ -165,7 +174,7 @@ function Navbar() {
                         to="/report/cash"
                         onClick={clearTableState}
                       >
-                        Laporan Cash (Bu Agus)
+                        Laporan Petty Cash
                       </Link>
                     </li>
                     <li>
@@ -174,7 +183,7 @@ function Navbar() {
                         to="/report/transfer"
                         onClick={clearTableState}
                       >
-                        Laporan Transfer (Bu Harris)
+                        Laporan Kas Rekening
                       </Link>
                     </li>
                     <li>

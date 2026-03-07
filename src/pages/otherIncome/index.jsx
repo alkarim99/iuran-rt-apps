@@ -16,18 +16,35 @@ import {
   deleteOtherIncome,
 } from "../../services/OtherIncomeService";
 
+import TableFooter from "../../components/TableFooter";
+import { useTableState } from "../../hooks/useTableState";
+
 function IndexOtherIncome() {
   const navigate = useNavigate();
   const state = useSelector((reducer) => reducer.auth);
-  const itemsPerPage = 20;
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [keyword, setKeyword] = useState("");
-  const [sortBy, setSortBy] = useState("transaction_at");
-  const [order, setOrder] = useState(-1);
+
+  const {
+    page,
+    setPage,
+    limit,
+    setLimit,
+    keyword,
+    setKeyword,
+    sortBy,
+    setSortBy,
+    order,
+    setOrder,
+    handleSort,
+    resetTable,
+  } = useTableState("otherIncome", 20, "transaction_at", -1);
+
+  const [payAt, setPayAt] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
   const [dataOtherIncome, setDataOtherIncome] = useState([]);
+  const [totalNominal, setTotalNominal] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     setIsLoading(true);
@@ -36,13 +53,23 @@ function IndexOtherIncome() {
       return;
     }
     handleGet();
-  }, [keyword, sortBy, order, currentPage, itemsPerPage]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [keyword, sortBy, order, page, limit, payAt]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleGet = () => {
-    getAllOtherIncomes(currentPage, itemsPerPage, keyword, sortBy, order)
+    const payload = {
+      keyword,
+      sort_by: sortBy,
+      order,
+      page,
+      limit,
+      payAt,
+    };
+    getAllOtherIncomes(payload)
       .then((response) => {
         setDataOtherIncome(response?.data?.data || []);
         setTotalPages(response?.data?.totalPages || 1);
+        setTotalNominal(response?.data?.totalNominal || 0);
+        setTotalCount(response?.data?.totalCount || 0);
       })
       .catch((error) => {
         console.error(error);
@@ -54,10 +81,8 @@ function IndexOtherIncome() {
 
   const handleReset = () => {
     setIsLoading(true);
-    setKeyword("");
-    setSortBy("transaction_at");
-    setOrder(-1);
-    setCurrentPage(1);
+    setPayAt("");
+    resetTable("transaction_at", -1);
   };
 
   const handleDelete = (id) => {
@@ -98,29 +123,10 @@ function IndexOtherIncome() {
     });
   };
 
-  const handlePageClick = (page) => {
-    setCurrentPage(page);
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault();
+    setPage(1);
   };
-
-  // Helper to get pagination page numbers centered on currentPage
-  const getPaginationRange = (current, total, siblingCount = 2) => {
-    const totalPageNumbers = siblingCount * 2 + 1; // 5 pages total
-    if (total <= totalPageNumbers) {
-      return Array.from({ length: total }, (_, i) => i + 1);
-    }
-    const left = Math.max(current - siblingCount, 1);
-    const right = Math.min(left + totalPageNumbers - 1, total);
-    const rangeStart = Math.max(
-      Math.min(left, total - totalPageNumbers + 1),
-      1,
-    );
-    return Array.from(
-      { length: Math.min(totalPageNumbers, total) },
-      (_, i) => rangeStart + i,
-    );
-  };
-
-  const paginationRange = getPaginationRange(currentPage, totalPages);
 
   return (
     <>
@@ -140,8 +146,16 @@ function IndexOtherIncome() {
 
         {/* Search & Sort Form */}
         <div className="my-4">
-          <form onSubmit={(e) => e.preventDefault()}>
+          <form onSubmit={handleSearchSubmit}>
             <div className="row d-flex align-items-end">
+              <div className="col-3">
+                <input
+                  type="month"
+                  className="form-control"
+                  value={payAt}
+                  onChange={(e) => setPayAt(e.target.value)}
+                />
+              </div>
               <div className="col-3">
                 <input
                   type="text"
@@ -163,7 +177,7 @@ function IndexOtherIncome() {
                 </select>
               </div>
               <div className="col-3">
-                <button className="btn btn-primary" onClick={handleGet}>
+                <button className="btn btn-primary" type="submit">
                   {isLoading ? "Loading..." : "Search"}
                 </button>
                 <button
@@ -180,20 +194,42 @@ function IndexOtherIncome() {
 
       {/* Table & Pagination */}
       <div className="container">
+        <div className="alert alert-info py-2 mb-3">
+          <strong>Ringkasan:</strong> Terdapat <strong>{totalCount}</strong>{" "}
+          catatan dengan total nominal{" "}
+          <strong>{FormatCurrency(totalNominal)}</strong>
+        </div>
         {isLoading ? (
           <div className="spinner-grow text-warning" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
         ) : (
           <div>
-            <table className="table">
-              <thead>
+            <table className="table table-hover">
+              <thead className="table-light">
                 <tr>
                   <th>#</th>
-                  <th>Tanggal Input</th>
-                  <th>Tanggal Transaksi</th>
+                  <th
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleSort("created_at")}
+                  >
+                    Tanggal Input{" "}
+                    {sortBy === "created_at" && (order === 1 ? "▲" : "▼")}
+                  </th>
+                  <th
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleSort("transaction_at")}
+                  >
+                    Tanggal Transaksi{" "}
+                    {sortBy === "transaction_at" && (order === 1 ? "▲" : "▼")}
+                  </th>
                   <th>Deskripsi</th>
-                  <th>Nominal</th>
+                  <th
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleSort("nominal")}
+                  >
+                    Nominal {sortBy === "nominal" && (order === 1 ? "▲" : "▼")}
+                  </th>
                   <th>Metode</th>
                   <th>Action</th>
                 </tr>
@@ -201,14 +237,12 @@ function IndexOtherIncome() {
               <tbody>
                 {dataOtherIncome.map((income, index) => (
                   <tr key={income._id}>
-                    <th scope="row">
-                      {(currentPage - 1) * itemsPerPage + index + 1}
-                    </th>
+                    <th scope="row">{(page - 1) * limit + index + 1}</th>
                     <td>{FormatDate(income?.created_at)}</td>
                     <td>{FormatDate(income?.transaction_at)}</td>
                     <td>{income?.description}</td>
                     <td>{FormatCurrency(income?.nominal)}</td>
-                    <td>{income?.payment_method || "Cash"}</td>
+                    <td>{income?.payment_method || "cash"}</td>
                     <td>
                       <div className="btn-group">
                         <button
@@ -246,65 +280,27 @@ function IndexOtherIncome() {
                     </td>
                   </tr>
                 ))}
+                {dataOtherIncome.length === 0 && (
+                  <tr>
+                    <td colSpan="7" className="text-center">
+                      Tidak ada data ditemukan
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
 
-            {/* Pagination */}
-            <nav>
-              <ul className="pagination">
-                <li
-                  className={`page-item ${currentPage <= 3 ? "disabled" : ""}`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={() =>
-                      currentPage > 3 && setCurrentPage(paginationRange[0] - 1)
-                    }
-                    aria-label="Previous group"
-                  >
-                    Previous
-                  </button>
-                </li>
-
-                {paginationRange.map((page) => (
-                  <li
-                    key={page}
-                    className={`page-item ${
-                      currentPage === page ? "active" : ""
-                    }`}
-                  >
-                    <button
-                      className="page-link"
-                      onClick={() => handlePageClick(page)}
-                    >
-                      {page}
-                    </button>
-                  </li>
-                ))}
-
-                <li
-                  className={`page-item ${
-                    paginationRange[paginationRange.length - 1] >= totalPages
-                      ? "disabled"
-                      : ""
-                  }`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={() =>
-                      paginationRange[paginationRange.length - 1] <
-                        totalPages &&
-                      setCurrentPage(
-                        paginationRange[paginationRange.length - 1] + 1,
-                      )
-                    }
-                    aria-label="Next group"
-                  >
-                    Next
-                  </button>
-                </li>
-              </ul>
-            </nav>
+            <TableFooter
+              currentPage={page}
+              totalPages={totalPages}
+              totalCount={totalCount}
+              itemsPerPage={limit}
+              onPageChange={setPage}
+              onLimitChange={(newLimit) => {
+                setLimit(newLimit);
+                setPage(1);
+              }}
+            />
           </div>
         )}
         <Footer />

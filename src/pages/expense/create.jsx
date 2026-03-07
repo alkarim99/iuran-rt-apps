@@ -20,7 +20,7 @@ function CreateExpense() {
   const [transactionAt, setTransactionAt] = useState("");
   const [nominal, setNominal] = useState("");
   const [description, setDescription] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("Cash");
+  const [paymentMethod, setPaymentMethod] = useState("cash");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -42,10 +42,17 @@ function CreateExpense() {
       .then((response) => {
         Swal.fire({
           title: "Create Success!",
-          text: response?.data?.message,
+          html: `Pengeluaran <b>${FormatCurrency(nominal)}</b> berhasil dicatat.`,
           icon: "success",
-        }).then(() => {
-          navigate("/expense");
+          showCancelButton: true,
+          confirmButtonText: "Lihat Neraca Kas",
+          cancelButtonText: "Tutup",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate("/report/neraca");
+          } else {
+            navigate("/expense");
+          }
         });
       })
       .catch((error) => {
@@ -146,8 +153,8 @@ function CreateExpense() {
                   onChange={(e) => setPaymentMethod(e.target.value)}
                   required
                 >
-                  <option value="Cash">Cash / Petty Cash</option>
-                  <option value="Transfer">Transfer / Kas Rekening</option>
+                  <option value="cash">Cash / Petty Cash</option>
+                  <option value="transfer">Transfer / Kas Rekening</option>
                 </select>
               </div>
               <button className="btn btn-primary py-2" type="submit">

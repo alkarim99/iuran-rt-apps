@@ -2,21 +2,8 @@ import axios from "axios";
 import { BASE_URL } from "./config";
 import { buildUrl } from "../helpers/urlBuilder";
 
-const getAllOtherIncomes = async (
-  currentPage,
-  limit,
-  keyword,
-  sortBy,
-  order,
-) => {
-  const url = buildUrl("/other-income", {
-    page: currentPage,
-    limit,
-    keyword,
-    sort_by: sortBy,
-    order,
-  });
-  return await axios.get(url);
+const getAllOtherIncomes = async (payload) => {
+  return await axios.get(`${BASE_URL}/other-income`, { params: payload });
 };
 
 const getOtherIncomeByID = async (id) => {

@@ -15,4 +15,15 @@ const getNeracaKasReport = async (payload) => {
   return await axios.get(`${BASE_URL}/reports/neraca-kas`, { params: payload });
 };
 
-export { getPettyCashReport, getKasRekeningReport, getNeracaKasReport };
+const getDashboardSummary = async (payload) => {
+  return await axios.get(`${BASE_URL}/reports/dashboard-summary`, {
+    params: payload,
+  });
+};
+
+export {
+  getPettyCashReport,
+  getKasRekeningReport,
+  getNeracaKasReport,
+  getDashboardSummary,
+};

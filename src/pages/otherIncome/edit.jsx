@@ -25,7 +25,7 @@ function EditOtherIncome() {
   const [transactionAt, setTransactionAt] = useState(0);
   const [nominal, setNominal] = useState("");
   const [description, setDescription] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("Cash");
+  const [paymentMethod, setPaymentMethod] = useState("cash");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ function EditOtherIncome() {
         setTransactionAt(response?.data?.data?.transaction_at);
         setNominal(response?.data?.data?.nominal);
         setDescription(response?.data?.data?.description);
-        setPaymentMethod(response?.data?.data?.payment_method || "Cash");
+        setPaymentMethod(response?.data?.data?.payment_method || "cash");
       })
       .catch((error) => {
         console.log(error);
@@ -66,10 +66,17 @@ function EditOtherIncome() {
       .then((response) => {
         Swal.fire({
           title: "Update Success!",
-          text: response?.data?.message,
+          html: `Pemasukan Lainnya <b>${FormatCurrency(nominal)}</b> berhasil diperbarui.`,
           icon: "success",
-        }).then(() => {
-          navigate("/other-income");
+          showCancelButton: true,
+          confirmButtonText: "Lihat Neraca Kas",
+          cancelButtonText: "Tutup",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate("/report/neraca");
+          } else {
+            navigate("/other-income");
+          }
         });
       })
       .catch((error) => {
@@ -174,8 +181,8 @@ function EditOtherIncome() {
                   onChange={(e) => setPaymentMethod(e.target.value)}
                   required
                 >
-                  <option value="Cash">Cash / Petty Cash</option>
-                  <option value="Transfer">Transfer / Kas Rekening</option>
+                  <option value="cash">Cash / Petty Cash</option>
+                  <option value="transfer">Transfer / Kas Rekening</option>
                 </select>
               </div>
               <button className="btn btn-primary py-2" type="submit">

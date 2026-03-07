@@ -142,12 +142,13 @@ export const deletePayment = async (id) => {
 
 export const totalPayment = async (data) => {
   try {
-    const { start, end, sortBy, currentPage } = data;
+    const { payAt, sortBy, order, page, limit } = data;
     const url = buildUrl("/payments/total", {
-      start,
-      end,
-      page: currentPage,
+      pay_at: payAt,
+      page,
+      limit,
       sort_by: sortBy,
+      order,
     });
     const response = await axios.get(url);
     return response;

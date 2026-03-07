@@ -117,10 +117,17 @@ export const useCreatePayments = () => {
       .then((response) => {
         Swal.fire({
           title: "Create Success!",
-          text: response?.data?.message,
+          html: `Iuran <b>${FormatCurrency(nominal)}</b> berhasil dicatat.`,
           icon: "success",
-        }).then(() => {
-          navigate(location.state?.from || "/iuran");
+          showCancelButton: true,
+          confirmButtonText: "Lihat Neraca Kas",
+          cancelButtonText: "Tutup",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate("/report/neraca");
+          } else {
+            navigate(location.state?.from || "/iuran");
+          }
         });
       })
       .catch((error) => {

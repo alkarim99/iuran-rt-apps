@@ -52,7 +52,7 @@ function RincianIuran() {
   const todayDate = new Date();
   const currentYear = todayDate.getFullYear();
   const currentMonth = String(todayDate.getMonth() + 1).padStart(2, "0");
-  const payAtDate = `${currentYear}-${currentMonth}-01`;
+  const payAtDate = `${currentYear}-${currentMonth}`;
   const [payAt, setPayAt] = useState(payAtDate);
 
   useEffect(() => {
@@ -282,33 +282,14 @@ function RincianIuran() {
                   />
                 </div>
                 <div className="col-3">
-                  <label for="sort_by" className="form-label">
-                    Urutkan berdasarkan
-                  </label>
-                  <select
-                    id="sort_by"
-                    className="form-select"
-                    value={sortBy}
-                    onChange={(e) => {
-                      setSortBy(e.target.value);
-                      setOrder(1);
-                    }}
-                  >
-                    <option value="">Urutkan</option>
-                    <option value="pay_at">Pembayaran Terbaru</option>
-                    <option value="created_at">Pencatatan Terbaru</option>
-                    <option value="warga.name">Nama Warga</option>
-                    <option value="warga.address">Alamat Warga</option>
-                  </select>
-                </div>
-                <div className="col-3">
                   <label for="payAtDate" className="form-label">
                     Periode
                   </label>
                   <input
-                    type="date"
+                    type="month"
                     id="payAtDate"
                     className="form-control"
+                    value={payAt}
                     onChange={(e) => setPayAt(e.target.value)}
                   />
                 </div>
@@ -325,7 +306,7 @@ function RincianIuran() {
                     type="button"
                     onClick={handleReset}
                   >
-                    {isLoading ? "Loading..." : "Reset"}
+                    Reset
                   </button>
                 </div>
               </div>
@@ -477,7 +458,10 @@ function RincianIuran() {
               totalCount={totalCount}
               itemsPerPage={limit}
               onPageChange={setPage}
-              onLimitChange={setLimit}
+              onLimitChange={(newLimit) => {
+                setLimit(newLimit);
+                setPage(1);
+              }}
             />
           </div>
         </div>

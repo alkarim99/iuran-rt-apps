@@ -121,10 +121,17 @@ export const useEditPayments = () => {
       .then((response) => {
         Swal.fire({
           title: "Update Success!",
-          text: response?.data?.message,
+          html: `Iuran <b>${FormatCurrency(nominal)}</b> berhasil diperbarui.`,
           icon: "success",
-        }).then(() => {
-          navigate("/iuran");
+          showCancelButton: true,
+          confirmButtonText: "Lihat Neraca Kas",
+          cancelButtonText: "Tutup",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate("/report/neraca");
+          } else {
+            navigate("/iuran");
+          }
         });
       })
       .catch((error) => {

@@ -4,13 +4,14 @@ import { BASE_URL } from "./config";
 
 export const getAllExpense = async (data) => {
   try {
-    const { keyword, sortBy, order, page, limit } = data;
+    const { keyword, sortBy, order, page, limit, payAt } = data;
     const url = buildUrl("/expense", {
       keyword,
       sort_by: sortBy,
       order,
       page,
       limit,
+      payAt,
     });
     const response = await axios.get(url);
     return response;
