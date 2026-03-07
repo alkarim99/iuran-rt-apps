@@ -9,6 +9,7 @@ import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import FormatCurrency from "../../helpers/FormatCurrency";
 
 import {
   getOtherIncomeByID,
@@ -51,7 +52,8 @@ function EditOtherIncome() {
       });
   };
 
-  const handleEdit = async () => {
+  const handleEdit = async (e) => {
+    e.preventDefault();
     setIsLoading(true);
     const payload = {
       id: id,
@@ -111,7 +113,7 @@ function EditOtherIncome() {
 
         <div className="row">
           <div className="col-6">
-            <form onSubmit={(e) => e.preventDefault()}>
+            <form onSubmit={handleEdit}>
               <div className="mb-3">
                 <label for="transaction_at" className="form-label">
                   Tanggal Transaksi
@@ -120,7 +122,7 @@ function EditOtherIncome() {
                   type="date"
                   className="form-control"
                   id="transaction_at"
-                  defaultValue={
+                  value={
                     transactionAt
                       ? new Date(transactionAt).toISOString().split("T")[0]
                       : ""
@@ -138,10 +140,15 @@ function EditOtherIncome() {
                   step="any"
                   className="form-control"
                   id="nominal"
-                  defaultValue={nominal}
+                  value={nominal || ""}
                   onChange={(e) => setNominal(e.target.value)}
                   required
                 />
+                {nominal && (
+                  <small className="text-muted">
+                    {FormatCurrency(nominal)}
+                  </small>
+                )}
               </div>
               <div className="mb-3">
                 <label for="description" className="form-label">
@@ -152,7 +159,7 @@ function EditOtherIncome() {
                   id="description"
                   className="form-control"
                   onChange={(e) => setDescription(e.target.value)}
-                  defaultValue={description}
+                  value={description || ""}
                   required
                 />
               </div>
@@ -171,11 +178,7 @@ function EditOtherIncome() {
                   <option value="Transfer">Transfer / Kas Rekening</option>
                 </select>
               </div>
-              <button
-                className="btn btn-primary py-2"
-                type="submit"
-                onClick={handleEdit}
-              >
+              <button className="btn btn-primary py-2" type="submit">
                 {isLoading ? "Loading..." : "Submit"}
               </button>
             </form>

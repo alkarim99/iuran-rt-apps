@@ -71,7 +71,7 @@ function EditIuran() {
 
           <div className="row">
             <div className="col-6">
-              <form onSubmit={(e) => e.preventDefault()}>
+              <form onSubmit={handleEdit}>
                 <div className="mb-3">
                   <label for="warga_id" className="form-label">
                     Warga
@@ -80,19 +80,18 @@ function EditIuran() {
                     <select
                       id="warga_id"
                       className="form-select"
+                      value={wargaID || ""}
                       onChange={(e) => {
                         setWargaID(e.target.value);
                         handleGetLatestPeriod(e.target.value);
                       }}
                       required
                     >
-                      <option selected>Pilih Warga</option>
+                      <option value="" disabled>
+                        Pilih Warga
+                      </option>
                       {filteredOptions.map((warga) => (
-                        <option
-                          selected={wargaID == warga?._id ? "selected" : ""}
-                          value={warga?._id}
-                          key={warga?._id}
-                        >
+                        <option value={warga?._id} key={warga?._id}>
                           {warga?.address} | {warga?.name}
                         </option>
                       ))}
@@ -121,7 +120,9 @@ function EditIuran() {
                       type="date"
                       className="form-control"
                       id="pay_at"
-                      defaultValue={new Date(payAt).toISOString().split("T")[0]}
+                      value={
+                        payAt ? new Date(payAt).toISOString().split("T")[0] : ""
+                      }
                       onChange={(e) => setPayAt(e.target.value)}
                       required
                     />
@@ -138,8 +139,10 @@ function EditIuran() {
                       type="date"
                       className="form-control"
                       id="period_start"
-                      defaultValue={
-                        new Date(periodStart).toISOString().split("T")[0]
+                      value={
+                        periodStart
+                          ? new Date(periodStart).toISOString().split("T")[0]
+                          : ""
                       }
                       onChange={(e) => setPeriodStart(e.target.value)}
                     />
@@ -156,8 +159,10 @@ function EditIuran() {
                       type="date"
                       className="form-control"
                       id="period_end"
-                      defaultValue={
-                        new Date(periodEnd).toISOString().split("T")[0]
+                      value={
+                        periodEnd
+                          ? new Date(periodEnd).toISOString().split("T")[0]
+                          : ""
                       }
                       onChange={(e) => setPeriodEnd(e.target.value)}
                     />
@@ -174,7 +179,7 @@ function EditIuran() {
                     step="any"
                     className="form-control"
                     id="nominal"
-                    defaultValue={nominal}
+                    value={nominal || ""}
                     onChange={(e) => setNominal(e.target.value)}
                     onWheel={(e) => e.target.blur()}
                   />
@@ -202,7 +207,7 @@ function EditIuran() {
                           type="number"
                           step="any"
                           className="form-control"
-                          defaultValue={rt}
+                          value={rt || ""}
                           onChange={(e) => setRt(e.target.value)}
                           onWheel={(e) => e.target.blur()}
                           required
@@ -219,7 +224,7 @@ function EditIuran() {
                           type="number"
                           step="any"
                           className="form-control"
-                          defaultValue={pkk}
+                          value={pkk || ""}
                           onChange={(e) => setPkk(e.target.value)}
                           onWheel={(e) => e.target.blur()}
                           required
@@ -236,7 +241,7 @@ function EditIuran() {
                           type="number"
                           step="any"
                           className="form-control"
-                          defaultValue={sosial}
+                          value={sosial || ""}
                           onChange={(e) => setSosial(e.target.value)}
                           onWheel={(e) => e.target.blur()}
                           required
@@ -253,7 +258,7 @@ function EditIuran() {
                           type="number"
                           step="any"
                           className="form-control"
-                          defaultValue={kematian}
+                          value={kematian || ""}
                           onChange={(e) => setKematian(e.target.value)}
                           onWheel={(e) => e.target.blur()}
                           required
@@ -273,29 +278,18 @@ function EditIuran() {
                   </label>
                   <select
                     id="payment_method"
-                    class="form-select"
+                    className="form-select"
+                    value={paymentMethod || ""}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                   >
-                    <option selected>Pilih Metode Pembayaran</option>
-                    <option
-                      value="cash"
-                      selected={paymentMethod == "cash" ? "selected" : ""}
-                    >
-                      Cash
+                    <option value="" disabled>
+                      Pilih Metode Pembayaran
                     </option>
-                    <option
-                      value="transfer"
-                      selected={paymentMethod == "transfer" ? "selected" : ""}
-                    >
-                      Transfer
-                    </option>
+                    <option value="cash">Cash</option>
+                    <option value="transfer">Transfer</option>
                   </select>
                 </div>
-                <button
-                  className="btn btn-primary py-2"
-                  type="submit"
-                  onClick={handleEdit}
-                >
+                <button className="btn btn-primary py-2" type="submit">
                   {isLoading ? "Loading..." : "Submit"}
                 </button>
               </form>

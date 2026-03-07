@@ -309,9 +309,8 @@ function IndexExpense() {
             </nav>
           </div>
         )}
+        <Footer />
       </div>
-
-      <Footer />
     </>
   );
 }

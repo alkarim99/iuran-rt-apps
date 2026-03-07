@@ -307,9 +307,8 @@ function IndexOtherIncome() {
             </nav>
           </div>
         )}
+        <Footer />
       </div>
-
-      <Footer />
     </>
   );
 }

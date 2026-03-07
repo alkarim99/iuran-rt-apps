@@ -87,7 +87,8 @@ export const useEditPayments = () => {
       });
   };
 
-  const handleEdit = () => {
+  const handleEdit = (e) => {
+    e?.preventDefault();
     setIsLoading(true);
     const payload = {
       id: id,
