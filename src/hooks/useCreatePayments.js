@@ -37,7 +37,7 @@ export const useCreatePayments = () => {
       navigate("/sign-in");
     }
     handleGetWarga();
-    if (wargaID !== "") {
+    if (wargaID) {
       handleGetLatestPeriod(wargaID);
     }
   }, [state]);

@@ -171,6 +171,7 @@ function EditIuran() {
                   </label>
                   <input
                     type="number"
+                    step="any"
                     className="form-control"
                     id="nominal"
                     defaultValue={nominal}
@@ -199,6 +200,7 @@ function EditIuran() {
                         <label className="form-label">RT</label>
                         <input
                           type="number"
+                          step="any"
                           className="form-control"
                           defaultValue={rt}
                           onChange={(e) => setRt(e.target.value)}
@@ -215,6 +217,7 @@ function EditIuran() {
                         <label className="form-label">PKK</label>
                         <input
                           type="number"
+                          step="any"
                           className="form-control"
                           defaultValue={pkk}
                           onChange={(e) => setPkk(e.target.value)}
@@ -231,6 +234,7 @@ function EditIuran() {
                         <label className="form-label">Sosial</label>
                         <input
                           type="number"
+                          step="any"
                           className="form-control"
                           defaultValue={sosial}
                           onChange={(e) => setSosial(e.target.value)}
@@ -247,6 +251,7 @@ function EditIuran() {
                         <label className="form-label">Kematian</label>
                         <input
                           type="number"
+                          step="any"
                           className="form-control"
                           defaultValue={kematian}
                           onChange={(e) => setKematian(e.target.value)}

@@ -77,10 +77,10 @@ function IndexIuran() {
           Data Iuran
           <Link
             className="btn btn-primary ms-1"
-            to="/iuran/create"
+            to="/income/create"
             state={{ from: location.pathname + location.search }}
           >
-            <FontAwesomeIcon icon={faPlus} />
+            <FontAwesomeIcon icon={faPlus} /> Catat Pemasukan
           </Link>
           <button
             className="btn btn-success ms-1"
@@ -193,12 +193,12 @@ function IndexIuran() {
                           <li>
                             <Link
                               className="text-decoration-none text-black p-2"
-                              to={`/iuran/create/warga/${iuran?.warga?._id}`}
+                              to={`/income/create/warga/${iuran?.warga?._id}`}
                               state={{
                                 from: location.pathname + location.search,
                               }}
                             >
-                              <FontAwesomeIcon icon={faPlus} /> Buat Pembayaran
+                              <FontAwesomeIcon icon={faPlus} /> Catat Pemasukan
                             </Link>
                           </li>
                           <li>

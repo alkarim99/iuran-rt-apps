@@ -33,6 +33,10 @@ import {
   ReportCash,
   ReportTransfer,
   ReportPricingTier,
+  CreateIncome,
+  ReportNeraca,
+  IndexOtherIncome,
+  EditOtherIncome,
 } from "./pages";
 
 const router = createBrowserRouter([
@@ -93,10 +97,10 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/iuran/create/warga/:id",
+    path: "/income/create/warga/:id",
     element: (
       <PrivateRoute>
-        <CreateIuran />
+        <CreateIncome />
       </PrivateRoute>
     ),
   },
@@ -104,7 +108,31 @@ const router = createBrowserRouter([
     path: "/iuran/create",
     element: (
       <PrivateRoute>
-        <CreateIuran />
+        <CreateIncome />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/income/create",
+    element: (
+      <PrivateRoute>
+        <CreateIncome />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/other-income",
+    element: (
+      <PrivateRoute>
+        <IndexOtherIncome />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/other-income/edit/:id",
+    element: (
+      <PrivateRoute>
+        <EditOtherIncome />
       </PrivateRoute>
     ),
   },
@@ -191,6 +219,14 @@ const router = createBrowserRouter([
   {
     path: "/report/pricing-tier",
     element: <ReportPricingTier />,
+  },
+  {
+    path: "/report/neraca",
+    element: (
+      <PrivateRoute>
+        <ReportNeraca />
+      </PrivateRoute>
+    ),
   },
 ]);
 

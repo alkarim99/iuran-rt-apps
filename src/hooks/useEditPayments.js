@@ -42,7 +42,6 @@ export const useEditPayments = () => {
     setIsLoading(true);
     handleGetWarga();
     handleGetIuran();
-    handleGetLatestPeriod();
     setIsLoading(false);
   }, [state]);
 
@@ -70,7 +69,9 @@ export const useEditPayments = () => {
   const handleGetIuran = () => {
     getPaymentByID(id)
       .then((response) => {
-        setWargaID(response?.data?.data?.warga?._id);
+        const idWarga = response?.data?.data?.warga?._id;
+        setWargaID(idWarga);
+        handleGetLatestPeriod(idWarga);
         setPeriodStart(response?.data?.data?.period_start);
         setPeriodEnd(response?.data?.data?.period_end);
         setNominal(response?.data?.data?.nominal);
@@ -138,8 +139,10 @@ export const useEditPayments = () => {
       });
   };
 
-  const handleGetLatestPeriod = () => {
-    getLatestPayment(wargaID)
+  const handleGetLatestPeriod = (idWargaTarget) => {
+    const target = idWargaTarget || wargaID;
+    if (!target) return;
+    getLatestPayment(target)
       .then((response) => {
         if (response?.data?.latest_period != undefined) {
           setLatestPeriod(response?.data?.latest_period);

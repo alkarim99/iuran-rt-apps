@@ -11,9 +11,12 @@ import Footer from "../../components/Footer";
 import FormatDate from "../../helpers/FormatDate";
 import FormatCurrency from "../../helpers/FormatCurrency";
 
-import { getAllExpense, deleteExpense } from "../../services/ExpenseService";
+import {
+  getAllOtherIncomes,
+  deleteOtherIncome,
+} from "../../services/OtherIncomeService";
 
-function IndexExpense() {
+function IndexOtherIncome() {
   const navigate = useNavigate();
   const state = useSelector((reducer) => reducer.auth);
   const itemsPerPage = 20;
@@ -21,9 +24,10 @@ function IndexExpense() {
   const [totalPages, setTotalPages] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [sortBy, setSortBy] = useState("");
+  const [order, setOrder] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
-  const [dataExpense, setDataExpense] = useState([]);
+  const [dataOtherIncome, setDataOtherIncome] = useState([]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -32,19 +36,12 @@ function IndexExpense() {
       return;
     }
     handleGet();
-  }, [keyword, sortBy, currentPage, itemsPerPage]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [keyword, sortBy, order, currentPage, itemsPerPage]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleGet = () => {
-    const payload = {
-      keyword,
-      sortBy,
-      order: -1,
-      page: currentPage,
-      limit: itemsPerPage,
-    };
-    getAllExpense(payload)
+    getAllOtherIncomes(currentPage, itemsPerPage, keyword, sortBy, order)
       .then((response) => {
-        setDataExpense(response?.data?.data || []);
+        setDataOtherIncome(response?.data?.data || []);
         setTotalPages(response?.data?.totalPages || 1);
       })
       .catch((error) => {
@@ -59,6 +56,7 @@ function IndexExpense() {
     setIsLoading(true);
     setKeyword("");
     setSortBy("transaction_at");
+    setOrder("");
     setCurrentPage(1);
   };
 
@@ -72,7 +70,7 @@ function IndexExpense() {
     }).then((result) => {
       if (result.isConfirmed) {
         setIsLoading(true);
-        deleteExpense(id)
+        deleteOtherIncome(id)
           .then((response) => {
             Swal.fire({
               title: "Delete Success!",
@@ -130,9 +128,9 @@ function IndexExpense() {
         <Navbar />
 
         <h1>
-          Data Pengeluaran
-          <Link className="btn btn-primary ms-1" to="/expense/create">
-            <FontAwesomeIcon icon={faPlus} />
+          Data Pemasukan Lainnya
+          <Link className="btn btn-primary ms-1" to="/income/create">
+            <FontAwesomeIcon icon={faPlus} /> Catat Pemasukan
           </Link>
         </h1>
 
@@ -197,16 +195,16 @@ function IndexExpense() {
                 </tr>
               </thead>
               <tbody>
-                {dataExpense.map((expense, index) => (
-                  <tr key={expense._id}>
+                {dataOtherIncome.map((income, index) => (
+                  <tr key={income._id}>
                     <th scope="row">
                       {(currentPage - 1) * itemsPerPage + index + 1}
                     </th>
-                    <td>{FormatDate(expense?.created_at)}</td>
-                    <td>{FormatDate(expense?.transaction_at)}</td>
-                    <td>{expense?.description}</td>
-                    <td>{FormatCurrency(expense?.nominal)}</td>
-                    <td>{expense?.payment_method || "Cash"}</td>
+                    <td>{FormatDate(income?.created_at)}</td>
+                    <td>{FormatDate(income?.transaction_at)}</td>
+                    <td>{income?.description}</td>
+                    <td>{FormatCurrency(income?.nominal)}</td>
+                    <td>{income?.payment_method || "Cash"}</td>
                     <td>
                       <div className="btn-group">
                         <button
@@ -224,20 +222,19 @@ function IndexExpense() {
                           <li>
                             <Link
                               className="text-decoration-none text-black p-2"
-                              to={`/expense/edit/${expense?._id}`}
+                              to={`/other-income/edit/${income?._id}`}
                             >
-                              <FontAwesomeIcon icon={faPen} /> Edit Pengeluaran
+                              <FontAwesomeIcon icon={faPen} /> Edit Pemasukan
                             </Link>
                           </li>
                           <li>
                             <Link
                               className="text-decoration-none text-black p-2"
                               onClick={() => {
-                                handleDelete(expense?._id);
+                                handleDelete(income?._id);
                               }}
                             >
-                              <FontAwesomeIcon icon={faTrash} /> Hapus
-                              Pengeluaran
+                              <FontAwesomeIcon icon={faTrash} /> Hapus Pemasukan
                             </Link>
                           </li>
                         </ul>
@@ -251,7 +248,6 @@ function IndexExpense() {
             {/* Pagination */}
             <nav>
               <ul className="pagination">
-                {/* Previous group arrow */}
                 <li
                   className={`page-item ${currentPage <= 3 ? "disabled" : ""}`}
                 >
@@ -266,7 +262,6 @@ function IndexExpense() {
                   </button>
                 </li>
 
-                {/* Page numbers */}
                 {paginationRange.map((page) => (
                   <li
                     key={page}
@@ -283,7 +278,6 @@ function IndexExpense() {
                   </li>
                 ))}
 
-                {/* Next group arrow */}
                 <li
                   className={`page-item ${
                     paginationRange[paginationRange.length - 1] >= totalPages
@@ -316,4 +310,4 @@ function IndexExpense() {
   );
 }
 
-export default IndexExpense;
+export default IndexOtherIncome;

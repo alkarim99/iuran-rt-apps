@@ -8,7 +8,7 @@ import FormatCurrency from "../../helpers/FormatCurrency";
 import { exportToExcel } from "../../helpers/exportToExcel";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { getPaymentByMethod } from "../../services/IuranService";
+import { getKasRekeningReport } from "../../services/ReportService";
 import FormatPeriod from "../../helpers/FormatPeriod";
 
 function ReportTransfer() {
@@ -19,14 +19,14 @@ function ReportTransfer() {
   const getLocalMonthYear = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
-    return `${year}-${month}-01`;
+    return `${year}-${month}`;
   };
-  const payAtDate = getLocalMonthYear(todayDate);
-  const [payAt, setPayAt] = useState(payAtDate);
-  const [paymentMethod, setPaymentMethod] = useState("transfer");
+  const payAtMonth = getLocalMonthYear(todayDate);
+  const [payAt, setPayAt] = useState(payAtMonth);
 
-  const [total, setTotal] = useState(0);
-  const [dataIuran, setDataIuran] = useState([]);
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [totalExpense, setTotalExpense] = useState(0);
+  const [reportData, setReportData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -39,11 +39,17 @@ function ReportTransfer() {
 
   const handleSearch = () => {
     setIsLoading(true);
-    const payload = { pay_at: payAt, payment_method: paymentMethod };
-    getPaymentByMethod(payload)
+    const [year, month] = payAt.split("-");
+    const lastDay = new Date(year, month, 0).getDate();
+    const startDate = `${payAt}-01`;
+    const endDate = `${payAt}-${String(lastDay).padStart(2, "0")}`;
+
+    const payload = { start_date: startDate, end_date: endDate };
+    getKasRekeningReport(payload)
       .then((response) => {
-        setTotal(response?.data?.totalNominal);
-        setDataIuran(response?.data?.data);
+        setTotalIncome(response?.data?.data?.total_income || 0);
+        setTotalExpense(response?.data?.data?.total_expense || 0);
+        setReportData(response?.data?.data?.transactions || []);
       })
       .catch((error) => {
         console.log(error);
@@ -53,45 +59,30 @@ function ReportTransfer() {
       });
   };
 
-  const combinedData = [];
-  dataIuran.forEach((iuran) => {
-    combinedData.push({
-      id: `iuran_${iuran._id}`,
-      tanggal: iuran.pay_at,
-      created_at: iuran.created_at,
-      deskripsi: `Iuran Transfer: ${iuran.warga?.address} | ${iuran.warga?.name} (${FormatDate(iuran.period_start)} - ${FormatDate(iuran.period_end)})`,
-      debit: iuran.nominal || 0,
-      credit: 0,
-    });
-  });
-
-  combinedData.sort((a, b) => {
-    const dateA = new Date(a.tanggal);
-    const dateB = new Date(b.tanggal);
-    if (dateA.getTime() === dateB.getTime()) {
-      return new Date(a.created_at) - new Date(b.created_at);
-    }
-    return dateA - dateB;
-  });
-
   let currentSaldo = 0;
-  combinedData.forEach((item) => {
-    currentSaldo += item.debit - item.credit;
-    item.saldo = currentSaldo;
+  const combinedData = reportData.map((item) => {
+    currentSaldo += (item.debit || 0) - (item.credit || 0);
+    return { ...item, saldo: currentSaldo };
   });
 
   const handleExportExcel = () => {
     const dataToExport = combinedData.map((item, index) => ({
       No: index + 1,
       Tanggal: FormatDate(item.tanggal),
-      Deskripsi: item.deskripsi,
+      Deskripsi: item.description || item.deskripsi,
       "Pemasukan (Debit)": item.debit,
       "Pengeluaran (Kredit)": item.credit,
       Saldo: item.saldo,
     }));
+
+    const [year, month] = payAt.split("-");
+    const lastDay = new Date(year, month, 0).getDate();
+    const startDate = `${payAt}-01`;
+    const endDate = `${payAt}-${String(lastDay).padStart(2, "0")}`;
+
     exportToExcel(
       dataToExport,
-      `Laporan_Transfer_${FormatPeriod(payAt, payAt).split(" ").join("_")}`,
+      `Laporan_Transfer_${FormatPeriod(startDate, endDate).split(" ").join("_")}`,
     );
   };
 
@@ -118,16 +109,22 @@ function ReportTransfer() {
 
         <div className="print-header">
           <h2>Laporan Penerimaan Transfer</h2>
-          <p>Periode: {FormatPeriod(payAt, payAt)}</p>
+          <p>
+            Periode:{" "}
+            {FormatPeriod(
+              `${payAt}-01`,
+              `${payAt}-${new Date(payAt.split("-")[0], payAt.split("-")[1], 0).getDate()}`,
+            )}
+          </p>
         </div>
         <form onSubmit={(e) => e.preventDefault()}>
           <div className="row d-flex align-items-end">
             <div className="col-3">
               <label htmlFor="start" className="form-label">
-                Periode
+                Periode Bulan
               </label>
               <input
-                type="date"
+                type="month"
                 className="form-control"
                 id="start"
                 value={payAt}
@@ -150,14 +147,26 @@ function ReportTransfer() {
         </form>
         <div className="row">
           <div className="col-12">
-            {total != 0 && (
+            {(totalIncome != 0 || totalExpense != 0) && (
               <div className="d-flex justify-content-between my-3">
-                <p>Periode {FormatPeriod(payAt, payAt)}</p>
+                <p>
+                  Periode{" "}
+                  {FormatPeriod(
+                    `${payAt}-01`,
+                    `${payAt}-${new Date(payAt.split("-")[0], payAt.split("-")[1], 0).getDate()}`,
+                  )}
+                </p>
                 <div className="text-end">
                   <p className="mb-0">
                     Total Pemasukan:{" "}
                     <span className="text-success fw-bold">
-                      {FormatCurrency(total)}
+                      {FormatCurrency(totalIncome)}
+                    </span>
+                  </p>
+                  <p className="mb-0">
+                    Total Pengeluaran:{" "}
+                    <span className="text-danger fw-bold">
+                      {FormatCurrency(totalExpense)}
                     </span>
                   </p>
                 </div>
@@ -199,7 +208,7 @@ function ReportTransfer() {
                             {index + 1}
                           </th>
                           <td>{FormatDate(item.tanggal)}</td>
-                          <td>{item.deskripsi}</td>
+                          <td>{item.description || item.deskripsi}</td>
                           <td className="text-end text-success">
                             {item.debit > 0 ? FormatCurrency(item.debit) : "-"}
                           </td>

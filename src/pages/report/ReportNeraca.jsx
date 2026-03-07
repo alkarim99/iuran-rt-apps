@@ -8,11 +8,11 @@ import FormatCurrency from "../../helpers/FormatCurrency";
 import { exportToExcel } from "../../helpers/exportToExcel";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { getPettyCashReport } from "../../services/ReportService";
+import { getNeracaKasReport } from "../../services/ReportService";
 
 import FormatPeriod from "../../helpers/FormatPeriod";
 
-function ReportCash() {
+function ReportNeraca() {
   const navigate = useNavigate();
   const state = useSelector((reducer) => reducer.auth);
 
@@ -46,7 +46,7 @@ function ReportCash() {
     const endDate = `${payAt}-${String(lastDay).padStart(2, "0")}`;
 
     const payload = { start_date: startDate, end_date: endDate };
-    getPettyCashReport(payload)
+    getNeracaKasReport(payload)
       .then((response) => {
         setTotalIncome(response?.data?.data?.total_income || 0);
         setTotalExpense(response?.data?.data?.total_expense || 0);
@@ -83,7 +83,7 @@ function ReportCash() {
 
     exportToExcel(
       dataToExport,
-      `Laporan_Cash_${FormatPeriod(startDate, endDate).split(" ").join("_")}`,
+      `Laporan_Neraca_${FormatPeriod(startDate, endDate).split(" ").join("_")}`,
     );
   };
 
@@ -95,8 +95,8 @@ function ReportCash() {
       >
         <Navbar />
         <h1>
-          Laporan Bu Agus
-          <Link className="btn btn-primary ms-1 me-1" to="/iuran">
+          Neraca Kas RT
+          <Link className="btn btn-primary ms-1 me-1" to="/">
             <FontAwesomeIcon icon={faArrowLeft} />
           </Link>
           <button
@@ -109,7 +109,7 @@ function ReportCash() {
         </h1>
 
         <div className="print-header">
-          <h2>Laporan Penerimaan Cash</h2>
+          <h2>Laporan Neraca Kas RT</h2>
           <p>
             Periode:{" "}
             {FormatPeriod(
@@ -171,6 +171,18 @@ function ReportCash() {
                       {FormatCurrency(totalExpense)}
                     </span>
                   </p>
+                  <p className="mb-0 mt-1 border-top pt-1 border-2">
+                    Net Balance:{" "}
+                    <span
+                      className={
+                        totalIncome - totalExpense >= 0
+                          ? "text-success fw-bold"
+                          : "text-danger fw-bold"
+                      }
+                    >
+                      {FormatCurrency(totalIncome - totalExpense)}
+                    </span>
+                  </p>
                 </div>
               </div>
             )}
@@ -192,7 +204,7 @@ function ReportCash() {
                         Pengeluaran (Kredit)
                       </th>
                       <th scope="col" className="text-end">
-                        Saldo
+                        Net Saldo
                       </th>
                     </tr>
                   </thead>
@@ -238,4 +250,4 @@ function ReportCash() {
   );
 }
 
-export default ReportCash;
+export default ReportNeraca;

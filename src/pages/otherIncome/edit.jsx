@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useLocation } from "react-router";
 import { useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
@@ -8,43 +9,65 @@ import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import FormatCurrency from "../../helpers/FormatCurrency";
 
-import { createExpense } from "../../services/ExpenseService";
+import {
+  getOtherIncomeByID,
+  updateOtherIncome,
+} from "../../services/OtherIncomeService";
 
-function CreateExpense() {
+function EditOtherIncome() {
   const navigate = useNavigate();
-  const { id } = useParams();
   const state = useSelector((reducer) => reducer.auth);
+  const location = useLocation();
+  const id = location?.pathname?.split("/")[3];
 
-  const [transactionAt, setTransactionAt] = useState("");
+  const [transactionAt, setTransactionAt] = useState(0);
   const [nominal, setNominal] = useState("");
   const [description, setDescription] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    setIsLoading(true);
     if (!state.auth) {
       navigate("/sign-in");
     }
+    handleGet();
   }, [state]);
 
-  const handleCreate = async () => {
+  const handleGet = async () => {
+    getOtherIncomeByID(id)
+      .then((response) => {
+        setTransactionAt(response?.data?.data?.transaction_at);
+        setNominal(response?.data?.data?.nominal);
+        setDescription(response?.data?.data?.description);
+        setPaymentMethod(response?.data?.data?.payment_method || "Cash");
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const handleEdit = async () => {
     setIsLoading(true);
     const payload = {
+      id: id,
       transaction_at: transactionAt,
       nominal: nominal,
       description: description,
       payment_method: paymentMethod,
     };
-    createExpense(payload)
+    updateOtherIncome(payload)
       .then((response) => {
         Swal.fire({
-          title: "Create Success!",
+          title: "Update Success!",
           text: response?.data?.message,
           icon: "success",
         }).then(() => {
-          navigate("/expense");
+          navigate("/other-income");
         });
       })
       .catch((error) => {
@@ -79,12 +102,12 @@ function CreateExpense() {
         <Navbar />
 
         <div className="mb-3">
-          <Link className="btn btn-primary me-1" to="/expense">
+          <Link className="btn btn-primary me-1" to="/other-income">
             <FontAwesomeIcon icon={faArrowLeft} />
           </Link>
         </div>
 
-        <h1>Add Data Pengeluaran</h1>
+        <h1>Update Data Pemasukan Lainnya</h1>
 
         <div className="row">
           <div className="col-6">
@@ -97,6 +120,11 @@ function CreateExpense() {
                   type="date"
                   className="form-control"
                   id="transaction_at"
+                  defaultValue={
+                    transactionAt
+                      ? new Date(transactionAt).toISOString().split("T")[0]
+                      : ""
+                  }
                   onChange={(e) => setTransactionAt(e.target.value)}
                   required
                 />
@@ -110,14 +138,10 @@ function CreateExpense() {
                   step="any"
                   className="form-control"
                   id="nominal"
+                  defaultValue={nominal}
                   onChange={(e) => setNominal(e.target.value)}
                   required
                 />
-                {nominal && (
-                  <small className="text-muted">
-                    {FormatCurrency(nominal)}
-                  </small>
-                )}
               </div>
               <div className="mb-3">
                 <label for="description" className="form-label">
@@ -128,6 +152,7 @@ function CreateExpense() {
                   id="description"
                   className="form-control"
                   onChange={(e) => setDescription(e.target.value)}
+                  defaultValue={description}
                   required
                 />
               </div>
@@ -149,7 +174,7 @@ function CreateExpense() {
               <button
                 className="btn btn-primary py-2"
                 type="submit"
-                onClick={handleCreate}
+                onClick={handleEdit}
               >
                 {isLoading ? "Loading..." : "Submit"}
               </button>
@@ -163,4 +188,4 @@ function CreateExpense() {
   }
 }
 
-export default CreateExpense;
+export default EditOtherIncome;
