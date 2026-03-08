@@ -57,7 +57,7 @@ function Home() {
           Selamat datang di Pusat Kendali Keuangan RT. Aplikasi terpadu ini
           memudahkan Anda dalam mengelola Pemasukan Iuran Warga, mencatat
           Pemasukan Lainnya (sumbangan/donasi), serta melacak setiap
-          Pengeluaran Operasional. Pantau Neraca Kas secara *real-time*
+          Pengeluaran Operasional. Pantau Neraca Kas secara real-time
           dengan transparan dan akurat.
         </p>
       </main>
