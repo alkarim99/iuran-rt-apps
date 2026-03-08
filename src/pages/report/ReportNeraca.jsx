@@ -23,7 +23,14 @@ function ReportNeraca() {
     return `${year}-${month}`;
   };
   const payAtMonth = getLocalMonthYear(todayDate);
-  const [payAt, setPayAt] = useState(payAtMonth);
+  const [payAt, setPayAt] = useState(() => {
+    const saved = sessionStorage.getItem("rx_reportNeraca_payAt");
+    return saved !== null ? saved : payAtMonth;
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem("rx_reportNeraca_payAt", payAt);
+  }, [payAt]);
 
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);

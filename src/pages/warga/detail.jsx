@@ -272,7 +272,7 @@ function DetailWarga() {
                       {FormatDate(iuran?.period_end)}
                     </td>
                     <td>{FormatCurrency(iuran?.nominal)}</td>
-                    <td>{iuran?.payment_method?.toUpperCase()}</td>
+                    <td className="text-capitalize">{iuran?.payment_method}</td>
                     <td>
                       <Link
                         className="btn btn-warning me-1"

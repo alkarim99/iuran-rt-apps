@@ -173,7 +173,10 @@ function ReportPricingTier() {
         (pm.breakdown || []).forEach((bk) => {
           dataToExport.push({
             Bulan: monthLabel(month.month),
-            "Metode Pembayaran": pm.payment_method,
+            "Metode Pembayaran": pm.payment_method
+              ? pm.payment_method.charAt(0).toUpperCase() +
+                pm.payment_method.slice(1)
+              : "",
             Kategori: bk.label,
             Jumlah: bk.count,
             "Total Nominal": bk.total_nominal,
@@ -349,7 +352,9 @@ function ReportPricingTier() {
 
                     {(month.payment_methods || []).map((pm) => (
                       <div className="method-section" key={pm.payment_method}>
-                        <span className={`method-label ${pm.payment_method}`}>
+                        <span
+                          className={`method-label text-capitalize ${pm.payment_method}`}
+                        >
                           {pm.payment_method} — {pm.total_warga} warga —{" "}
                           {FormatCurrency(pm.total_income)}
                         </span>

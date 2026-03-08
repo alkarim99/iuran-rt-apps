@@ -22,7 +22,14 @@ function ReportTransfer() {
     return `${year}-${month}`;
   };
   const payAtMonth = getLocalMonthYear(todayDate);
-  const [payAt, setPayAt] = useState(payAtMonth);
+  const [payAt, setPayAt] = useState(() => {
+    const saved = sessionStorage.getItem("rx_reportTransfer_payAt");
+    return saved !== null ? saved : payAtMonth;
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem("rx_reportTransfer_payAt", payAt);
+  }, [payAt]);
 
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);

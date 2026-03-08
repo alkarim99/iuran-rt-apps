@@ -242,7 +242,9 @@ function IndexOtherIncome() {
                     <td>{FormatDate(income?.transaction_at)}</td>
                     <td>{income?.description}</td>
                     <td>{FormatCurrency(income?.nominal)}</td>
-                    <td>{income?.payment_method || "cash"}</td>
+                    <td className="text-capitalize">
+                      {income?.payment_method || "cash"}
+                    </td>
                     <td>
                       <div className="btn-group">
                         <button

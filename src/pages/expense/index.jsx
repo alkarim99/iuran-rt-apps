@@ -235,7 +235,9 @@ function IndexExpense() {
                     <td>{FormatDate(expense?.transaction_at)}</td>
                     <td>{expense?.description}</td>
                     <td>{FormatCurrency(expense?.nominal)}</td>
-                    <td>{expense?.payment_method || "cash"}</td>
+                    <td className="text-capitalize">
+                      {expense?.payment_method || "cash"}
+                    </td>
                     <td>
                       <div className="btn-group">
                         <button
