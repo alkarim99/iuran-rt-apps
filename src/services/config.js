@@ -1,5 +1,3 @@
-import axios from "axios";
-
 const env = process.env.REACT_APP_ENV;
 
 const rawBaseUrl =

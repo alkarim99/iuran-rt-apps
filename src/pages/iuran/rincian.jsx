@@ -12,7 +12,7 @@ import {
 import FormatDate from "../../helpers/FormatDate";
 import FormatCurrency from "../../helpers/FormatCurrency";
 import FormatPeriod from "../../helpers/FormatPeriod";
-import { exportToExcel } from "../../helpers/exportToExcel";
+import { exportRincianIuran } from "../../helpers/exportExcel/exportRincianIuran";
 import {
   getRincianPayment,
   deletePayment,
@@ -159,40 +159,9 @@ function RincianIuran() {
       const response = await searchPaymentsRincian(payload);
       const allData = response?.data?.data || [];
 
-      const dataToExport = allData.map((iuran, index) => ({
-        No: index + 1,
-        Blok: iuran?.warga?.address?.split("-")[0] || "",
-        Nama: iuran?.warga?.name,
-        Alamat: iuran?.warga?.address,
-        "Tanggal Bayar": FormatDate(iuran?.pay_at).split(" ")[0],
-        Jumlah: iuran?.nominal,
-        "Periode Bulan": iuran?.number_of_period,
-        RT: iuran?.details_payment?.rt,
-        PKK: iuran?.details_payment?.pkk,
-        Sosial: iuran?.details_payment?.sosial,
-        Kematian: iuran?.details_payment?.kematian,
-        Keterangan: FormatPeriod(iuran?.period_start, iuran?.period_end),
-      }));
-
-      const formattedPeriod = FormatPeriod(payAt, payAt);
-      const titleMonthYear = formattedPeriod.toUpperCase();
-
-      const prefixRows = [
-        ["LAPORAN KAS BENDAHARA"],
-        ["RT 08 RW 11 LINGKUNGAN PONDOK BLIMBING INDAH"],
-        ["KELURAHAN PURWODADI KECAMATAN BLIMBING KOTA MALANG"],
-        [],
-        ["PERINCIAN PEMBAGIAN UANG IURAN"],
-        [],
-        [`PERIODE : ${titleMonthYear}`],
-        [],
-      ];
-
-      exportToExcel(
-        dataToExport,
-        `Rincian_Iuran_${formattedPeriod.split(" ").join("_")}`,
-        { prefixRows },
-      );
+      const [year, month] = payAt.split("-");
+      const periode = { bulan: parseInt(month, 10), tahun: parseInt(year, 10) };
+      await exportRincianIuran(allData, periode);
     } catch (error) {
       console.error("Export Error:", error);
       Swal.fire({

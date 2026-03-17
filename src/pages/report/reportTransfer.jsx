@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import FormatDate from "../../helpers/FormatDate";
 import FormatCurrency from "../../helpers/FormatCurrency";
-import { exportToExcel } from "../../helpers/exportToExcel";
+import { exportLaporanKas } from "../../helpers/exportExcel/exportLaporanKas";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { getKasRekeningReport } from "../../services/ReportService";
@@ -77,25 +77,10 @@ function ReportTransfer() {
 
   const combinedData = reportData;
 
-  const handleExportExcel = () => {
-    const dataToExport = combinedData.map((item, index) => ({
-      No: index + 1,
-      Tanggal: FormatDate(item.date),
-      Deskripsi: item.description,
-      "Pemasukan (Debit)": item.debit,
-      "Pengeluaran (Kredit)": item.kredit,
-      Saldo: item.saldo,
-    }));
-
+  const handleExportExcel = async () => {
     const [year, month] = payAt.split("-");
-    const lastDay = new Date(year, month, 0).getDate();
-    const startDate = `${payAt}-01`;
-    const endDate = `${payAt}-${String(lastDay).padStart(2, "0")}`;
-
-    exportToExcel(
-      dataToExport,
-      `Laporan_Transfer_${FormatPeriod(startDate, endDate).split(" ").join("_")}`,
-    );
+    const periode = { bulan: parseInt(month, 10), tahun: parseInt(year, 10) };
+    await exportLaporanKas(reportData, "rekening", periode, 0);
   };
 
   return (

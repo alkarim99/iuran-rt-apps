@@ -6,6 +6,7 @@ import { faArrowLeft, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import FormatDate from "../../helpers/FormatDate";
 import FormatCurrency from "../../helpers/FormatCurrency";
 import { exportToExcel } from "../../helpers/exportToExcel";
+import { exportNeracaKas } from "../../helpers/exportExcel/exportNeracaKas";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { getNeracaKasReport } from "../../services/ReportService";
@@ -73,52 +74,17 @@ function ReportNeraca() {
     return { ...item, saldo: currentSaldo };
   });
 
-  const handleExportExcel = () => {
-    const dataToExport = combinedData.map((item, index) => ({
-      No: index + 1,
-      Tanggal: FormatDate(item.tanggal),
-      Deskripsi: item.description || item.deskripsi,
-      "Pemasukan (Debit)": item.debit,
-      "Pengeluaran (Kredit)": item.credit,
-      Saldo: item.saldo,
-    }));
-
+  const handleExportExcel = async () => {
     const [year, month] = payAt.split("-");
-    const lastDay = new Date(year, month, 0).getDate();
-    const startDate = `${payAt}-01`;
-    const endDate = `${payAt}-${String(lastDay).padStart(2, "0")}`;
+    const periode = { bulan: parseInt(month, 10), tahun: parseInt(year, 10) };
 
-    const monthNames = [
-      "JANUARI",
-      "FEBRUARI",
-      "MARET",
-      "APRIL",
-      "MEI",
-      "JUNI",
-      "JULI",
-      "AGUSTUS",
-      "SEPTEMBER",
-      "OKTOBER",
-      "NOVEMBER",
-      "DESEMBER",
-    ];
-    const monthIndex = parseInt(month, 10) - 1;
-    const periodText = `${monthNames[monthIndex]} ${year}`;
+    const neracaData = {
+      total_income: totalIncome,
+      total_expense: totalExpense,
+      transactions: reportData,
+    };
 
-    const prefixRows = [
-      ["LAPORAN KAS BENDAHARA"],
-      ["RT 08 RW 11 LINGKUNGAN PONDOK BLIMBING INDAH"],
-      ["KELURAHAN PURWODADI KECAMATAN BLIMBING KOTA MALANG"],
-      ["-"],
-      [`PERIODE : ${periodText}`],
-      [""], // Baris kosong pembatas sebelum nama kolom tabel dasar
-    ];
-
-    exportToExcel(
-      dataToExport,
-      `Laporan_Neraca_${FormatPeriod(startDate, endDate).split(" ").join("_")}`,
-      { prefixRows },
-    );
+    await exportNeracaKas(neracaData, periode);
   };
 
   return (
