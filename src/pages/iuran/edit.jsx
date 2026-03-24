@@ -10,6 +10,10 @@ import FormatCurrency from "../../helpers/FormatCurrency";
 import { useEditPayments } from "../../hooks/useEditPayments";
 
 function EditIuran() {
+  React.useEffect(() => {
+    document.title = "Ubah Data Pembayaran - Iuran RT";
+  }, []);
+
   const {
     wargaID,
     searchTerm,

@@ -41,6 +41,7 @@ function IndexWarga() {
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
+    document.title = "Data Warga - Iuran RT";
     if (!state.auth) {
       navigate("/sign-in");
     } else {

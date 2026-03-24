@@ -6,9 +6,12 @@ import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useUsers } from "../../hooks/useUsers"; // Import hook
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function IndexUser() {
+  useEffect(() => {
+    document.title = "Data Pengurus - Iuran RT";
+  }, []);
   const { dataUser, isLoading, handleDelete } = useUsers();
   const [sortField, setSortField] = useState("");
   const [sortOrder, setSortOrder] = useState(1);

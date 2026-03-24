@@ -23,6 +23,10 @@ function IndexOtherIncome() {
   const navigate = useNavigate();
   const state = useSelector((reducer) => reducer.auth);
 
+  useEffect(() => {
+    document.title = "Data Pemasukan Lainnya - Iuran RT";
+  }, []);
+
   const {
     page,
     setPage,

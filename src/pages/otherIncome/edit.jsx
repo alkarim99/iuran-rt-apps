@@ -19,6 +19,11 @@ import {
 function EditOtherIncome() {
   const navigate = useNavigate();
   const state = useSelector((reducer) => reducer.auth);
+
+  useEffect(() => {
+    document.title = "Ubah Data Pemasukan Lainnya - Iuran RT";
+  }, []);
+
   const location = useLocation();
   const id = location?.pathname?.split("/")[3];
 

@@ -25,6 +25,10 @@ function OpeningBalance() {
   const navigate = useNavigate();
   const state = useSelector((reducer) => reducer.auth);
 
+  useEffect(() => {
+    document.title = "Saldo Awal Tahun - Iuran RT";
+  }, []);
+
   const [isLoading, setIsLoading] = useState(false);
 
   // Table Data State

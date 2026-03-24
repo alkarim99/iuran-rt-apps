@@ -16,6 +16,11 @@ import { getExpenseByID, editExpense } from "../../services/ExpenseService";
 function EditExpense() {
   const navigate = useNavigate();
   const state = useSelector((reducer) => reducer.auth);
+
+  useEffect(() => {
+    document.title = "Ubah Data Pengeluaran - Iuran RT";
+  }, []);
+
   const location = useLocation();
   const id = location?.pathname?.split("/")[3];
 

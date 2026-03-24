@@ -29,6 +29,10 @@ function RincianIuran() {
   const location = useLocation();
   const state = useSelector((reducer) => reducer.auth);
 
+  useEffect(() => {
+    document.title = "Rincian Iuran Warga - Iuran RT";
+  }, []);
+
   const [dataIuran, setDataIuran] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isExporting, setIsExporting] = useState(false);

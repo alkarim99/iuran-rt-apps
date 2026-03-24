@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -24,6 +24,11 @@ function IndexIuran() {
   const navigate = useNavigate();
   const location = useLocation();
   const state = useSelector((reducer) => reducer.auth);
+
+  useEffect(() => {
+    document.title = "Data Iuran - Iuran RT";
+  }, []);
+
   const {
     page,
     setPage,

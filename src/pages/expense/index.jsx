@@ -20,6 +20,10 @@ function IndexExpense() {
   const navigate = useNavigate();
   const state = useSelector((reducer) => reducer.auth);
 
+  useEffect(() => {
+    document.title = "Data Pengeluaran - Iuran RT";
+  }, []);
+
   const {
     page,
     setPage,

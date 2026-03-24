@@ -19,6 +19,7 @@ function CreateWarga() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    document.title = "Tambah Data Warga - Iuran RT";
     if (!state.auth) {
       navigate("/sign-in");
     }

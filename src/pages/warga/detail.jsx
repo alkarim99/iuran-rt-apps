@@ -53,6 +53,7 @@ function DetailWarga() {
   );
 
   useEffect(() => {
+    document.title = "Detail Warga - Iuran RT";
     if (!state.auth) {
       navigate("/sign-in");
     }

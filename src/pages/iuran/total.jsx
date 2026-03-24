@@ -19,6 +19,10 @@ function TotalIuran() {
   const { page, setPage, limit, setLimit, sortBy, order, handleSort } =
     useTableState("iuran_total", 20, "pay_at", -1);
 
+  useEffect(() => {
+    document.title = "Total Iuran - Iuran RT";
+  }, []);
+
   const currentDate = new Date();
   const defaultMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}`;
   const [payAt, setPayAt] = useState(defaultMonth);

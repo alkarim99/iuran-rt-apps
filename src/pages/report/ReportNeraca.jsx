@@ -18,6 +18,10 @@ function ReportNeraca() {
   const navigate = useNavigate();
   const state = useSelector((reducer) => reducer.auth);
 
+  useEffect(() => {
+    document.title = "Neraca Kas RT - Iuran RT";
+  }, []);
+
   const todayDate = new Date();
   const getLocalMonthYear = (date) => {
     const year = date.getFullYear();
@@ -221,7 +225,7 @@ function ReportNeraca() {
                   <p className="mb-0">
                     Total Pemasukan:{" "}
                     <span className="text-success fw-bold">
-                      {FormatCurrency(totalIncome)}
+                      {FormatCurrency(totalIncome + saldoPettyCash + saldoRekening)}
                     </span>
                   </p>
                   <p className="mb-0">

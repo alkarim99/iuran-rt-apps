@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useParams, useLocation } from "react-router-dom";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -13,6 +13,10 @@ import { useCreatePayments } from "../../hooks/useCreatePayments";
 function CreateIuran() {
   const params = useParams(); // Add this to get route params
   const location = useLocation();
+
+  useEffect(() => {
+    document.title = "Tambah Data Iuran - Iuran RT";
+  }, []);
   const {
     wargaID,
     setWargaID,

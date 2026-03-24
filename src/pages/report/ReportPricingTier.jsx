@@ -90,6 +90,10 @@ function ReportPricingTier() {
   const navigate = useNavigate();
   const state = useSelector((reducer) => reducer.auth);
 
+  useEffect(() => {
+    document.title = "Laporan Pricing Tier - Iuran RT";
+  }, []);
+
   // Date range — default to current month
   const now = new Date();
   const [startDate, setStartDate] = useState(

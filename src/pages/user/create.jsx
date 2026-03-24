@@ -20,6 +20,7 @@ function CreateUser() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    document.title = "Tambah Data Pengurus - Iuran RT";
     if (!state.auth) {
       navigate("/sign-in");
     }

@@ -18,6 +18,7 @@ function Home() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    document.title = "Dashboard - Iuran RT";
     if (state?.auth) {
       setIsLoading(true);
       const todayDate = new Date();

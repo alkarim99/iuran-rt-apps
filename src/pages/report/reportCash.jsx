@@ -15,6 +15,10 @@ function ReportCash() {
   const navigate = useNavigate();
   const state = useSelector((reducer) => reducer.auth);
 
+  useEffect(() => {
+    document.title = "Laporan Petty Cash - Iuran RT";
+  }, []);
+
   const todayDate = new Date();
   const getLocalMonthYear = (date) => {
     const year = date.getFullYear();
@@ -63,7 +67,7 @@ function ReportCash() {
 
         let inTotal = 0;
         let outTotal = 0;
-        
+
         // Backend actually calculates t.saldo natively starting from carryOverBalance!
         // So we just need to assign totals and inject Saldo Awal row to the UI.
         transactions.forEach((t) => {
@@ -83,9 +87,9 @@ function ReportCash() {
             description: "Saldo Awal Bulan",
             debit: openingBal,
             kredit: 0,
-            saldo: openingBal
+            saldo: openingBal,
           },
-          ...transactions
+          ...transactions,
         ];
 
         setReportData(combined);
@@ -101,26 +105,30 @@ function ReportCash() {
   // Derive grouped similar to exportLaporanKas
   const getGroupedData = () => {
     if (!reportData || reportData.length === 0) return [];
-    
+
     // We expect reportData to have the Saldo Awal at index 0. Let's separate it.
     const [year, month] = payAt.split("-");
     const saId = `saldo-awal-${year}-${month}`;
-    const saldoRow = reportData.find(t => t.id === saId);
-    const rawTx = reportData.filter(t => t.id !== saId);
+    const saldoRow = reportData.find((t) => t.id === saId);
+    const rawTx = reportData.filter((t) => t.id !== saId);
 
     const listIuran = [];
     const listNonIuran = [];
 
-    rawTx.forEach(tx => {
-      const isIuran = tx.type === "Iuran" || 
-        (tx.debit > 0 && String(tx.description || "").toLowerCase().includes("pembayaran iuran"));
+    rawTx.forEach((tx) => {
+      const isIuran =
+        tx.type === "Iuran" ||
+        (tx.debit > 0 &&
+          String(tx.description || "")
+            .toLowerCase()
+            .includes("pembayaran iuran"));
       if (isIuran) listIuran.push(tx);
       else listNonIuran.push(tx);
     });
 
     const grouped = [];
     let rb = saldoRow ? saldoRow.debit : 0;
-    
+
     if (saldoRow) {
       grouped.push({ ...saldoRow, isData: true });
     }
@@ -130,7 +138,7 @@ function ReportCash() {
         id: "header-iuran",
         date: "",
         description: "PENERIMAAN IURAN CASH",
-        isHeaderGroup: true
+        isHeaderGroup: true,
       });
       listIuran.forEach((tx, i) => {
         rb += (tx.debit || 0) - (tx.kredit || 0);
@@ -138,7 +146,7 @@ function ReportCash() {
           ...tx,
           displayDesc: `    ${i + 1}. ${tx.description}`,
           displaySaldo: rb,
-          isData: true
+          isData: true,
         });
       });
     }
@@ -149,7 +157,7 @@ function ReportCash() {
         ...tx,
         displayDesc: tx.description,
         displaySaldo: rb,
-        isData: true
+        isData: true,
       });
     });
 
@@ -161,9 +169,11 @@ function ReportCash() {
   const handleExportExcel = async () => {
     const [year, month] = payAt.split("-");
     const periode = { bulan: parseInt(month, 10), tahun: parseInt(year, 10) };
-    
+
     // Extract original transactions without the injected row for export helper
-    const originalTx = reportData.filter(t => t.id !== `saldo-awal-${year}-${month}`);
+    const originalTx = reportData.filter(
+      (t) => t.id !== `saldo-awal-${year}-${month}`,
+    );
     await exportLaporanKas(originalTx, "petty_cash", periode, saldoAwal);
   };
 
@@ -175,7 +185,7 @@ function ReportCash() {
       >
         <Navbar />
         <h1>
-          Laporan Bu Agus
+          Laporan Petty Cash
           <Link className="btn btn-primary ms-1 me-1" to="/iuran">
             <FontAwesomeIcon icon={faArrowLeft} />
           </Link>
@@ -242,7 +252,7 @@ function ReportCash() {
                   <p className="mb-0">
                     Total Pemasukan:{" "}
                     <span className="text-success fw-bold">
-                      {FormatCurrency(totalIncome)}
+                      {FormatCurrency(totalIncome + (saldoAwal || 0))}
                     </span>
                   </p>
                   <p className="mb-0">
@@ -287,24 +297,34 @@ function ReportCash() {
                       combinedData.map((item, index) => (
                         <tr key={item.id}>
                           <th scope="row" className="text-center">
-                            {index === 0 && item.id.startsWith("saldo-awal") ? "" : index}
+                            {index === 0 && item.id.startsWith("saldo-awal")
+                              ? ""
+                              : index}
                           </th>
                           <td>{item.date ? FormatDate(item.date) : ""}</td>
                           <td className={item.isHeaderGroup ? "fw-bold" : ""}>
-                            <pre className="mb-0" style={{ fontFamily: "inherit", whiteSpace: "pre-wrap" }}>
-                              {item.isHeaderGroup ? item.description : (item.displayDesc || item.description)}
+                            <pre
+                              className="mb-0"
+                              style={{
+                                fontFamily: "inherit",
+                                whiteSpace: "pre-wrap",
+                              }}
+                            >
+                              {item.isHeaderGroup
+                                ? item.description
+                                : item.displayDesc || item.description}
                             </pre>
                           </td>
                           <td className="text-end text-success">
                             {item.debit > 0 ? FormatCurrency(item.debit) : ""}
                           </td>
                           <td className="text-end text-danger">
-                            {item.kredit > 0
-                              ? FormatCurrency(item.kredit)
-                              : ""}
+                            {item.kredit > 0 ? FormatCurrency(item.kredit) : ""}
                           </td>
                           <td className="text-end fw-bold">
-                            {item.isData ? FormatCurrency(item.displaySaldo || item.saldo) : ""}
+                            {item.isData
+                              ? FormatCurrency(item.displaySaldo || item.saldo)
+                              : ""}
                           </td>
                         </tr>
                       ))
@@ -312,11 +332,19 @@ function ReportCash() {
                   </tbody>
                   <tfoot className="table-light fw-bold">
                     <tr>
-                      <td colSpan="3" className="text-end">TOTAL</td>
-                      <td className="text-end text-success">{FormatCurrency(totalIncome)}</td>
-                      <td className="text-end text-danger">{FormatCurrency(totalExpense)}</td>
+                      <td colSpan="3" className="text-end">
+                        TOTAL
+                      </td>
+                      <td className="text-end text-success">
+                        {FormatCurrency(totalIncome + (saldoAwal || 0))}
+                      </td>
+                      <td className="text-end text-danger">
+                        {FormatCurrency(totalExpense)}
+                      </td>
                       <td className="text-end">
-                        {FormatCurrency((saldoAwal || 0) + totalIncome - totalExpense)}
+                        {FormatCurrency(
+                          (saldoAwal || 0) + totalIncome - totalExpense,
+                        )}
                       </td>
                     </tr>
                   </tfoot>

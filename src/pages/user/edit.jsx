@@ -23,6 +23,7 @@ function EditUser() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    document.title = "Ubah Data Pengurus - Iuran RT";
     if (!state.auth) {
       navigate("/sign-in");
     }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
@@ -16,6 +16,10 @@ function CreateIncome() {
   const navigate = useNavigate();
   const location = useLocation();
   const state = useSelector((reducer) => reducer.auth);
+
+  useEffect(() => {
+    document.title = "Tambah Data Pemasukan - Iuran RT";
+  }, []);
 
   const [incomeType, setIncomeType] = useState("iuran"); // "iuran" | "other"
 

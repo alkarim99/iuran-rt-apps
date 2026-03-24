@@ -21,6 +21,7 @@ function EditWarga() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    document.title = "Ubah Data Warga - Iuran RT";
     if (!state.auth) {
       navigate("/sign-in");
     }

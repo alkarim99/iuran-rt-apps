@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -16,6 +16,10 @@ function CreateExpense() {
   const navigate = useNavigate();
   const { id } = useParams();
   const state = useSelector((reducer) => reducer.auth);
+
+  useEffect(() => {
+    document.title = "Tambah Data Pengeluaran - Iuran RT";
+  }, []);
 
   const [transactionAt, setTransactionAt] = useState("");
   const [nominal, setNominal] = useState("");
