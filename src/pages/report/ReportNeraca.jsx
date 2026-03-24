@@ -10,6 +10,7 @@ import { exportNeracaKas } from "../../helpers/exportExcel/exportNeracaKas";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { getNeracaKasReport } from "../../services/ReportService";
+import { getOpeningBalances } from "../../services/OpeningBalanceService";
 
 import FormatPeriod from "../../helpers/FormatPeriod";
 
@@ -35,6 +36,8 @@ function ReportNeraca() {
 
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
+  const [saldoPettyCash, setSaldoPettyCash] = useState(0);
+  const [saldoRekening, setSaldoRekening] = useState(0);
   const [reportData, setReportData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -54,11 +57,38 @@ function ReportNeraca() {
     const endDate = `${payAt}-${String(lastDay).padStart(2, "0")}`;
 
     const payload = { start_date: startDate, end_date: endDate };
-    getNeracaKasReport(payload)
-      .then((response) => {
-        setTotalIncome(response?.data?.data?.total_income || 0);
-        setTotalExpense(response?.data?.data?.total_expense || 0);
-        setReportData(response?.data?.data?.transactions || []);
+    
+    Promise.all([
+      getNeracaKasReport(payload),
+      getOpeningBalances(year, "petty_cash"),
+      getOpeningBalances(year, "rekening")
+    ])
+      .then(([reportRes, pettyRes, rekRes]) => {
+        const transactions = reportRes?.data?.data?.transactions || [];
+        const openingPetty = pettyRes?.data?.data?.nominal || 0;
+        const openingRekening = rekRes?.data?.data?.nominal || 0;
+        
+        // Use the native backend combined carry_over for accuracy across months
+        const trueOpeningBal = reportRes?.data?.data?.saldo_awal || 0;
+
+        setSaldoPettyCash(openingPetty);
+        setSaldoRekening(openingRekening);
+        setTotalIncome(reportRes?.data?.data?.total_income || 0);
+        setTotalExpense(reportRes?.data?.data?.total_expense || 0);
+
+        // Inject true monthly carry-over combined as the first row for UI table
+        const combined = [
+          {
+            id: `saldo-awal-neraca-${year}-${month}`,
+            tanggal: startDate, // backend property for ReportNeraca uses 'tanggal'
+            description: "Saldo Awal Bulan",
+            debit: trueOpeningBal,
+            credit: 0
+          },
+          ...transactions
+        ];
+
+        setReportData(combined);
       })
       .catch((error) => {
         console.log(error);
@@ -68,11 +98,39 @@ function ReportNeraca() {
       });
   };
 
-  let currentSaldo = 0;
-  const combinedData = reportData.map((item) => {
-    currentSaldo += (item.debit || 0) - (item.credit || 0);
-    return { ...item, saldo: currentSaldo };
-  });
+  const getSideBySideData = () => {
+    if (!reportData || reportData.length === 0) return [];
+
+    const pemasukanList = [];
+    const pengeluaranList = [];
+    
+    reportData.forEach((tx) => {
+      if (tx.id && tx.id.startsWith("saldo-awal")) {
+        pemasukanList.push({ ...tx, jumlah: tx.debit });
+      } else if (tx.debit > 0) {
+        pemasukanList.push({ ...tx, jumlah: tx.debit });
+      } else if (tx.credit > 0 || tx.kredit > 0) {
+        pengeluaranList.push({ ...tx, jumlah: tx.credit || tx.kredit });
+      } else {
+        pemasukanList.push({ ...tx, jumlah: 0 });
+      }
+    });
+
+    const maxRows = Math.max(pemasukanList.length, pengeluaranList.length);
+    const sideBySide = [];
+
+    for (let i = 0; i < maxRows; i++) {
+        sideBySide.push({
+            id: i,
+            inItem: pemasukanList[i] || null,
+            outItem: pengeluaranList[i] || null,
+        });
+    }
+
+    return sideBySide;
+  };
+
+  const combinedData = getSideBySideData();
 
   const handleExportExcel = async () => {
     const [year, month] = payAt.split("-");
@@ -81,10 +139,11 @@ function ReportNeraca() {
     const neracaData = {
       total_income: totalIncome,
       total_expense: totalExpense,
-      transactions: reportData,
+      // For export script, filter out the injected saldo-awal to let the script handle it natively
+      transactions: reportData.filter(t => t.id !== `saldo-awal-neraca-${year}-${month}`),
     };
 
-    await exportNeracaKas(neracaData, periode);
+    await exportNeracaKas(neracaData, periode, undefined, saldoPettyCash, saldoRekening);
   };
 
   return (
@@ -192,20 +251,16 @@ function ReportNeraca() {
                 <table className="table table-bordered table-striped mt-3">
                   <thead className="table-light">
                     <tr>
-                      <th scope="col" className="text-center">
-                        #
-                      </th>
-                      <th scope="col">Tanggal</th>
-                      <th scope="col">Deskripsi</th>
-                      <th scope="col" className="text-end">
-                        Pemasukan (Debit)
-                      </th>
-                      <th scope="col" className="text-end">
-                        Pengeluaran (Kredit)
-                      </th>
-                      <th scope="col" className="text-end">
-                        Net Saldo
-                      </th>
+                      <th colSpan="3" className="text-center">PEMASUKAN</th>
+                      <th colSpan="3" className="text-center">PENGELUARAN</th>
+                    </tr>
+                    <tr>
+                      <th scope="col" className="text-center">TGL</th>
+                      <th scope="col">KETERANGAN</th>
+                      <th scope="col" className="text-end">JUMLAH</th>
+                      <th scope="col" className="text-center">TGL</th>
+                      <th scope="col">KETERANGAN</th>
+                      <th scope="col" className="text-end">JUMLAH</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -216,28 +271,41 @@ function ReportNeraca() {
                         </td>
                       </tr>
                     ) : (
-                      combinedData.map((item, index) => (
-                        <tr key={item.id}>
-                          <th scope="row" className="text-center">
-                            {index + 1}
-                          </th>
-                          <td>{FormatDate(item.tanggal)}</td>
-                          <td>{item.description || item.deskripsi}</td>
+                      combinedData.map((row) => (
+                        <tr key={row.id}>
+                          {/* Pemasukan side */}
+                          <td className="text-center">
+                            {row.inItem ? new Date(row.inItem.tanggal || row.inItem.date).getDate() : ""}
+                          </td>
+                          <td>{row.inItem ? (row.inItem.description || row.inItem.deskripsi) : ""}</td>
                           <td className="text-end text-success">
-                            {item.debit > 0 ? FormatCurrency(item.debit) : "-"}
+                            {row.inItem && row.inItem.jumlah > 0 ? FormatCurrency(row.inItem.jumlah) : ""}
                           </td>
+
+                          {/* Pengeluaran side */}
+                          <td className="text-center">
+                            {row.outItem ? new Date(row.outItem.tanggal || row.outItem.date).getDate() : ""}
+                          </td>
+                          <td>{row.outItem ? (row.outItem.description || row.outItem.deskripsi) : ""}</td>
                           <td className="text-end text-danger">
-                            {item.credit > 0
-                              ? FormatCurrency(item.credit)
-                              : "-"}
-                          </td>
-                          <td className="text-end fw-bold">
-                            {FormatCurrency(item.saldo)}
+                            {row.outItem && row.outItem.jumlah > 0 ? FormatCurrency(row.outItem.jumlah) : ""}
                           </td>
                         </tr>
                       ))
                     )}
                   </tbody>
+                  <tfoot className="table-light fw-bold">
+                    <tr>
+                      <td colSpan="2" className="text-end">TOTAL PEMASUKAN</td>
+                      <td className="text-end text-success">{FormatCurrency(totalIncome + saldoPettyCash + saldoRekening)}</td>
+                      <td colSpan="2" className="text-end">TOTAL PENGELUARAN</td>
+                      <td className="text-end text-danger">{FormatCurrency(totalExpense)}</td>
+                    </tr>
+                    <tr>
+                      <td colSpan="5" className="text-end text-primary">SISA SALDO (NET BALANCE)</td>
+                      <td className="text-end text-primary">{FormatCurrency((totalIncome + saldoPettyCash + saldoRekening) - totalExpense)}</td>
+                    </tr>
+                  </tfoot>
                 </table>
               </div>
             </div>

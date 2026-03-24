@@ -78,6 +78,15 @@ function Navbar() {
                     Pengeluaran
                   </Link>
                 </li>
+                <li className="nav-item">
+                  <Link
+                    className={`nav-link text-dark fw-bold ${isActive("/opening-balance")}`}
+                    to="/opening-balance"
+                    onClick={clearTableState}
+                  >
+                    Saldo Awal
+                  </Link>
+                </li>
                 <li className="nav-item dropdown">
                   <a
                     className={`nav-link dropdown-toggle text-dark fw-bold ${

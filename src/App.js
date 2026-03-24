@@ -10,6 +10,7 @@ import { store, persistor } from "./store";
 import { addAuth } from "./store/reducers/auth";
 
 import PrivateRoute from "./components/PrivateRoute";
+import ScrollToTop from "./components/ScrollToTop";
 
 // import pages
 import {
@@ -37,6 +38,7 @@ import {
   ReportNeraca,
   IndexOtherIncome,
   EditOtherIncome,
+  OpeningBalance,
 } from "./pages";
 
 const router = createBrowserRouter([
@@ -137,6 +139,14 @@ const router = createBrowserRouter([
     ),
   },
   {
+    path: "/opening-balance",
+    element: (
+      <PrivateRoute>
+        <OpeningBalance />
+      </PrivateRoute>
+    ),
+  },
+  {
     path: "/iuran/edit/:id",
     element: (
       <PrivateRoute>
@@ -232,13 +242,12 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <div>
-      <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <RouterProvider router={router} />
-        </PersistGate>
-      </Provider>
-    </div>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <RouterProvider router={router} />
+        <ScrollToTop />
+      </PersistGate>
+    </Provider>
   );
 }
 

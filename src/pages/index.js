@@ -22,3 +22,4 @@ export { default as CreateIncome } from "./income/create";
 export { default as ReportNeraca } from "./report/ReportNeraca";
 export { default as IndexOtherIncome } from "./otherIncome/index";
 export { default as EditOtherIncome } from "./otherIncome/edit";
+export { default as OpeningBalance } from "./opening-balance/OpeningBalance";
