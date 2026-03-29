@@ -7,28 +7,29 @@ Aplikasi **Iuran RT** adalah sistem pencatatan keuangan digital untuk lingkungan
 **Fungsi utama:**
 
 - 📋 **Mencatat data warga** — nama dan alamat rumah
-- 💰 **Mencatat pembayaran iuran** — siapa yang bayar, kapan, berapa, dan metode pembayaran
+- 💰 **Mencatat pembayaran iuran** — iuran rutin bulanan
+- 🎁 **Mencatat pemasukan lainnya** — sumbangan, donasi, atau pendapatan lain di luar iuran
 - 📤 **Mencatat pengeluaran** — pengeluaran kas RT
-- 📊 **Melihat laporan keuangan** — laporan pemasukan dan pengeluaran per bulan
+- 📊 **Melihat laporan keuangan** — laporan petty cash, kas rekening, neraca, hingga analisis pricing tier
 - 📥 **Ekspor Data** — Mendownload laporan dan data warga/iuran langsung ke format Excel (.xlsx)
 
 ---
 
 ## Siapa yang Menggunakan?
 
-Aplikasi ini digunakan oleh **pengurus RT (Admin/Bendahara)**. Hanya pengguna yang sudah terdaftar dan login yang bisa mengakses semua fitur. Pendaftaran pengguna baru hanya bisa dilakukan oleh Admin yang sudah ada.
+Aplikasi ini digunakan oleh **pengurus RT (Admin/Bendahara)**. Hanya pengguna yang sudah terdaftar dan login yang bisa mengakses semua fitur. Pendaftaran pengguna baru hanya bisa dilakukan oleh Admin yang sudah ada melalui menu **User**.
 
 ---
 
 ## Cara Masuk (Login)
 
 1. Buka aplikasi di browser
-2. Klik tombol **Sign In** di halaman utama
+2. Klik tombol **Sign In** di halaman utama atau pojok kanan atas
 3. Masukkan **Email** dan **Password**
 4. Klik **Submit**
 5. Jika berhasil, Anda akan diarahkan ke halaman utama dan menu navigasi akan muncul
 
-**Untuk keluar (Logout):** Klik tombol **Logout** di pojok kanan atas menu navigasi.
+**Untuk keluar (Logout):** Klik tombol **Sign Out** di pojok kanan atas menu navigasi.
 
 ---
 
@@ -36,15 +37,21 @@ Aplikasi ini digunakan oleh **pengurus RT (Admin/Bendahara)**. Hanya pengguna ya
 
 Setelah login, tersedia menu berikut:
 
-| Menu                            | Fungsi                                                               |
-| ------------------------------- | -------------------------------------------------------------------- |
-| **Data User**                   | Mengelola pengguna aplikasi                                          |
-| **Data Warga**                  | Mengelola data warga RT                                              |
-| **Data Pengeluaran**            | Mencatat pengeluaran kas RT                                          |
-| **Iuran → Data Iuran**          | Melihat semua catatan pembayaran                                     |
-| **Iuran → Rincian Iuran**       | Melihat rincian iuran per periode (breakdown RT/PKK/Sosial/Kematian) |
-| **Laporan → Laporan Bu Agus**   | Laporan pemasukan cash + pengeluaran                                 |
-| **Laporan → Laporan Bu Harris** | Laporan pemasukan transfer                                           |
+| Menu                                   | Fungsi                                                               |
+| -------------------------------------- | -------------------------------------------------------------------- |
+| **User**                               | Mengelola pengguna aplikasi (Admin/Bendahara)                        |
+| **Warga**                              | Mengelola data warga RT                                              |
+| **Pengeluaran**                        | Mencatat pengeluaran kas RT                                          |
+| **Saldo Awal**                         | Mengatur saldo awal Petty Cash dan Rekening di setiap awal tahun     |
+| **Pemasukan → Catat Pemasukan**        | Form satu pintu untuk mencatat Iuran Warga atau Pemasukan Lainnya    |
+| **Pemasukan → Data Iuran Warga**       | Melihat semua catatan pembayaran iuran                               |
+| **Pemasukan → Rincian Iuran Warga**    | Melihat rincian iuran per periode (RT/PKK/Sosial/Kematian)           |
+| **Pemasukan → Kalkulasi Iuran Total**  | Ringkasan total pendapatan iuran per bulan                           |
+| **Pemasukan → Data Pemasukan Lainnya** | Melihat catatan sumbangan, donasi, dll                               |
+| **Laporan → Laporan Petty Cash**       | Laporan pemasukan cash + pengeluaran (dikelola Bu Agus)              |
+| **Laporan → Laporan Kas Rekening**     | Laporan pemasukan transfer (dikelola Bu Harris)                      |
+| **Laporan → Neraca Kas RT**            | Laporan komprehensif pemasukan vs pengeluaran per bulan              |
+| **Laporan → Laporan Pricing Tier**     | Analisis kategori pembayaran (75k, 110k, atau custom)                |
 
 ---
 
@@ -52,15 +59,15 @@ Setelah login, tersedia menu berikut:
 
 ### Melihat Daftar Warga
 
-- Buka menu **Data Warga**
-- Daftar warga ditampilkan dalam tabel, diurutkan berdasarkan alamat
+- Buka menu **Warga**
+- Daftar warga ditampilkan dalam tabel, diurutkan berdasarkan alamat secara default
 - Gunakan kolom **Cari** untuk mencari berdasarkan nama atau alamat
 - Klik pada judul kolom ( Nama / Alamat ) untuk mengurutkan data (_Ascending / Descending_)
-- Anda dapat memilih jumlah baris yang ditampilkan per halaman dari opsi dropdown di sudut kiri bawah layar (10, 20, 25, 50, 100). Sistem akan secara otomatis mengingat preferensi Anda dan halaman terakhir saat Anda keluar.
+- Anda dapat memilih jumlah baris yang ditampilkan per halaman (10, 20, 25, 50, 100). Sistem akan secara otomatis mengingat preferensi Anda.
 
 ### Menambah Warga Baru
 
-1. Klik tombol **+** di halaman Data Warga
+1. Klik tombol **+** di halaman Warga
 2. Isi **Nama** dan **Alamat** (contoh alamat: `K3-5`, `K1-12A`, `K2-10`)
 3. Klik **Submit**
 
@@ -88,168 +95,101 @@ Setelah login, tersedia menu berikut:
 - Klik ikon **🗑️ (hapus)** pada baris warga
 - Konfirmasi penghapusan melalui dialog yang muncul
 
-> ⚠️ Data yang dihapus **tidak bisa dikembalikan**.
+---
+
+## Mencatat Pemasukan (Iuran & Lainnya)
+
+Gunakan menu **Pemasukan → Catat Pemasukan** sebagai cara tercepat mencatat uang masuk.
+
+### 1. Mencatat Iuran Warga
+
+1. Pilih **Jenis Pemasukan: Pemasukan Iuran Warga**
+2. Pilih **Warga** dari dropdown (bisa dicari dengan mengetik)
+3. **Tanggal Bayar**: Tanggal uang diterima
+4. **Periode Mulai & Akhir**: Rentang bulan yang dibayar
+5. **Nominal**: Total uang yang dibayarkan
+6. **Metode Pembayaran**: Pilih **Cash / Petty Cash** atau **Transfer / Kas Rekening**
+7. Klik **Simpan Iuran**
+
+**Cara Kerja Perhitungan Otomatis:**
+Sistem secara otomatis membagi nominal ke dalam komponen RT, PKK, Sosial, dan Kematian berdasarkan tier:
+- **Rp 75.000 / bulan**: Hanya untuk komponen RT.
+- **Rp 110.000 / bulan**: RT (94.500) + PKK (8.000) + Sosial (2.500) + Kematian (5.000).
+- **Custom**: Jika nominal tidak sesuai tier di atas, form isian manual akan muncul.
+
+### 2. Mencatat Pemasukan Lainnya (Sumbangan/Donasi)
+
+1. Pilih **Jenis Pemasukan: Pemasukan Lainnya (Sumbangan dll)**
+2. Isi **Tanggal Masuk**, **Nominal**, dan **Deskripsi** (misal: "Sumbangan 17 Agustus")
+3. Pilih **Metode Pembayaran**
+4. Klik **Simpan Pemasukan Lainnya**
 
 ---
 
-## Mencatat Pembayaran Iuran
+## Saldo Awal Tahun
 
-### Menambah Pembayaran Baru
+Menu **Saldo Awal** digunakan untuk menentukan saldo pembuka di awal tahun untuk Petty Cash (Bu Agus) dan Rekening BCA (Bu Harris). Saldo ini akan menjadi dasar perhitungan carry-over pada laporan bulanan.
 
-1. Buka **Iuran → Data Iuran** atau halaman **Detail Warga**, lalu klik tombol **+**
-2. Isi formulir:
-
-| Field                      | Keterangan                                                                                                                                                                                     |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Warga**                  | Pilih warga dari dropdown. Bisa dicari dengan mengetik nama/alamat                                                                                                                             |
-| **Periode Bayar Terakhir** | Otomatis tampil setelah memilih warga — sebagai referensi                                                                                                                                      |
-| **Tanggal Bayar**          | Tanggal warga melakukan pembayaran                                                                                                                                                             |
-| **Periode Mulai**          | Awal bulan yang dibayar                                                                                                                                                                        |
-| **Periode Akhir**          | Akhir bulan yang dibayar                                                                                                                                                                       |
-| **Nominal**                | Total uang yang dibayarkan                                                                                                                                                                     |
-| **Rincian Khusus**         | Jika nominal di luar ketentuan tier biasa, form isian manual untuk RT, PKK, Sosial, dan Kematian akan terbuka secara dinamis. Total isian rincian harus sama persis dengan total nominal bayar |
-| **Metode Pembayaran**      | Pilih **Cash** atau **Transfer**                                                                                                                                                               |
-
-3. Klik **Submit**
-
-### Cara Kerja Perhitungan Otomatis
-
-Setelah Anda memasukkan data, sistem secara otomatis menghitung:
-
-- **Jumlah bulan** — dihitung dari Periode Mulai hingga Periode Akhir
-- **Rincian pembayaran** — dibagi berdasarkan nominal:
-
-| Jika Nominal                                          | Rincian per Bulan                                                     |
-| ----------------------------------------------------- | --------------------------------------------------------------------- |
-| **Kelipatan Rp 75.000** (75rb, 150rb, 225rb, dst.)    | RT: Rp 75.000 — untuk warga yang hanya bayar iuran RT                 |
-| **Selain kelipatan 75rb** (110rb, 220rb, 330rb, dst.) | RT: Rp 94.500 + PKK: Rp 8.000 + Sosial: Rp 2.500 + Kematian: Rp 5.000 |
-
-**Contoh:**
-
-- Warga A bayar **Rp 330.000** untuk periode **Januari–Maret** (3 bulan)  
-  → Bukan kelipatan 75K → Rincian: RT (Rp 283.500) + PKK (Rp 24.000) + Sosial (Rp 7.500) + Kematian (Rp 15.000)
-- Warga B bayar **Rp 150.000** untuk periode **Januari–Februari** (2 bulan)  
-  → Kelipatan 75K → Rincian: RT (Rp 150.000), tanpa PKK/Sosial/Kematian
-
-### Mengubah Pembayaran
-
-1. Klik ikon **✏️ (edit)** pada baris pembayaran
-2. Ubah data yang diperlukan
-3. Klik **Submit**
-
-### Menghapus Pembayaran
-
-- Klik ikon **🗑️ (hapus)** pada baris pembayaran
-- Konfirmasi melalui dialog
+1. Pilih **Tahun** yang diinginkan
+2. Klik **Tambah Saldo Awal**
+3. Masukkan **Tipe Rekening**, **Nominal**, dan **Keterangan**
+4. Klik **Simpan**
 
 ---
 
-## Melihat Data Iuran
+## Melihat Data & Kalkulasi Iuran
 
-### Rincian Iuran (`Iuran → Rincian Iuran`)
+### Rincian Iuran (`Pemasukan → Rincian Iuran Warga`)
 
-Halaman ini menampilkan **semua pembayaran iuran** dalam satu periode (bulan) beserta rincian breakdown:
+Menampilkan breakdown setiap pembayaran iuran ke dalam kolom RT, PKK, Sosial, dan Kematian. Berguna untuk melihat detail pembagian uang kas per warga.
 
-| Kolom                        | Isi                           |
-| ---------------------------- | ----------------------------- |
-| Blok                         | Nomor blok rumah warga        |
-| Nama                         | Nama warga yang membayar      |
-| Alamat                       | Alamat lengkap warga          |
-| Tanggal Bayar                | Kapan warga membayar          |
-| Jumlah                       | Total pembayaran iuran        |
-| Periode Bulan                | Jumlah bulan yang dibayar     |
-| RT / PKK / Sosial / Kematian | Rincian pembagian pembayaran  |
-| Keterangan                   | Rentang periode (dari–sampai) |
+### Kalkulasi Iuran Total (`Pemasukan → Kalkulasi Iuran Total`)
 
-**Filter dan Fungsionalitas:**
-
-- **Cari** — berdasarkan nama atau alamat
-- **Urutkan** — berdasarkan tanggal bayar, tanggal input, nama warga, atau alamat, bisa pula dengan mengklik _header_ tabel
-- **Excel Export** — Tombol untuk mendownload tabel rincian Iuran langsung dalam format Excel `.xlsx`
-- **Periode** — pilih bulan yang ingin dilihat
-- **Persistensi Halaman** — Posisi limit pagination dan halaman Anda dipertahankan (_tersimpan otomatis_) meski berpindah menu.
-
-Dari halaman ini Anda juga bisa langsung **membuat pembayaran baru**, **edit**, atau **hapus** pembayaran melalui tombol **Menu** di setiap baris.
-
-### Total Pendapatan (`dari halaman Rincian → tombol Total`)
-
-Menampilkan total pemasukan dalam rentang tanggal tertentu:
-
-- Pilih **Periode Mulai** dan **Periode Akhir**
-- Klik **Search**
-- Sistem menampilkan **total pendapatan** dan daftar pembayaran dalam periode tersebut
+Memberikan ringkasan cepat berapa total pendapatan iuran yang diterima pada bulan tertentu, lengkap dengan daftar warganya.
 
 ---
 
 ## Mencatat Pengeluaran
 
-### Melihat Daftar Pengeluaran
-
-- Buka menu **Data Pengeluaran**
-- Filter berdasarkan periode (bulan) menggunakan dropdown
-
 ### Menambah Pengeluaran
 
-1. Klik tombol **+**
-2. Isi formulir:
-   - **Tanggal Transaksi** — kapan pengeluaran terjadi
-   - **Nominal** — jumlah pengeluaran
-   - **Deskripsi** — keterangan pengeluaran (contoh: "Beli tinta printer", "Bayar listrik mushola")
+1. Buka menu **Pengeluaran**, klik tombol **+**
+2. Isi **Tanggal Transaksi**, **Nominal**, dan **Deskripsi**
 3. Klik **Submit**
 
-### Mengubah / Menghapus Pengeluaran
-
-- Gunakan ikon **✏️** atau **🗑️** pada baris pengeluaran
+> Pengeluaran secara otomatis akan mengurangi saldo pada **Laporan Petty Cash** dan **Neraca Kas RT**.
 
 ---
 
 ## Laporan Keuangan
 
-### Laporan Bu Agus — Pemasukan Cash + Pengeluaran
+### Laporan Petty Cash (Bu Agus)
 
-**Fungsi:** Laporan untuk bendahara penerima uang cash (Bu Agus), yang juga mengelola pengeluaran RT.
+Laporan untuk uang cash. Menampilkan Pemasukan (Debit), Pengeluaran (Kredit), dan Saldo berjalan. Termasuk Saldo Awal Bulan sebagai carry-over dari bulan sebelumnya.
 
-1. Buka **Laporan → Laporan Bu Agus**
-2. Pilih **Periode** (bulan)
-3. Klik **Search**
-4. Sistem menampilkan tabel pembukuan bergaya akuntansi:
+### Laporan Kas Rekening (Bu Harris)
 
-| Kolom       | Keterangan                                          |
-| ----------- | --------------------------------------------------- |
-| Tanggal     | Waktu transaksi / input                             |
-| Keterangan  | Detail warga / transaksi nota pengeluaran           |
-| Pemasukan   | Nilai uang masuk (Debit)                            |
-| Pengeluaran | Nilai uang keluar (Kredit)                          |
-| Saldo       | Jumlah kas (bersih) kumulatif hingga baris tersebut |
+Laporan khusus untuk uang yang masuk melalui transfer bank. Hanya menampilkan pemasukan karena pengeluaran biasanya dilakukan melalui kas tunai.
 
-> **Tombol "Export Excel"** tersedia di setiap halaman pelaporan untuk membackup / membagikan file laporan.
+### Neraca Kas RT
 
-### Laporan Bu Harris — Pemasukan Transfer
+Laporan bergaya neraca side-by-side:
+- Sisi Kiri: Daftar Pemasukan (Iuran & Lainnya) + Saldo Awal.
+- Sisi Kanan: Daftar Pengeluaran.
+- Bawah: Total Pemasukan, Total Pengeluaran, dan Sisa Saldo (Net Balance).
 
-**Fungsi:** Laporan untuk bendahara penerima transfer (Bu Harris).
+### Laporan Pricing Tier
 
-1. Buka **Laporan → Laporan Bu Harris**
-2. Pilih **Periode** (bulan)
-3. Klik **Search**
-4. Sistem menampilkan daftar pembayaran via transfer beserta **totalnya**
-
-> Laporan Bu Harris **tidak memuat data pengeluaran** karena pengeluaran hanya dikelola oleh Bu Agus (kas tunai).
+Analisis statistik untuk melihat berapa banyak warga yang membayar di tier 75rb, 110rb, atau di luar tier. Berguna untuk memonitor kepatuhan dan tren pembayaran warga.
 
 ---
 
-## Mengelola Pengguna (User)
+## Ekspor Excel
 
-> Hanya Admin yang bisa mengelola pengguna.
-
-### Menambah Pengguna Baru
-
-1. Buka **Data User**, klik **+**
-2. Isi **Nama**, **Email**, **Password**, dan **Role**
-3. Klik **Submit**
-
-### Mengubah / Menghapus Pengguna
-
-- Gunakan ikon **✏️** atau **🗑️** pada baris pengguna
+Hampir di semua halaman tabel (Warga, Iuran, Pengeluaran, dan semua Laporan), tersedia tombol **Export Excel**. Gunakan ini untuk:
+- Membackup data secara offline
+- Membagikan laporan ke grup WhatsApp warga
+- Mencetak laporan secara manual
 
 ---
 
@@ -257,14 +197,14 @@ Menampilkan total pemasukan dalam rentang tanggal tertentu:
 
 | Istilah         | Arti                                              |
 | --------------- | ------------------------------------------------- |
-| **Warga**       | Penduduk/penghuni rumah yang terdaftar di RT      |
 | **Iuran**       | Pembayaran rutin warga ke RT                      |
-| **Nominal**     | Jumlah uang yang dibayarkan                       |
+| **Pemasukan**   | Semua uang masuk (Iuran + Lainnya)                |
+| **Petty Cash**  | Kas tunai yang dipegang Bendahara (Bu Agus)       |
+| **Kas Rekening**| Kas di bank (BCA) yang diterima via transfer      |
+| **Tier**        | Kategori nominal pembayaran (75rb / 110rb)        |
+| **Nominal**     | Jumlah uang dalam angka                           |
 | **Periode**     | Rentang bulan yang dicakup oleh pembayaran        |
-| **RT**          | Komponen iuran untuk kas RT                       |
-| **PKK**         | Komponen iuran untuk kegiatan PKK                 |
-| **Sosial**      | Komponen iuran untuk dana sosial                  |
-| **Kematian**    | Komponen iuran untuk dana kematian                |
-| **Cash**        | Pembayaran tunai (diterima Bu Agus)               |
-| **Transfer**    | Pembayaran via transfer bank (diterima Bu Harris) |
-| **Pengeluaran** | Biaya yang dikeluarkan dari kas RT                |
+| **Debit**       | Uang Masuk                                        |
+| **Kredit**      | Uang Keluar (Pengeluaran)                         |
+| **Net Balance** | Sisa saldo bersih setelah dikurangi pengeluaran   |
+
