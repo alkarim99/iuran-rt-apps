@@ -17,12 +17,16 @@ Aplikasi frontend untuk pencatatan iuran warga RT.
 
 - 🔐 **Login/Logout** — Autentikasi dengan JWT (persisted di localStorage)
 - 👥 **Data Warga** — Kelola data warga RT (CRUD + detail + riwayat iuran)
-- 💰 **Data Iuran** — Catat dan kelola pembayaran iuran warga (termasuk form dinamis custom nominal di luar tier)
-- 📋 **Rincian Iuran** — Lihat breakdown iuran per periode (RT/PKK/Sosial/Kematian)
-- 📥 **Ekspor Excel** — Download otomatis laporan dan tabel secara langsung di rincian laporan kas RT
+- 💰 **Catat Pemasukan** — Form satu pintu untuk mencatat iuran warga (termasuk form dinamis custom nominal) atau pemasukan lainnya (sumbangan/donasi)
+- 📋 **Data Iuran & Rincian** — Kelola data iuran warga serta breakdown per periode (RT/PKK/Sosial/Kematian)
+- 💸 **Pemasukan Lainnya** — Catat sumbangan, donasi, atau pendapatan lain di luar iuran
 - 📤 **Data Pengeluaran** — Catat pengeluaran kas RT
-- 📊 **Laporan Bu Agus** — Laporan rekapitulasi akuntansi untuk pemasukan cash + pengeluaran
-- 📊 **Laporan Bu Harris** — Laporan rekapitulasi akuntansi untuk pemasukan transfer
+- 🏦 **Saldo Awal** — Atur saldo awal tahun untuk Petty Cash (Bu Agus) dan Rekening BCA (Bu Harris)
+- 📊 **Laporan Petty Cash** — Laporan rekapitulasi akuntansi untuk pemasukan cash + pengeluaran
+- 📊 **Laporan Kas Rekening** — Laporan rekapitulasi akuntansi untuk pemasukan transfer
+- ⚖️ **Neraca Kas RT** — Laporan side-by-side untuk melihat net balance per bulan secara komprehensif
+- 📈 **Laporan Pricing Tier** — Analisis kategori pembayaran warga (75k, 110k, atau custom)
+- 📥 **Ekspor Excel** — Download otomatis laporan dan tabel secara langsung di rincian laporan kas RT
 - 👤 **Data User** — Kelola pengguna aplikasi
 - 🚀 **UI UX Enhancements** — Menyediakan Select Limit tabel fleksibel, dan persistensi pagination via `sessionStorage`.
 
@@ -30,15 +34,18 @@ Aplikasi frontend untuk pencatatan iuran warga RT.
 
 ```
 src/
-├── components/      # Komponen reusable (Navbar, Footer)
-├── helpers/         # Utility functions (FormatDate, FormatCurrency)
+├── components/      # Komponen reusable (Navbar, Footer, TableFooter)
+├── helpers/         # Utility functions (FormatDate, FormatCurrency, urlBuilder)
 ├── hooks/           # Custom hooks (usePayments, useCreatePayments, dll.)
 ├── pages/           # Halaman aplikasi
-│   ├── iuran/       # Halaman iuran (index, create, edit, rincian, total)
+│   ├── income/      # Halaman Catat Pemasukan
+│   ├── iuran/       # Halaman iuran (index, rincian, total)
+│   ├── otherIncome/ # Halaman pemasukan lainnya
 │   ├── warga/       # Halaman warga (index, create, edit, detail)
 │   ├── expense/     # Halaman pengeluaran
+│   ├── opening-balance/ # Halaman saldo awal tahun
 │   ├── user/        # Halaman user management
-│   └── report/      # Halaman laporan (cash, transfer)
+│   └── report/      # Halaman laporan (cash, transfer, neraca, pricing-tier)
 ├── services/        # API service layer (Axios)
 └── store/           # Redux store & reducers
 ```
