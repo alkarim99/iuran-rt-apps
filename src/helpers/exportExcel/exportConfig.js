@@ -45,11 +45,11 @@ export const TOTAL_FILL = {
   fgColor: { argb: "FFFFFF99" }, // light yellow
 };
 
-export const FONT_TITLE = { bold: true, size: 12 };
-export const FONT_SUBTITLE = { bold: true, size: 11 };
-export const FONT_HEADER = { bold: true, size: 11 };
-export const FONT_DATA = { size: 10 };
-export const FONT_TOTAL = { bold: true, size: 10 };
+export const FONT_TITLE = { name: "Arial", bold: true, size: 12 };
+export const FONT_SUBTITLE = { name: "Arial", bold: true, size: 11 };
+export const FONT_HEADER = { name: "Arial", bold: true, size: 11 };
+export const FONT_DATA = { name: "Arial", size: 10 };
+export const FONT_TOTAL = { name: "Arial", bold: true, size: 10 };
 
 export const ALIGN_CENTER = {
   horizontal: "center",
