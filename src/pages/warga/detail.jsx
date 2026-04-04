@@ -1,26 +1,32 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPen,
   faTrash,
-  faArrowLeft,
   faPlus,
+  faMagnifyingGlass,
+  faRotateRight,
+  faUser,
+  faLocationDot,
+  faCalendarCheck,
+  faReceipt,
 } from "@fortawesome/free-solid-svg-icons";
-import { useLocation } from "react-router";
 import FormatDate from "../../helpers/FormatDate";
 import FormatCurrency from "../../helpers/FormatCurrency";
 import FormatPeriod from "../../helpers/FormatPeriod";
 
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
+import PageHeader from "../../components/ui/PageHeader";
+import FilterBar from "../../components/ui/FilterBar";
+import TableCard from "../../components/ui/TableCard";
 import TableFooter from "../../components/TableFooter";
+import Btn from "../../components/ui/Btn";
+import StatusBadge from "../../components/ui/StatusBadge";
 import { getWargaByID } from "../../services/WargaService";
 import {
   getPaymentByWargaId,
-  getPaymentReport,
   deletePayment,
 } from "../../services/IuranService";
 
@@ -41,7 +47,7 @@ function DetailWarga() {
   const [pageReport, setPageReport] = useState(1);
   const [limitReport, setLimitReport] = useState(10);
 
-  // Calcluate paginated data
+  // Pagination for local data
   const paginatedIuran = dataIuran.slice(
     (pageIuran - 1) * limitIuran,
     pageIuran * limitIuran,
@@ -59,49 +65,40 @@ function DetailWarga() {
     }
     handleGet();
     handleGetPayment(sortBy);
-  }, [state]);
+  }, [state, navigate, id]);
 
   const handleGet = () => {
     setIsLoading(true);
     getWargaByID(id)
-      .then((response) => {
-        setDataWarga(response?.data?.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+      .then((response) => setDataWarga(response?.data?.data))
+      .catch((error) => console.error(error));
   };
 
   const handleGetPayment = (currentSortBy = sortBy) => {
-    setIsLoading(true); // Set loading true for payment fetch
+    setIsLoading(true);
     getPaymentByWargaId({ id, sortBy: currentSortBy })
-      .then((response) => {
-        setDataIuran(response?.data?.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-      .finally(() => {
-        setIsLoading(false); // Set loading false after payment fetch
-      });
+      .then((response) => setDataIuran(response?.data?.data))
+      .catch((error) => console.error(error))
+      .finally(() => setIsLoading(false));
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (paymentId) => {
     Swal.fire({
-      title: "Do you want to delete this data?",
-      showDenyButton: true,
+      title: "Hapus data pembayaran?",
+      text: "Data iuran yang dihapus akan mempengaruhi saldo laporan.",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Delete",
-      denyButtonText: `Don't Delete`,
+      confirmButtonColor: "var(--red-500)",
+      confirmButtonText: "Ya, Hapus",
+      cancelButtonText: "Batal",
     }).then((result) => {
-      /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         setIsLoading(true);
-        deletePayment(id)
+        deletePayment(paymentId)
           .then((response) => {
             Swal.fire({
-              title: "Delete Success!",
-              text: response?.data?.message,
+              title: "Berhasil!",
+              text: response?.data?.message || "Data pembayaran telah dihapus.",
               icon: "success",
             }).then(() => {
               handleGet();
@@ -109,299 +106,355 @@ function DetailWarga() {
             });
           })
           .catch((error) => {
-            console.log(error);
             Swal.fire({
               title: "Error!",
               text:
-                error?.response?.data?.message ?? "Something wrong in our App!",
+                error?.response?.data?.message ?? "Terjadi kesalahan sistem.",
               icon: "error",
             });
           })
-          .finally(() => {
-            setIsLoading(false);
-          });
-      } else if (result.isDenied) {
-        Swal.fire("Payment are not deleted", "", "info");
+          .finally(() => setIsLoading(false));
       }
     });
   };
 
-  const handleSearch = () => {
-    setIsLoading(true);
-    getPaymentByWargaId({ id, sortBy })
-      .then((response) => {
-        setDataIuran(response?.data?.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+  const handleSearch = (e) => {
+    if (e) e.preventDefault();
+    handleGetPayment(sortBy);
   };
 
   const handleReset = () => {
-    setIsLoading(true);
-    setSortBy("created_at"); // Reset sortBy to default
-    handleGet();
-    handleGetPayment("created_at"); // Pass default sortBy
+    setSortBy("created_at");
+    handleGetPayment("created_at");
   };
 
-  if (isLoading) {
-    return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ height: "100vh" }}
-      >
-        <div className="spinner-grow text-warning" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  } else {
-    return (
-      <>
-        <div
-          className="container d-flex p-3 mx-auto flex-column"
-          style={{ height: "100vh" }}
-        >
-          <Navbar />
-
-          <div className="mb-3">
-            <Link className="btn btn-primary" to="/warga">
-              <FontAwesomeIcon icon={faArrowLeft} />
-            </Link>
-          </div>
-
-          <div className="mb-3">
-            <h3>
-              Detail Warga
-              <Link
-                className="btn btn-warning mx-1 no-print"
-                to={`/warga/edit/${id}`}
-              >
-                <FontAwesomeIcon icon={faPen} />
-              </Link>
-            </h3>
-
-            <div className="print-header">
-              <h2>Detail Iuran Warga</h2>
-              <p>
-                {dataWarga?.name} — {dataWarga?.address}
-              </p>
-            </div>
-            <div className="row">
-              <div className="col-2">Name</div>
-              <div className="col">: {dataWarga?.name}</div>
-            </div>
-            <div className="row">
-              <div className="col-2">Address</div>
-              <div className="col">: {dataWarga?.address}</div>
-            </div>
-          </div>
-
-          <h3>
-            Data Iuran
-            <Link
-              className="btn btn-primary ms-1"
-              to={`/iuran/create/warga/${dataWarga?._id}`}
-              state={{ from: location.pathname + location.search }}
+  return (
+    <div className="warga-detail-page">
+      <PageHeader
+        title="Profil Warga"
+        breadcrumb={["Data Master", "Warga", dataWarga?.name || "Detail"]}
+        actions={
+          <div className="d-flex gap-2">
+            <Btn
+              variant="outline"
+              icon={<FontAwesomeIcon icon={faPen} />}
+              onClick={() => navigate(`/warga/edit/${id}`)}
             >
-              <FontAwesomeIcon icon={faPlus} />
-            </Link>
-          </h3>
+              Edit Profil
+            </Btn>
+            <Btn
+              variant="primary"
+              icon={<FontAwesomeIcon icon={faPlus} />}
+              onClick={() =>
+                navigate(`/iuran/create/warga/${id}`, {
+                  state: { from: location.pathname },
+                })
+              }
+            >
+              Catat Iuran
+            </Btn>
+          </div>
+        }
+      />
 
-          <div className="my-4">
-            <form onSubmit={(e) => e.preventDefault()}>
-              <div className="row d-flex align-items-end">
-                <div className="col-3">
-                  <label htmlFor="sort_by" className="form-label">
-                    Urutkan berdasarkan
-                  </label>
-                  <select
-                    id="sort_by"
-                    className="form-select"
-                    onChange={(e) => setSortBy(e.target.value)}
-                    value={sortBy} // Controlled component
-                  >
-                    <option value="created_at">Pencatatan Terbaru</option>
-                    <option value="pay_at">Pembayaran Terbaru</option>
-                  </select>
-                </div>
-                <div className="col-3">
-                  <button
-                    className="btn btn-primary py-2 me-2"
-                    type="submit"
-                    onClick={handleSearch}
-                  >
-                    {isLoading ? "Loading..." : "Search"}
-                  </button>
-                  <button
-                    className="btn btn-primary py-2"
-                    type="button"
-                    onClick={handleReset}
-                  >
-                    {isLoading ? "Loading..." : "Reset"}
-                  </button>
+      {/* Citizen Info Section */}
+      <div className="row mb-4">
+        <div className="col-md-6">
+          <div
+            className="rt-card d-flex align-items-center gap-4 p-4"
+            style={{
+              height: "100%",
+              background: "var(--surface)",
+              border: "1px solid var(--gray-200)",
+              borderRadius: "var(--radius-xl)",
+            }}
+          >
+            <div
+              className="profile-avatar-lg"
+              style={{
+                width: "80px",
+                height: "80px",
+                background: "var(--blue-50)",
+                color: "var(--blue-600)",
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyCenter: "center",
+                fontSize: "32px",
+              }}
+            >
+              <div className="mx-auto">
+                <FontAwesomeIcon icon={faUser} />
+              </div>
+            </div>
+            <div>
+              <h2
+                className="mb-1"
+                style={{
+                  fontSize: "20px",
+                  fontWeight: "800",
+                  color: "var(--gray-900)",
+                }}
+              >
+                {dataWarga?.name}
+              </h2>
+              <div className="d-flex align-items-center gap-2 text-muted small mb-2">
+                <FontAwesomeIcon icon={faLocationDot} />
+                <span>{dataWarga?.address}</span>
+              </div>
+              <StatusBadge type="custom">
+                Warga RT 08
+              </StatusBadge>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-6">
+          <div
+            className="rt-card p-4"
+            style={{
+              height: "100%",
+              background: "var(--surface)",
+              border: "1px solid var(--gray-200)",
+              borderRadius: "var(--radius-xl)",
+            }}
+          >
+            <h4
+              style={{
+                fontSize: "11px",
+                fontWeight: "700",
+                textTransform: "uppercase",
+                color: "var(--gray-400)",
+                marginBottom: "16px",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Ringkasan Pembayaran
+            </h4>
+            <div className="row g-3">
+              <div className="col-6">
+                <div className="small text-muted mb-1">Total Kontribusi</div>
+                <div
+                  className="font-bold amount"
+                  style={{ fontSize: "18px", color: "var(--green-600)" }}
+                >
+                  {FormatCurrency(
+                    dataIuran.reduce(
+                      (acc, curr) => acc + (curr.nominal || 0),
+                      0,
+                    ),
+                  )}
                 </div>
               </div>
-            </form>
+              <div className="col-6">
+                <div className="small text-muted mb-1">Terakhir Bayar</div>
+                <div className="font-bold" style={{ fontSize: "16px" }}>
+                  {dataIuran[0]
+                    ? FormatPeriod(dataIuran[0].period_start, dataIuran[0].period_end)
+                    : "—"}
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+      </div>
 
-          <table className="table">
+      <FilterBar>
+        <form
+          onSubmit={handleSearch}
+          className="d-flex align-items-center gap-2 flex-1"
+        >
+          <span className="filter-label">Urutkan</span>
+          <select
+            className="filter-select"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <option value="created_at">Pencatatan Terbaru</option>
+            <option value="pay_at">Pembayaran Terbaru</option>
+          </select>
+          <div className="filter-sep" />
+          <Btn
+            variant="primary"
+            size="sm"
+            icon={<FontAwesomeIcon icon={faMagnifyingGlass} />}
+            type="submit"
+            loading={isLoading}
+          >
+            Tampilkan
+          </Btn>
+          <Btn
+            variant="outline"
+            size="sm"
+            icon={<FontAwesomeIcon icon={faRotateRight} />}
+            onClick={handleReset}
+          >
+            Reset
+          </Btn>
+        </form>
+      </FilterBar>
+
+      <TableCard
+        title="Riwayat Iuran Rutin"
+        subtitle={`${dataIuran.length} transaksi tercatat untuk warga ini`}
+        className="mb-4"
+      >
+        <div className="table-responsive">
+          <table className="table table-hover mt-0">
             <thead>
               <tr>
-                <th scope="col">#</th>
-                <th scope="col">Tanggal Input</th>
-                <th scope="col">Tanggal Bayar</th>
-                <th scope="col">Periode</th>
-                <th scope="col">Nominal</th>
-                <th scope="col">Metode Pembayaran</th>
-                <th scope="col">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedIuran.map((iuran, index) => {
-                const globalIndex = (pageIuran - 1) * limitIuran + index + 1;
-                return (
-                  <tr key={iuran?._id || index}>
-                    <th scope="row">{globalIndex}</th>
-                    <td>{FormatDate(iuran?.created_at)}</td>
-                    <td>{FormatDate(iuran?.pay_at)}</td>
-                    <td>
-                      {FormatDate(iuran?.period_start)} -{" "}
-                      {FormatDate(iuran?.period_end)}
-                    </td>
-                    <td>{FormatCurrency(iuran?.nominal)}</td>
-                    <td className="text-capitalize">{iuran?.payment_method}</td>
-                    <td>
-                      <Link
-                        className="btn btn-warning me-1"
-                        to={`/iuran/edit/${iuran?._id}`}
-                      >
-                        <FontAwesomeIcon icon={faPen} />
-                      </Link>
-                      <Link
-                        className="btn btn-danger mx-1"
-                        onClick={() => {
-                          handleDelete(iuran?._id);
-                        }}
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                      </Link>
-                    </td>
-                  </tr>
-                );
-              })}
-              {paginatedIuran.length === 0 && (
-                <tr>
-                  <td colSpan="7" className="text-center">
-                    Tidak ada data iuran
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-          <TableFooter
-            currentPage={pageIuran}
-            totalPages={Math.ceil(dataIuran.length / limitIuran)}
-            totalCount={dataIuran.length}
-            itemsPerPage={limitIuran}
-            onPageChange={setPageIuran}
-            onLimitChange={(newLimit) => {
-              setLimitIuran(newLimit);
-              setPageIuran(1);
-            }}
-          />
-
-          <h3 className="mt-4">Data Rincian Iuran</h3>
-          <table className="table table-bordered table-striped mt-3">
-            <thead className="table-light">
-              <tr>
-                <th scope="col" className="text-center">
+                <th style={{ width: "40px" }} className="text-center">
                   #
                 </th>
-                <th scope="col" className="text-center">
-                  Tanggal Bayar
+                <th>Tgl Bayar</th>
+                <th>Periode Iuran</th>
+                <th className="text-end">Nominal</th>
+                <th className="text-center">Metode</th>
+                <th className="text-center" style={{ width: "120px" }}>
+                  Aksi
                 </th>
-                <th scope="col" className="text-end">
-                  Nominal
-                </th>
-                <th scope="col" className="text-center">
-                  Jml Bulan
-                </th>
-                <th scope="col" className="text-end">
-                  RT
-                </th>
-                <th scope="col" className="text-end">
-                  PKK
-                </th>
-                <th scope="col" className="text-end">
-                  Sosial
-                </th>
-                <th scope="col" className="text-end">
-                  Kematian
-                </th>
-                <th scope="col">Keterangan</th>
               </tr>
             </thead>
             <tbody>
-              {paginatedReport.map((iuran, index) => {
-                const globalIndex = (pageReport - 1) * limitReport + index + 1;
-                return (
-                  <tr key={iuran?._id || index}>
-                    <td className="text-center">{globalIndex}</td>
-                    <td className="text-center">
-                      {FormatDate(iuran?.pay_at).split(" ")[0]}
-                    </td>
-                    <td className="text-end fw-bold">
-                      {FormatCurrency(iuran?.nominal)}
-                    </td>
-                    <td className="text-center">{iuran?.number_of_period}</td>
-                    <td className="text-end">
-                      {FormatCurrency(iuran?.details_payment?.rt)}
-                    </td>
-                    <td className="text-end">
-                      {FormatCurrency(iuran?.details_payment?.pkk)}
-                    </td>
-                    <td className="text-end">
-                      {FormatCurrency(iuran?.details_payment?.sosial)}
-                    </td>
-                    <td className="text-end">
-                      {FormatCurrency(iuran?.details_payment?.kematian)}
-                    </td>
-                    <td>
-                      {FormatPeriod(iuran?.period_start, iuran?.period_end)}
-                    </td>
-                  </tr>
-                );
-              })}
-              {paginatedReport.length === 0 && (
+              {paginatedIuran.map((iuran, index) => (
+                <tr key={iuran._id}>
+                  <td className="text-center text-muted small">
+                    {(pageIuran - 1) * limitIuran + index + 1}
+                  </td>
+                  <td>
+                    <div className="cell-main">{FormatDate(iuran.pay_at)}</div>
+                    <div className="cell-sub">
+                      Input: {FormatDate(iuran.created_at)}
+                    </div>
+                  </td>
+                  <td>
+                    <div className="cell-main">
+                      {FormatPeriod(iuran.period_start, iuran.period_end)}
+                    </div>
+                  </td>
+                  <td className="text-end font-bold amount">
+                    {FormatCurrency(iuran.nominal)}
+                  </td>
+                  <td className="text-center">
+                    <StatusBadge type={iuran.payment_method} />
+                  </td>
+                  <td>
+                    <div className="d-flex justify-content-center gap-2">
+                      <Btn
+                        variant="ghost"
+                        size="sm"
+                        icon={<FontAwesomeIcon icon={faPen} />}
+                        onClick={() => navigate(`/iuran/edit/${iuran._id}`)}
+                        title="Edit"
+                      />
+                      <Btn
+                        variant="ghost"
+                        size="sm"
+                        icon={<FontAwesomeIcon icon={faTrash} />}
+                        onClick={() => handleDelete(iuran._id)}
+                        className="text-danger"
+                        title="Hapus"
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {dataIuran.length === 0 && (
                 <tr>
-                  <td colSpan="9" className="text-center">
-                    Tidak ada data rincian iuran
+                  <td colSpan="6" className="text-center py-5 text-muted">
+                    Belum ada riwayat pembayaran.
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
-          <TableFooter
-            currentPage={pageReport}
-            totalPages={Math.ceil(dataIuran.length / limitReport)}
-            totalCount={dataIuran.length}
-            itemsPerPage={limitReport}
-            onPageChange={setPageReport}
-            onLimitChange={(newLimit) => {
-              setLimitReport(newLimit);
-              setPageReport(1);
-            }}
-          />
-
-          <Footer />
         </div>
-      </>
-    );
-  }
+        <TableFooter
+          currentPage={pageIuran}
+          totalPages={Math.ceil(dataIuran.length / limitIuran)}
+          totalCount={dataIuran.length}
+          itemsPerPage={limitIuran}
+          onPageChange={setPageIuran}
+          onLimitChange={(newLimit) => {
+            setLimitIuran(newLimit);
+            setPageIuran(1);
+          }}
+        />
+      </TableCard>
+
+      <TableCard
+        title="Rincian Alokasi Dana"
+        subtitle="Breakdown perolehan per kategori (RT, PKK, Sosial, Kematian)"
+      >
+        <div className="table-responsive">
+          <table className="table table-hover mt-0">
+            <thead>
+              <tr className="bg-gray-50">
+                <th style={{ width: "40px" }} className="text-center">
+                  #
+                </th>
+                <th>Bulan</th>
+                <th className="text-center">Bln</th>
+                <th className="text-end">RT</th>
+                <th className="text-end">PKK</th>
+                <th className="text-end">Sosial</th>
+                <th className="text-end">Kematian</th>
+                <th className="text-end">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedReport.map((iuran, index) => (
+                <tr key={iuran._id}>
+                  <td className="text-center text-muted small">
+                    {(pageReport - 1) * limitReport + index + 1}
+                  </td>
+                  <td className="font-bold">
+                    {FormatPeriod(iuran.period_start, iuran.period_end)}
+                  </td>
+                  <td className="text-center">{iuran.number_of_period}x</td>
+                  <td className="text-end amount small">
+                    {FormatCurrency(iuran.details_payment?.rt)}
+                  </td>
+                  <td className="text-end amount small">
+                    {FormatCurrency(iuran.details_payment?.pkk)}
+                  </td>
+                  <td className="text-end amount small">
+                    {FormatCurrency(iuran.details_payment?.sosial)}
+                  </td>
+                  <td className="text-end amount small">
+                    {FormatCurrency(iuran.details_payment?.kematian)}
+                  </td>
+                  <td
+                    className="text-end font-bold amount"
+                    style={{ color: "var(--gray-900)" }}
+                  >
+                    {FormatCurrency(iuran.nominal)}
+                  </td>
+                </tr>
+              ))}
+              {dataIuran.length === 0 && (
+                <tr>
+                  <td colSpan="8" className="text-center py-5 text-muted">
+                    Data rincian belum tersedia.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        <TableFooter
+          currentPage={pageReport}
+          totalPages={Math.ceil(dataIuran.length / limitReport)}
+          totalCount={dataIuran.length}
+          itemsPerPage={limitReport}
+          onPageChange={setPageReport}
+          onLimitChange={(newLimit) => {
+            setLimitReport(newLimit);
+            setPageReport(1);
+          }}
+        />
+      </TableCard>
+    </div>
+  );
 }
 
 export default DetailWarga;

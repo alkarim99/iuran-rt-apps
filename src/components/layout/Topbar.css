@@ -1,0 +1,108 @@
+.topbar {
+  height: 56px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--gray-200);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--gray-500);
+  font-size: 18px;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.topbar-page-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.topbar-subtitle {
+  font-size: 11px;
+  color: var(--gray-400);
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.period-badge {
+  background: var(--blue-50);
+  color: var(--blue-600);
+  border: 1px solid var(--blue-100);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: default;
+  user-select: none;
+}
+
+.topbar-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--gray-200);
+}
+
+.topbar-user {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50px;
+  border: 1px solid var(--gray-200);
+  background: var(--gray-50);
+  color: var(--gray-400);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.topbar-user:hover {
+  border-color: var(--blue-200);
+  background: #eff6ff;
+  color: var(--blue-500);
+}
+
+@media (max-width: 768px) {
+  .topbar {
+    margin-left: 0;
+    padding: 0 16px;
+  }
+  
+  .mobile-toggle {
+    display: block;
+  }
+}

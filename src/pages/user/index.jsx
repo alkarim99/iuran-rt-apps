@@ -1,29 +1,33 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { 
+  faPen, 
+  faPlus, 
+  faTrash, 
+  faUserShield, 
+  faUserGroup 
+} from "@fortawesome/free-solid-svg-icons";
+import { useUsers } from "../../hooks/useUsers";
 
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
-import { useUsers } from "../../hooks/useUsers"; // Import hook
-import { useState, useEffect } from "react";
+import PageHeader from "../../components/ui/PageHeader";
+import TableCard from "../../components/ui/TableCard";
+import Btn from "../../components/ui/Btn";
+import StatusBadge from "../../components/ui/StatusBadge";
 
 function IndexUser() {
+  const navigate = useNavigate();
   useEffect(() => {
-    document.title = "Data Pengurus - Iuran RT";
+    document.title = "Manajemen Pengurus - Iuran RT";
   }, []);
+
   const { dataUser, isLoading, handleDelete } = useUsers();
-  const [sortField, setSortField] = useState("");
+  const [sortField, setSortField] = useState("name");
   const [sortOrder, setSortOrder] = useState(1);
 
   const handleSort = (field) => {
     if (sortField === field) {
-      if (sortOrder === 1) {
-        setSortOrder(-1);
-      } else {
-        setSortField("");
-        setSortOrder(1);
-      }
+      setSortOrder(sortOrder === 1 ? -1 : 1);
     } else {
       setSortField(field);
       setSortOrder(1);
@@ -32,102 +36,95 @@ function IndexUser() {
 
   const displayData = [...dataUser].sort((a, b) => {
     if (!sortField) return 0;
-    const aVal = a[sortField] || "";
-    const bVal = b[sortField] || "";
+    const aVal = String(a[sortField] || "").toLowerCase();
+    const bVal = String(b[sortField] || "").toLowerCase();
     if (aVal < bVal) return -1 * sortOrder;
     if (aVal > bVal) return 1 * sortOrder;
     return 0;
   });
 
   return (
-    <>
-      <div
-        className="container d-flex p-3 mx-auto flex-column"
-        style={{ height: "100vh" }}
-      >
-        <Navbar />
+    <div className="user-index-page">
+      <PageHeader 
+        title="Manajemen Pengurus"
+        breadcrumb={["Sistem", "Data User"]}
+        actions={
+          <Btn variant="primary" icon={<FontAwesomeIcon icon={faPlus} />} onClick={() => navigate("/user/create")}>
+            Tambah User
+          </Btn>
+        }
+      />
 
-        <h1>
-          Data User
-          <Link className="btn btn-primary ms-1" to="/user/create">
-            <FontAwesomeIcon icon={faPlus} />
-          </Link>
-        </h1>
-
-        <div className="row">
-          {isLoading ? (
-            <div className="col">
-              <div className="d-flex justify-content-center align-items-center">
-                <div className="spinner-grow text-warning" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="col-6">
-              <table className="table">
+      <div className="row">
+        <div className="col-lg-9">
+          <TableCard title="Daftar Pengguna Sistem" subtitle="Kelola hak akses bendahara dan pengurus RT">
+            <div className="table-responsive">
+              <table className="table table-hover mt-0 align-middle">
                 <thead>
                   <tr>
-                    <th scope="col">#</th>
-                    <th
-                      scope="col"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleSort("name")}
-                    >
-                      Name{" "}
-                      {sortField === "name" && (sortOrder === 1 ? "▲" : "▼")}
+                    <th style={{ width: '40px' }} className="text-center">#</th>
+                    <th style={{ cursor: "pointer" }} onClick={() => handleSort("name")}>
+                      Nama Lengkap {sortField === "name" && (sortOrder === 1 ? "↑" : "↓")}
                     </th>
-                    <th
-                      scope="col"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleSort("email")}
-                    >
-                      Email{" "}
-                      {sortField === "email" && (sortOrder === 1 ? "▲" : "▼")}
+                    <th style={{ cursor: "pointer" }} onClick={() => handleSort("email")}>
+                      Email {sortField === "email" && (sortOrder === 1 ? "↑" : "↓")}
                     </th>
-                    <th
-                      scope="col"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleSort("role")}
-                    >
-                      Role{" "}
-                      {sortField === "role" && (sortOrder === 1 ? "▲" : "▼")}
+                    <th style={{ cursor: "pointer" }} onClick={() => handleSort("role")}>
+                      Hak Akses {sortField === "role" && (sortOrder === 1 ? "↑" : "↓")}
                     </th>
-                    <th scope="col">Action</th>
+                    <th style={{ width: '120px' }} className="text-center">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {displayData.map((user, index) => (
-                    <tr key={user?._id}>
-                      <th scope="row">{index + 1}</th>
-                      <td>{user?.name}</td>
-                      <td>{user?.email}</td>
-                      <td>{user?.role}</td>
-                      <td>
-                        <Link
-                          className="btn btn-warning me-1"
-                          to={`/user/edit/${user?._id}`}
-                        >
-                          <FontAwesomeIcon icon={faPen} />
-                        </Link>
-                        <button
-                          className="btn btn-danger mx-1"
-                          onClick={() => handleDelete(user?._id)}
-                        >
-                          <FontAwesomeIcon icon={faTrash} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {isLoading ? (
+                    <tr><td colSpan="5" className="text-center py-5 text-muted">Memuat data...</td></tr>
+                  ) : dataUser.length === 0 ? (
+                    <tr><td colSpan="5" className="text-center py-5 text-muted">Tidak ada data user.</td></tr>
+                  ) : (
+                    displayData.map((user, index) => (
+                      <tr key={user?._id}>
+                        <td className="text-center text-muted small">{index + 1}</td>
+                        <td>
+                          <div className="d-flex align-items-center gap-2">
+                             <div className="avatar-sm bg-gray-100 flex-center" style={{ width: '32px', height: '32px', borderRadius: '50%', fontSize: '12px', fontWeight: 'bold', color: 'var(--gray-600)' }}>
+                                {user?.name?.substring(0, 1).toUpperCase()}
+                             </div>
+                             <div className="cell-main">{user?.name}</div>
+                          </div>
+                        </td>
+                        <td><div className="cell-sub">{user?.email}</div></td>
+                        <td>
+                          <div className="d-flex align-items-center gap-2">
+                             <FontAwesomeIcon icon={user?.role === 'admin' ? faUserShield : faUserGroup} className={`small ${user?.role === 'admin' ? 'text-blue-500' : 'text-gray-400'}`} />
+                             <span className="text-capitalize small font-bold">{user?.role}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="d-flex justify-content-center gap-2">
+                            <Btn variant="ghost" size="sm" icon={<FontAwesomeIcon icon={faPen} />} onClick={() => navigate(`/user/edit/${user?._id}`)} title="Edit" />
+                            <Btn variant="ghost" size="sm" icon={<FontAwesomeIcon icon={faTrash} />} onClick={() => handleDelete(user?._id)} className="text-danger" title="Hapus" />
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
-          )}
+          </TableCard>
         </div>
 
-        <Footer />
+        <div className="col-lg-3">
+           <div className="alert bg-blue-50 border-blue-100 p-4" style={{ borderRadius: 'var(--radius-xl)' }}>
+              <h6 className="font-bold text-blue-600 mb-2">Informasi Peran</h6>
+              <div className="small text-blue-600">
+                <p className="mb-2"><b>Admin:</b> Memiliki akses penuh ke seluruh fitur termasuk pengaturan saldo awal dan manajemen user.</p>
+                <p className="mb-0"><b>User:</b> Memiliki akses terbatas untuk pencatatan transaksi iuran dan pengeluaran harian.</p>
+              </div>
+           </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 

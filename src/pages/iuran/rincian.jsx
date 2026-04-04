@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import Swal from "sweetalert2";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -8,21 +7,25 @@ import {
   faPlus,
   faTrash,
   faFileExcel,
+  faMagnifyingGlass,
+  faRotateRight,
 } from "@fortawesome/free-solid-svg-icons";
 import FormatDate from "../../helpers/FormatDate";
 import FormatCurrency from "../../helpers/FormatCurrency";
 import FormatPeriod from "../../helpers/FormatPeriod";
 import { exportRincianIuran } from "../../helpers/exportExcel/exportRincianIuran";
 import {
-  getRincianPayment,
   deletePayment,
   searchPaymentsRincian,
 } from "../../services/IuranService";
 
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
+import PageHeader from "../../components/ui/PageHeader";
+import FilterBar from "../../components/ui/FilterBar";
+import TableCard from "../../components/ui/TableCard";
 import TableFooter from "../../components/TableFooter";
+import Btn from "../../components/ui/Btn";
 import { useTableState } from "../../hooks/useTableState";
+import Swal from "sweetalert2";
 
 function RincianIuran() {
   const navigate = useNavigate();
@@ -47,7 +50,6 @@ function RincianIuran() {
     sortBy,
     setSortBy,
     order,
-    setOrder,
   } = useTableState("rincianIuran", 20, "warga.address", 1);
 
   const [totalPages, setTotalPages] = useState(0);
@@ -60,52 +62,33 @@ function RincianIuran() {
   const [payAt, setPayAt] = useState(payAtDate);
 
   useEffect(() => {
-    setIsLoading(true);
     if (!state.auth) {
       navigate("/sign-in");
     }
     handleSearch();
   }, [state, page, limit, sortBy, order, payAt]);
 
-  const handleGet = () => {
-    handleSearch();
-  };
-
   const handleDelete = (id) => {
     Swal.fire({
-      title: "Do you want to delete this data?",
-      showDenyButton: true,
+      title: "Hapus transaksi ini?",
+      text: "Data yang dihapus tidak dapat dikembalikan.",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Delete",
-      denyButtonText: `Don't Delete`,
+      confirmButtonText: "Hapus",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#d33",
     }).then((result) => {
-      /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         setIsLoading(true);
         deletePayment(id)
           .then((response) => {
-            Swal.fire({
-              title: "Delete Success!",
-              text: response?.data?.message,
-              icon: "success",
-            }).then(() => {
-              handleGet();
-            });
+            Swal.fire("Berhasil", "Data iuran telah dihapus.", "success");
+            handleSearch();
           })
           .catch((error) => {
-            console.log(error);
-            Swal.fire({
-              title: "Error!",
-              text:
-                error?.response?.data?.message ?? "Something wrong in our App!",
-              icon: "error",
-            });
+            Swal.fire("Gagal", error?.response?.data?.message ?? "Terjadi kesalahan.", "error");
           })
-          .finally(() => {
-            setIsLoading(false);
-          });
-      } else if (result.isDenied) {
-        Swal.fire("Payment are not deleted", "", "info");
+          .finally(() => setIsLoading(false));
       }
     });
   };
@@ -123,331 +106,198 @@ function RincianIuran() {
         setTotalPages(response?.data?.totalPages);
         setTotalCount(response?.data?.totalCount);
       })
-      .catch((error) => {
-        console.log(error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      .catch((error) => console.log(error))
+      .finally(() => setIsLoading(false));
   };
 
   const handleReset = () => {
-    setIsLoading(true);
     setKeyword("");
     setSortBy("warga.address");
-    setOrder(1);
+    setPayAt(payAtDate);
     setPage(1);
-    handleGet();
   };
 
   const handleExportExcel = async () => {
     if (totalCount === 0) {
-      Swal.fire(
-        "Info",
-        "Tidak ada data untuk diekspor pada periode ini.",
-        "info",
-      );
+      Swal.fire("Info", "Tidak ada data untuk diekspor pada periode ini.", "info");
       return;
     }
     setIsExporting(true);
     try {
-      // Fetch all data bounded by totalCount
-      const payload = {
-        keyword,
-        sortBy,
-        order,
-        page: 1,
-        limit: totalCount,
-        payAt,
-      };
+      const payload = { keyword, sortBy, order, page: 1, limit: totalCount, payAt };
       const response = await searchPaymentsRincian(payload);
       const allData = response?.data?.data || [];
-
       const [year, month] = payAt.split("-");
       const periode = { bulan: parseInt(month, 10), tahun: parseInt(year, 10) };
       await exportRincianIuran(allData, periode);
     } catch (error) {
-      console.error("Export Error:", error);
-      Swal.fire({
-        title: "Error!",
-        text: "Gagal mengekspor data.",
-        icon: "error",
-      });
+      Swal.fire("Error!", "Gagal mengekspor data.", "error");
     } finally {
       setIsExporting(false);
     }
   };
 
-  const getStartingIndex = () => {
-    return (page - 1) * limit + 1;
-  };
-
-  if (isLoading) {
-    return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ height: "100vh" }}
-      >
-        <div className="spinner-grow text-warning" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  } else {
-    return (
-      <>
-        <div
-          className="container d-flex p-3 mx-auto flex-column"
-          // style={{ height: "100vh" }}
-        >
-          <Navbar />
-
-          <h1>
-            Rincian Iuran
-            <Link
-              className="btn btn-primary ms-1 no-print"
-              to="/iuran/create"
-              state={{ from: location.pathname + location.search }}
+  return (
+    <div className="rincian-iuran-page">
+      <PageHeader
+        title="Rincian Alokasi Iuran"
+        breadcrumb={["Laporan", "Rincian Iuran"]}
+        actions={
+          <div className="d-flex gap-2">
+            <Btn
+              variant="outline"
+              icon={<FontAwesomeIcon icon={faRotateRight} />}
+              onClick={() => navigate("/iuran/total")}
             >
-              <FontAwesomeIcon icon={faPlus} />
-            </Link>
-            <Link
-              className="btn btn-primary ms-1 no-print"
-              to="/iuran/total"
-              state={{ from: location.pathname + location.search }}
-            >
-              Total
-            </Link>
-            <button
-              className="btn btn-success ms-1 no-print"
+              Lihat Total
+            </Btn>
+            <Btn
+              variant="success"
+              icon={<FontAwesomeIcon icon={faFileExcel} />}
               onClick={handleExportExcel}
-              disabled={isExporting}
-              title="Export Excel"
+              loading={isExporting}
             >
-              <FontAwesomeIcon icon={faFileExcel} />{" "}
-              {isExporting ? "Exporting..." : "Export Excel"}
-            </button>
-          </h1>
-
-          <div className="print-header">
-            <h2>Rincian Iuran RT</h2>
-            <p>
-              Periode:{" "}
-              {FormatDate(payAt).split(" ")[1] +
-                " " +
-                FormatDate(payAt).split(" ")[2]}
-            </p>
+              Export Excel
+            </Btn>
+            <Btn
+              variant="primary"
+              icon={<FontAwesomeIcon icon={faPlus} />}
+              onClick={() => navigate("/income/create", { state: { from: location.pathname + location.search } })}
+            >
+              Catat Iuran
+            </Btn>
           </div>
+        }
+      />
 
-          <div className="my-4">
-            <form onSubmit={(e) => e.preventDefault()}>
-              <div className="row d-flex align-items-end">
-                <div className="col-3">
-                  <label for="keyword" className="form-label">
-                    Cari
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="keyword"
-                    placeholder="Nama atau Alamat"
-                    onChange={(e) => setKeyword(e.target.value)}
-                  />
-                </div>
-                <div className="col-3">
-                  <label for="payAtDate" className="form-label">
-                    Periode
-                  </label>
-                  <input
-                    type="month"
-                    id="payAtDate"
-                    className="form-control"
-                    value={payAt}
-                    onChange={(e) => setPayAt(e.target.value)}
-                  />
-                </div>
-                <div className="col-3">
-                  <button
-                    className="btn btn-primary py-2 me-2"
-                    type="submit"
-                    onClick={handleSearch}
-                  >
-                    {isLoading ? "Loading..." : "Search"}
-                  </button>
-                  <button
-                    className="btn btn-primary py-2"
-                    type="button"
-                    onClick={handleReset}
-                  >
-                    Reset
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <div className="container">
-          <h5>
-            {FormatDate(payAt).split(" ")[1] +
-              " " +
-              FormatDate(payAt).split(" ")[2]}
-          </h5>
-        </div>
-
-        <div className="container d-flex justify-content-center align-items-center flex-column">
-          <div>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th scope="col" className="text-center">
-                    #
-                  </th>
-                  <th scope="col">Blok</th>
-                  <th scope="col">Nama</th>
-                  <th scope="col">Alamat</th>
-                  <th scope="col" className="text-center">
-                    Tanggal Bayar
-                  </th>
-                  <th scope="col" className="text-end">
-                    Jumlah
-                  </th>
-                  <th scope="col" className="text-center">
-                    Periode Bulan
-                  </th>
-                  <th scope="col" className="text-end">
-                    RT
-                  </th>
-                  <th scope="col" className="text-end">
-                    PKK
-                  </th>
-                  <th scope="col" className="text-end">
-                    Sosial
-                  </th>
-                  <th scope="col" className="text-end">
-                    Kematian
-                  </th>
-                  <th scope="col">Keterangan</th>
-                  <th scope="col" className="text-center">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {dataIuran.map((iuran, index) => {
-                  const currentIndex = getStartingIndex() + index;
-                  return (
-                    <>
-                      <tr>
-                        <th scope="row" className="text-center">
-                          {currentIndex}
-                        </th>
-                        <td>{iuran?.warga?.address?.split("-")[0] || ""}</td>
-                        <td>{iuran?.warga?.name}</td>
-                        <td>{iuran?.warga?.address}</td>
-                        <td className="text-center">
-                          {FormatDate(iuran?.pay_at).split(" ")[0]}
-                        </td>
-                        <td className="text-end fw-bold">
-                          {FormatCurrency(iuran?.nominal)}
-                        </td>
-                        <td className="text-center">
-                          {iuran?.number_of_period}
-                        </td>
-                        <td className="text-end">
-                          {FormatCurrency(iuran?.details_payment?.rt)}
-                        </td>
-                        <td className="text-end">
-                          {FormatCurrency(iuran?.details_payment?.pkk)}
-                        </td>
-                        <td className="text-end">
-                          {FormatCurrency(iuran?.details_payment?.sosial)}
-                        </td>
-                        <td className="text-end">
-                          {FormatCurrency(iuran?.details_payment?.kematian)}
-                        </td>
-                        <td>
-                          {FormatPeriod(iuran?.period_start, iuran?.period_end)}
-                        </td>
-                        <td className="text-center">
-                          <div class="btn-group">
-                            <button
-                              class="btn btn-primary btn-sm dropdown-toggle"
-                              type="button"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                            >
-                              Menu
-                            </button>
-                            <ul
-                              class="dropdown-menu dropdown-menu-end"
-                              style={{ minWidth: 200 }}
-                            >
-                              <li>
-                                <Link
-                                  className="text-decoration-none text-black p-2"
-                                  to={`/iuran/create/warga/${iuran?.warga?._id}`}
-                                  state={{
-                                    from: location.pathname + location.search,
-                                  }}
-                                >
-                                  <FontAwesomeIcon icon={faPlus} /> Buat
-                                  Pembayaran
-                                </Link>
-                              </li>
-                              <li>
-                                <Link
-                                  className="text-decoration-none text-black p-2"
-                                  to={`/iuran/edit/${iuran?._id}`}
-                                >
-                                  <FontAwesomeIcon icon={faPen} /> Edit
-                                  Pembayaran
-                                </Link>
-                              </li>
-                              <li>
-                                <Link
-                                  className="text-decoration-none text-black p-2"
-                                  onClick={() => {
-                                    handleDelete(iuran?._id);
-                                  }}
-                                >
-                                  <FontAwesomeIcon icon={faTrash} /> Hapus
-                                  Pembayaran
-                                </Link>
-                              </li>
-                            </ul>
-                          </div>
-                        </td>
-                      </tr>
-                    </>
-                  );
-                })}
-              </tbody>
-            </table>
-
-            <TableFooter
-              currentPage={page}
-              totalPages={totalPages}
-              totalCount={totalCount}
-              itemsPerPage={limit}
-              onPageChange={setPage}
-              onLimitChange={(newLimit) => {
-                setLimit(newLimit);
-                setPage(1);
-              }}
+      <FilterBar>
+        <form onSubmit={handleSearch} className="d-flex align-items-center gap-3 flex-1">
+          <div className="search-input-group flex-1" style={{ maxWidth: '280px' }}>
+            <input
+              type="text"
+              className="form-control-rt w-100"
+              placeholder="Cari nama atau alamat..."
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
             />
           </div>
+          <div className="d-flex align-items-center gap-2">
+            <label className="small text-muted font-bold whitespace-nowrap">Periode:</label>
+            <input
+              type="month"
+              className="filter-select"
+              value={payAt}
+              onChange={(e) => setPayAt(e.target.value)}
+            />
+          </div>
+          <Btn
+            variant="primary"
+            size="sm"
+            icon={<FontAwesomeIcon icon={faMagnifyingGlass} />}
+            type="submit"
+            loading={isLoading}
+          >
+            Filter
+          </Btn>
+          <Btn
+            variant="ghost"
+            size="sm"
+            icon={<FontAwesomeIcon icon={faRotateRight} />}
+            onClick={handleReset}
+          >
+            Reset
+          </Btn>
+        </form>
+      </FilterBar>
+
+      <TableCard
+        title={`Rincian Iuran: ${FormatDate(payAt).split(" ")[1]} ${FormatDate(payAt).split(" ")[2]}`}
+        subtitle={`Ditemukan ${totalCount} transaksi pembayaran`}
+      >
+        <div className="table-responsive overflow-visible">
+          <table className="table table-hover mt-0 align-middle">
+            <thead>
+              <tr className="bg-light">
+                <th className="text-center" style={{ width: '40px' }}>#</th>
+                <th style={{ minWidth: '180px' }}>Warga & Alamat</th>
+                <th className="text-center" style={{ minWidth: '100px' }}>Tgl Bayar</th>
+                <th className="text-end" style={{ minWidth: '90px' }}>Total</th>
+                <th className="text-center" style={{ width: '50px' }}>X</th>
+                <th className="text-end text-blue-600" style={{ minWidth: '75px' }}>RT</th>
+                <th className="text-end text-blue-600" style={{ minWidth: '75px' }}>PKK</th>
+                <th className="text-end text-blue-600" style={{ minWidth: '75px' }}>Sosial</th>
+                <th className="text-end text-blue-600" style={{ minWidth: '75px' }}>Mati</th>
+                <th style={{ minWidth: '130px' }}>Periode Cakupan</th>
+                <th className="text-center" style={{ width: '90px' }}>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                <tr><td colSpan="11" className="text-center py-5 text-muted">Memuat data rincian...</td></tr>
+              ) : dataIuran.length === 0 ? (
+                <tr><td colSpan="11" className="text-center py-5 text-muted">Tidak ada data untuk periode ini.</td></tr>
+              ) : (
+                dataIuran.map((iuran, index) => (
+                  <tr key={iuran._id}>
+                    <td className="text-center text-muted small">{(page - 1) * limit + index + 1}</td>
+                    <td>
+                      <div className="cell-main">{iuran.warga?.name}</div>
+                      <div className="cell-sub">{iuran.warga?.address}</div>
+                    </td>
+                    <td className="text-center small">{FormatDate(iuran.pay_at).split(" ")[0]}</td>
+                    <td className="text-end font-bold text-income">{FormatCurrency(iuran.nominal)}</td>
+                    <td className="text-center">
+                      <span className="badge bg-blue-50 text-blue-700 px-2 py-1" style={{ borderRadius: '4px' }}>
+                        {iuran.number_of_period}
+                      </span>
+                    </td>
+                    <td className="text-end small">{FormatCurrency(iuran.details_payment?.rt)}</td>
+                    <td className="text-end small">{FormatCurrency(iuran.details_payment?.pkk)}</td>
+                    <td className="text-end small">{FormatCurrency(iuran.details_payment?.sosial)}</td>
+                    <td className="text-end small">{FormatCurrency(iuran.details_payment?.kematian)}</td>
+                    <td>
+                      <div className="small text-muted">{FormatPeriod(iuran.period_start, iuran.period_end, true)}</div>
+                    </td>
+                    <td className="text-center">
+                      <div className="d-flex justify-content-center gap-1">
+                        <Btn
+                          variant="ghost" 
+                          size="sm"
+                          icon={<FontAwesomeIcon icon={faPen} />}
+                          onClick={() => navigate(`/iuran/edit/${iuran._id}`)}
+                          title="Edit"
+                        />
+                        <Btn
+                          variant="ghost"
+                          size="sm"
+                          icon={<FontAwesomeIcon icon={faTrash} />}
+                          onClick={() => handleDelete(iuran._id)}
+                          className="text-danger"
+                          title="Hapus"
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
 
-        <div
-          className="container d-flex p-3 mx-auto flex-column"
-          // style={{ height: "100vh" }}
-        >
-          <Footer />
-        </div>
-      </>
-    );
-  }
+        <TableFooter
+          currentPage={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          itemsPerPage={limit}
+          onPageChange={setPage}
+          onLimitChange={(newLimit) => {
+            setLimit(newLimit);
+            setPage(1);
+          }}
+        />
+      </TableCard>
+    </div>
+  );
 }
 
 export default RincianIuran;

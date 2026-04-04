@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import { clearTableState } from "../hooks/useTableState";
 import { getDashboardSummary } from "../services/ReportService";
 import FormatCurrency from "../helpers/FormatCurrency";
@@ -47,8 +45,6 @@ function Home() {
       className="container d-flex p-3 mx-auto flex-column"
       style={{ height: "100vh" }}
     >
-      <Navbar />
-
       <main
         className="px-3 text-center d-flex flex-column m-auto"
         style={{ maxWidth: "55em" }}
@@ -57,9 +53,9 @@ function Home() {
         <p className="lead">
           Selamat datang di Pusat Kendali Keuangan RT. Aplikasi terpadu ini
           memudahkan Anda dalam mengelola Pemasukan Iuran Warga, mencatat
-          Pemasukan Lainnya (sumbangan/donasi), serta melacak setiap
-          Pengeluaran Operasional. Pantau Neraca Kas secara real-time
-          dengan transparan dan akurat.
+          Pemasukan Lainnya (sumbangan/donasi), serta melacak setiap Pengeluaran
+          Operasional. Pantau Neraca Kas secara real-time dengan transparan dan
+          akurat.
         </p>
       </main>
 
@@ -136,8 +132,6 @@ function Home() {
       ) : (
         <></>
       )}
-
-      <Footer />
     </div>
   );
 }

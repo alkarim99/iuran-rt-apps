@@ -1,18 +1,20 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faFileExcel } from "@fortawesome/free-solid-svg-icons";
+import { faFileExcel, faMagnifyingGlass, faArrowUp, faArrowDown, faBuildingColumns } from "@fortawesome/free-solid-svg-icons";
 import FormatDate from "../../helpers/FormatDate";
 import FormatCurrency from "../../helpers/FormatCurrency";
 import { exportLaporanKas } from "../../helpers/exportExcel/exportLaporanKas";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
 import { getKasRekeningReport } from "../../services/ReportService";
 import FormatPeriod from "../../helpers/FormatPeriod";
 
+import PageHeader from "../../components/ui/PageHeader";
+import FilterBar from "../../components/ui/FilterBar";
+import SummaryStrip from "../../components/ui/SummaryStrip";
+import TableCard from "../../components/ui/TableCard";
+import Btn from "../../components/ui/Btn";
+
 function ReportTransfer() {
-  const navigate = useNavigate();
   const state = useSelector((reducer) => reducer.auth);
 
   useEffect(() => {
@@ -21,12 +23,11 @@ function ReportTransfer() {
     const formattedDate = `${now.getFullYear()}-${String(
       now.getMonth() + 1,
     ).padStart(2, "0")}`;
-    setPayAt(formattedDate);
+    if (!payAt) setPayAt(formattedDate);
   }, []);
 
   const [payAt, setPayAt] = useState(() => {
     const saved = sessionStorage.getItem("rx_reportTransfer_payAt");
-    // If saved value exists, use it. Otherwise, let the useEffect set the initial value.
     return saved !== null ? saved : "";
   });
 
@@ -41,12 +42,8 @@ function ReportTransfer() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!state.auth) {
-      navigate("/sign-in");
-    }
-
-    handleSearch();
-  }, [state]);
+    if (payAt) handleSearch();
+  }, [state, payAt]);
 
   const handleSearch = () => {
     setIsLoading(true);
@@ -67,26 +64,23 @@ function ReportTransfer() {
         let inTotal = 0;
         let outTotal = 0;
 
-        // Backend actually calculates t.saldo natively starting from carryOverBalance!
-        // So we just need to assign totals and inject Saldo Awal row to the UI.
         transactions.forEach((t) => {
           inTotal += t.debit || 0;
           outTotal += t.kredit || 0;
         });
 
-        // Backend's final balance and running totals are already correct
         setTotalIncome(inTotal);
         setTotalExpense(outTotal);
 
-        // Inject Saldo Awal as the first row for UI table
         const combined = [
           {
             id: `saldo-awal-${year}-${month}`,
-            date: startDate, // Day 1 of the month
+            date: startDate,
             description: "Saldo Awal Bulan",
             debit: openingBal,
             kredit: 0,
             saldo: openingBal,
+            isSaldoAwal: true
           },
           ...transactions,
         ];
@@ -101,11 +95,9 @@ function ReportTransfer() {
       });
   };
 
-  // Derive grouped similar to exportLaporanKas
-  const getGroupedData = () => {
+  const combinedData = useMemo(() => {
     if (!reportData || reportData.length === 0) return [];
 
-    // We expect reportData to have the Saldo Awal at index 0. Let's separate it.
     const [year, month] = payAt.split("-");
     const saId = `saldo-awal-${year}-${month}`;
     const saldoRow = reportData.find((t) => t.id === saId);
@@ -161,200 +153,159 @@ function ReportTransfer() {
     });
 
     return grouped;
-  };
-
-  const combinedData = getGroupedData();
+  }, [reportData, payAt]);
 
   const handleExportExcel = async () => {
     const [year, month] = payAt.split("-");
     const periode = { bulan: parseInt(month, 10), tahun: parseInt(year, 10) };
-
-    // Extract original transactions without the injected row for export helper
     const originalTx = reportData.filter(
       (t) => t.id !== `saldo-awal-${year}-${month}`,
     );
     await exportLaporanKas(originalTx, "rekening", periode, saldoAwal);
   };
 
+  if (!payAt) return null;
+
+  const [year, month] = payAt.split("-");
+  const monthInt = parseInt(month, 10);
+  const yearInt = parseInt(year, 10);
+
   return (
-    <>
-      <div
-        className="container d-flex p-3 mx-auto flex-column"
-        style={{ height: "100vh" }}
-      >
-        <Navbar />
-        <h1>
-          Laporan Kas Rekening
-          <Link className="btn btn-primary ms-1 me-1" to="/iuran">
-            <FontAwesomeIcon icon={faArrowLeft} />
-          </Link>
-          <button
-            className="btn btn-success ms-1"
+    <div className="report-transfer-page">
+      <PageHeader 
+        title="Laporan Kas Rekening"
+        breadcrumb={["Laporan", "Kas Rekening (Bu Harris)"]}
+        actions={
+          <Btn 
+            variant="outline" 
+            icon={<FontAwesomeIcon icon={faFileExcel} />} 
             onClick={handleExportExcel}
-            title="Export Excel"
           >
-            <FontAwesomeIcon icon={faFileExcel} /> Export Excel
-          </button>
-        </h1>
+            Export Excel
+          </Btn>
+        }
+      />
 
-        <div className="print-header">
-          <h2>Laporan Penerimaan Transfer</h2>
-          <p>
-            Periode:{" "}
-            {FormatPeriod(
-              `${payAt}-01`,
-              `${payAt}-${new Date(payAt.split("-")[0], payAt.split("-")[1], 0).getDate()}`,
-            )}
-          </p>
+      <FilterBar>
+        <span className="filter-label">Periode</span>
+        <input 
+          type="month" 
+          className="filter-select" 
+          value={payAt} 
+          onChange={(e) => setPayAt(e.target.value)} 
+        />
+        <div className="filter-sep" />
+        <Btn 
+          variant="primary" 
+          size="sm" 
+          icon={<FontAwesomeIcon icon={faMagnifyingGlass} />} 
+          onClick={handleSearch}
+          loading={isLoading}
+        >
+          Cari
+        </Btn>
+      </FilterBar>
+
+      <SummaryStrip items={[
+        { 
+          label: "Total Debit (Masuk)", 
+          value: FormatCurrency(totalIncome + (saldoAwal || 0)), 
+          icon: <FontAwesomeIcon icon={faArrowUp} />, 
+          iconBg: "var(--green-50)", 
+          iconColor: "var(--green-600)",
+          valueColor: "var(--green-600)"
+        },
+        { 
+          label: "Total Kredit (Keluar)", 
+          value: FormatCurrency(totalExpense), 
+          icon: <FontAwesomeIcon icon={faArrowDown} />, 
+          iconBg: "var(--red-50)", 
+          iconColor: "var(--red-600)",
+          valueColor: "var(--red-500)"
+        },
+        { 
+          label: "Saldo Akhir", 
+          value: FormatCurrency((saldoAwal || 0) + totalIncome - totalExpense), 
+          icon: <FontAwesomeIcon icon={faBuildingColumns} />, 
+          iconBg: "var(--blue-50)", 
+          iconColor: "var(--blue-600)"
+        }
+      ]} />
+
+      <TableCard
+        title="Buku Kas — Kas Rekening (Bu Harris)"
+        subtitle={FormatPeriod(
+          `${payAt}-01`,
+          `${payAt}-${new Date(yearInt, monthInt, 0).getDate()}`
+        ) + ` · ${reportData.length} transaksi`}
+        monthPills
+        selectedMonth={monthInt}
+        selectedYear={yearInt}
+        activeMonths={[1,2,3,4,5,6,7,8,9,10,11,12]} // Mocking active months for now
+        onMonthChange={(m) => setPayAt(`${yearInt}-${String(m).padStart(2, '0')}`)}
+      >
+        <div className="table-responsive">
+          <table className="table table-hover mt-0">
+            <thead>
+              <tr>
+                <th className="text-center" style={{ width: '40px' }}>#</th>
+                <th style={{ width: '120px' }}>Tanggal</th>
+                <th>Deskripsi</th>
+                <th className="text-end" style={{ width: '140px' }}>Debit</th>
+                <th className="text-end" style={{ width: '140px' }}>Kredit</th>
+                <th className="text-end" style={{ width: '150px' }}>Saldo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {combinedData.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="text-center text-muted py-5">
+                    Tidak ada data transaksi untuk periode ini.
+                  </td>
+                </tr>
+              ) : (
+                combinedData.map((item, index) => (
+                  <tr key={item.id}>
+                    <td className="text-center text-muted">
+                      {item.isSaldoAwal || item.isHeaderGroup ? "" : index}
+                    </td>
+                    <td>{item.date ? FormatDate(item.date) : ""}</td>
+                    <td className={item.isHeaderGroup ? "fw-bold text-strong" : ""}>
+                      <div className={item.isHeaderGroup ? "" : "cell-main"}>
+                        {item.isHeaderGroup ? item.description : (item.displayDesc || item.description)}
+                      </div>
+                    </td>
+                    <td className="text-end text-income amount">
+                      {item.debit > 0 ? FormatCurrency(item.debit) : "—"}
+                    </td>
+                    <td className="text-end text-expense amount">
+                      {item.kredit > 0 ? FormatCurrency(item.kredit) : "—"}
+                    </td>
+                    <td className="text-end fw-bold amount">
+                      {item.isData ? FormatCurrency(item.displaySaldo || item.saldo) : ""}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+            <tfoot className="fw-bold">
+              <tr>
+                <td colSpan="3" className="text-end">TOTAL</td>
+                <td className="text-end text-income amount">
+                  {FormatCurrency(totalIncome + (saldoAwal || 0))}
+                </td>
+                <td className="text-end text-expense amount">
+                  {FormatCurrency(totalExpense)}
+                </td>
+                <td className="text-end amount">
+                  {FormatCurrency((saldoAwal || 0) + totalIncome - totalExpense)}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
         </div>
-        <form onSubmit={(e) => e.preventDefault()}>
-          <div className="row d-flex align-items-end">
-            <div className="col-3">
-              <label htmlFor="start" className="form-label">
-                Periode Bulan
-              </label>
-              <input
-                type="month"
-                className="form-control"
-                id="start"
-                value={payAt}
-                onChange={(e) => {
-                  setPayAt(e.target.value);
-                }}
-                required
-              />
-            </div>
-            <div className="col-3">
-              <button
-                className="btn btn-primary py-2 me-2"
-                type="submit"
-                onClick={handleSearch}
-              >
-                {isLoading ? "Loading..." : "Search"}
-              </button>
-            </div>
-          </div>
-        </form>
-        <div className="row">
-          <div className="col-12">
-            {(totalIncome != 0 || totalExpense != 0) && (
-              <div className="d-flex justify-content-between my-3">
-                <p>
-                  Periode{" "}
-                  {FormatPeriod(
-                    `${payAt}-01`,
-                    `${payAt}-${new Date(payAt.split("-")[0], payAt.split("-")[1], 0).getDate()}`,
-                  )}
-                </p>
-                <div className="text-end">
-                  <p className="mb-0">
-                    Total Pemasukan:{" "}
-                    <span className="text-success fw-bold">
-                      {FormatCurrency(totalIncome + (saldoAwal || 0))}
-                    </span>
-                  </p>
-                  <p className="mb-0">
-                    Total Pengeluaran:{" "}
-                    <span className="text-danger fw-bold">
-                      {FormatCurrency(totalExpense)}
-                    </span>
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <div className="container d-flex justify-content-center align-items-center flex-column px-0">
-              <div className="w-100 table-responsive">
-                <table className="table table-bordered table-striped mt-3">
-                  <thead className="table-light">
-                    <tr>
-                      <th scope="col" className="text-center">
-                        #
-                      </th>
-                      <th scope="col">Tanggal</th>
-                      <th scope="col">Deskripsi</th>
-                      <th scope="col" className="text-end">
-                        Debit
-                      </th>
-                      <th scope="col" className="text-end">
-                        Kredit
-                      </th>
-                      <th scope="col" className="text-end">
-                        Saldo
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {combinedData.length === 0 ? (
-                      <tr>
-                        <td colSpan="6" className="text-center text-muted py-3">
-                          Tidak ada data transaksi.
-                        </td>
-                      </tr>
-                    ) : (
-                      combinedData.map((item, index) => (
-                        <tr key={item.id}>
-                          <th scope="row" className="text-center">
-                            {index === 0 && item.id.startsWith("saldo-awal")
-                              ? ""
-                              : index}
-                          </th>
-                          <td>{item.date ? FormatDate(item.date) : ""}</td>
-                          <td className={item.isHeaderGroup ? "fw-bold" : ""}>
-                            <pre
-                              className="mb-0"
-                              style={{
-                                fontFamily: "inherit",
-                                whiteSpace: "pre-wrap",
-                              }}
-                            >
-                              {item.isHeaderGroup
-                                ? item.description
-                                : item.displayDesc || item.description}
-                            </pre>
-                          </td>
-                          <td className="text-end text-success">
-                            {item.debit > 0 ? FormatCurrency(item.debit) : ""}
-                          </td>
-                          <td className="text-end text-danger">
-                            {item.kredit > 0 ? FormatCurrency(item.kredit) : ""}
-                          </td>
-                          <td className="text-end fw-bold">
-                            {item.isData
-                              ? FormatCurrency(item.displaySaldo || item.saldo)
-                              : ""}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                  <tfoot className="table-light fw-bold">
-                    <tr>
-                      <td colSpan="3" className="text-end">
-                        TOTAL
-                      </td>
-                      <td className="text-end text-success">
-                        {FormatCurrency(totalIncome + (saldoAwal || 0))}
-                      </td>
-                      <td className="text-end text-danger">
-                        {FormatCurrency(totalExpense)}
-                      </td>
-                      <td className="text-end">
-                        {FormatCurrency(
-                          (saldoAwal || 0) + totalIncome - totalExpense,
-                        )}
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <Footer />
-      </div>
-    </>
+      </TableCard>
+    </div>
   );
 }
 

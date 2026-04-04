@@ -1,14 +1,13 @@
-import { useState, useEffect } from "react";
-import { useLocation } from "react-router";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faPen, faRotateRight } from "@fortawesome/free-solid-svg-icons";
 import { getWargaByID, updateWarga } from "../../services/WargaService";
+
+import PageHeader from "../../components/ui/PageHeader";
+import Btn from "../../components/ui/Btn";
 
 function EditWarga() {
   const navigate = useNavigate();
@@ -25,122 +24,141 @@ function EditWarga() {
     if (!state.auth) {
       navigate("/sign-in");
     }
-    setIsLoading(true);
     handleGet();
-  }, [state]);
+  }, [state, navigate, id]);
 
   const handleGet = () => {
+    setIsLoading(true);
     getWargaByID(id)
       .then((response) => {
         setName(response?.data?.data?.name);
         setAddress(response?.data?.data?.address);
       })
-      .catch((error) => {
-        console.log(error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      .catch((error) => console.error(error))
+      .finally(() => setIsLoading(false));
   };
 
   const handleEdit = (e) => {
     e.preventDefault();
     setIsLoading(true);
-    const payload = {
-      id: id,
-      name: name,
-      address: address,
-    };
+    const payload = { id, name, address };
+
     updateWarga(payload)
       .then((response) => {
         Swal.fire({
-          title: "Update Success!",
-          text: response?.data?.message,
+          title: "Berhasil!",
+          text: response?.data?.message || "Data warga telah diperbarui.",
           icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
         }).then(() => {
           navigate("/warga");
         });
       })
       .catch((error) => {
-        console.log(error);
         Swal.fire({
           title: "Error!",
-          text: error?.response?.data?.message ?? "Something wrong in our App!",
+          text:
+            error?.response?.data?.message ??
+            "Terjadi kesalahan saat menyimpan data.",
           icon: "error",
         });
       })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      .finally(() => setIsLoading(false));
   };
 
-  if (isLoading) {
-    return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ height: "100vh" }}
-      >
-        <div className="spinner-grow text-warning" role="status">
-          <span className="visually-hidden">Loading...</span>
+  return (
+    <div className="warga-edit-page">
+      <PageHeader
+        title="Ubah Profil Warga"
+        breadcrumb={["Data Master", "Warga", name || "Edit Profil"]}
+      />
+
+      <div className="row">
+        <div className="col-md-6">
+          <div
+            className="rt-card p-4"
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--gray-200)",
+              borderRadius: "var(--radius-xl)",
+            }}
+          >
+            <form onSubmit={handleEdit}>
+              <div className="mb-4">
+                <label
+                  htmlFor="name"
+                  className="form-label font-bold small text-muted text-uppercase mb-2"
+                  style={{ letterSpacing: "0.5px" }}
+                >
+                  Nama Lengkap
+                </label>
+                <input
+                  type="text"
+                  className="form-control-rt w-100"
+                  id="name"
+                  placeholder="Masukkan nama sesuai KTP"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label
+                  htmlFor="address"
+                  className="form-label font-bold small text-muted text-uppercase mb-2"
+                  style={{ letterSpacing: "0.5px" }}
+                >
+                  Alamat Rumah
+                </label>
+                <textarea
+                  className="form-control-rt w-100"
+                  id="address"
+                  rows="3"
+                  placeholder="Contoh: K1-10"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="d-flex gap-2 pt-2">
+                <Btn
+                  variant="primary"
+                  type="submit"
+                  loading={isLoading}
+                  icon={<FontAwesomeIcon icon={faPen} />}
+                >
+                  Simpan Perubahan
+                </Btn>
+                <Btn
+                  variant="outline"
+                  type="button"
+                  onClick={() => navigate("/warga")}
+                >
+                  Batal
+                </Btn>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div className="col-md-5 offset-md-1 d-none d-md-block">
+          <div
+            className="alert bg-blue-50 border-blue-100 p-4"
+            style={{ borderRadius: "var(--radius-lg)" }}
+          >
+            <h5 className="font-bold text-blue-600 mb-2">💡 Tips</h5>
+            <p className="small text-blue-600 mb-0">
+              Perubahan pada nama atau alamat akan langsung terupdate di seluruh
+              laporan riwayat transaksi iuran warga yang bersangkutan.
+            </p>
+          </div>
         </div>
       </div>
-    );
-  } else {
-    return (
-      <>
-        <div
-          className="container d-flex p-3 mx-auto flex-column"
-          style={{ height: "100vh" }}
-        >
-          <Navbar />
-
-          <div className="mb-3">
-            <Link className="btn btn-primary" to="/warga">
-              <FontAwesomeIcon icon={faArrowLeft} />
-            </Link>
-          </div>
-
-          <h1>Edit Data Warga</h1>
-
-          <div className="row">
-            <div className="col-6">
-              <form onSubmit={handleEdit}>
-                <div className="mb-3">
-                  <label for="name" className="form-label">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="name"
-                    value={name || ""}
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                </div>
-                <div className="mb-3">
-                  <label for="address" className="form-label">
-                    Address
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="address"
-                    value={address || ""}
-                    onChange={(e) => setAddress(e.target.value)}
-                  />
-                </div>
-                <button className="btn btn-primary py-2" type="submit">
-                  {isLoading ? "Loading..." : "Submit"}
-                </button>
-              </form>
-            </div>
-          </div>
-
-          <Footer />
-        </div>
-      </>
-    );
-  }
+    </div>
+  );
 }
 
 export default EditWarga;

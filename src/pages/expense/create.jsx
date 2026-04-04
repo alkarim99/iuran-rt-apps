@@ -1,25 +1,25 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-
 import Swal from "sweetalert2";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft, faCartPlus, faCoins, faReceipt } from "@fortawesome/free-solid-svg-icons";
+import { createExpense } from "../../services/ExpenseService";
 import FormatCurrency from "../../helpers/FormatCurrency";
 
-import { createExpense } from "../../services/ExpenseService";
+import PageHeader from "../../components/ui/PageHeader";
+import Btn from "../../components/ui/Btn";
 
 function CreateExpense() {
   const navigate = useNavigate();
-  const { id } = useParams();
   const state = useSelector((reducer) => reducer.auth);
 
   useEffect(() => {
-    document.title = "Tambah Data Pengeluaran - Iuran RT";
-  }, []);
+    document.title = "Catat Pengeluaran - Iuran RT";
+    if (!state.auth) {
+      navigate("/sign-in");
+    }
+  }, [state, navigate]);
 
   const [transactionAt, setTransactionAt] = useState("");
   const [nominal, setNominal] = useState("");
@@ -27,29 +27,19 @@ function CreateExpense() {
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (!state.auth) {
-      navigate("/sign-in");
-    }
-  }, [state]);
-
   const handleCreate = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    const payload = {
-      transaction_at: transactionAt,
-      nominal: nominal,
-      description: description,
-      payment_method: paymentMethod,
-    };
+    const payload = { transaction_at: transactionAt, nominal, description, payment_method: paymentMethod };
+    
     createExpense(payload)
       .then((response) => {
         Swal.fire({
-          title: "Create Success!",
-          html: `Pengeluaran <b>${FormatCurrency(nominal)}</b> berhasil dicatat.`,
+          title: "Berhasil!",
+          html: `Pengeluaran <b>${FormatCurrency(nominal)}</b> telah dicatat.`,
           icon: "success",
           showCancelButton: true,
-          confirmButtonText: "Lihat Neraca Kas",
+          confirmButtonText: "Lihat Neraca",
           cancelButtonText: "Tutup",
         }).then((result) => {
           if (result.isConfirmed) {
@@ -62,116 +52,122 @@ function CreateExpense() {
       .catch((error) => {
         Swal.fire({
           title: "Error!",
-          text: error?.response?.data?.message ?? "Something wrong in our App!",
+          text: error?.response?.data?.message ?? "Terjadi kesalahan saat menyimpan data.",
           icon: "error",
         });
       })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      .finally(() => setIsLoading(false));
   };
 
-  if (isLoading) {
-    return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ height: "100vh" }}
-      >
-        <div className="spinner-grow text-warning" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  } else {
-    return (
-      <div
-        className="container d-flex p-3 mx-auto flex-column"
-        style={{ height: "100vh" }}
-      >
-        <Navbar />
+  return (
+    <div className="expense-create-page">
+      <PageHeader 
+        title="Catat Pengeluaran"
+        breadcrumb={["Transaksi", "Tambah Pengeluaran"]}
+      />
 
-        <div className="mb-3">
-          <Link className="btn btn-primary me-1" to="/expense">
-            <FontAwesomeIcon icon={faArrowLeft} />
-          </Link>
-        </div>
-
-        <h1>Add Data Pengeluaran</h1>
-
-        <div className="row">
-          <div className="col-6">
+      <div className="row">
+        <div className="col-md-6">
+          <div className="rt-card p-4" style={{ background: 'var(--surface)', border: '1px solid var(--gray-200)', borderRadius: 'var(--radius-xl)' }}>
             <form onSubmit={handleCreate}>
-              <div className="mb-3">
-                <label for="transaction_at" className="form-label">
+              <div className="mb-4">
+                <label htmlFor="transaction_at" className="form-label font-bold small text-muted text-uppercase mb-2" style={{ letterSpacing: '0.5px' }}>
                   Tanggal Transaksi
                 </label>
                 <input
                   type="date"
-                  className="form-control"
+                  className="form-control-rt w-100"
                   id="transaction_at"
                   value={transactionAt}
                   onChange={(e) => setTransactionAt(e.target.value)}
                   required
                 />
               </div>
-              <div className="mb-3">
-                <label for="nominal" className="form-label">
-                  Nominal
+
+              <div className="mb-4">
+                <label htmlFor="nominal" className="form-label font-bold small text-muted text-uppercase mb-2" style={{ letterSpacing: '0.5px' }}>
+                  Nominal Pengeluaran
                 </label>
-                <input
-                  type="number"
-                  step="any"
-                  className="form-control"
-                  id="nominal"
-                  value={nominal}
-                  onChange={(e) => setNominal(e.target.value)}
-                  required
-                />
+                <div className="position-relative">
+                  <span className="position-absolute start-0 top-50 translate-middle-y ps-3 font-bold text-muted">Rp</span>
+                  <input
+                    type="number"
+                    className="form-control-rt w-100 ps-5 font-bold"
+                    style={{ fontSize: '18px' }}
+                    value={nominal}
+                    onChange={(e) => setNominal(e.target.value)}
+                    required
+                  />
+                </div>
                 {nominal && (
-                  <small className="text-muted">
-                    {FormatCurrency(nominal)}
-                  </small>
+                  <div className="mt-1 text-expense font-bold small">{FormatCurrency(nominal)}</div>
                 )}
               </div>
-              <div className="mb-3">
-                <label for="description" className="form-label">
-                  Deskripsi
+              
+              <div className="mb-4">
+                <label htmlFor="description" className="form-label font-bold small text-muted text-uppercase mb-2" style={{ letterSpacing: '0.5px' }}>
+                  Keterangan / Deskripsi
                 </label>
-                <input
-                  type="text"
+                <textarea
+                  className="form-control-rt w-100"
                   id="description"
-                  className="form-control"
+                  rows="3"
+                  placeholder="Contoh: Pembelian Sapu, Perbaikan Lampu, dll"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   required
                 />
               </div>
-              <div className="mb-3">
-                <label for="payment_method" className="form-label">
-                  Metode Pembayaran
+
+              <div className="mb-4">
+                <label htmlFor="payment_method" className="form-label font-bold small text-muted text-uppercase mb-2" style={{ letterSpacing: '0.5px' }}>
+                  Sumber Dana
                 </label>
                 <select
-                  className="form-select"
+                  className="form-control-rt w-100"
                   id="payment_method"
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value)}
                   required
+                  style={{ appearance: 'auto' }}
                 >
                   <option value="cash">Cash / Petty Cash</option>
                   <option value="transfer">Transfer / Kas Rekening</option>
                 </select>
               </div>
-              <button className="btn btn-primary py-2" type="submit">
-                {isLoading ? "Loading..." : "Submit"}
-              </button>
+
+              <div className="d-flex gap-2 pt-2">
+                <Btn
+                  variant="primary"
+                  type="submit"
+                  loading={isLoading}
+                  icon={<FontAwesomeIcon icon={faCartPlus} />}
+                >
+                  Simpan Pengeluaran
+                </Btn>
+                <Btn
+                  variant="outline"
+                  type="button"
+                  onClick={() => navigate("/expense")}
+                >
+                  Batal
+                </Btn>
+              </div>
             </form>
           </div>
         </div>
 
-        <Footer />
+        <div className="col-md-5 offset-md-1 d-none d-md-block">
+          <div className="alert bg-blue-50 border-blue-100 p-4" style={{ borderRadius: 'var(--radius-lg)' }}>
+            <h5 className="font-bold text-blue-600 mb-2">💡 Tips</h5>
+            <p className="small text-blue-600 mb-0">
+              Pastikan Anda mencatat pengeluaran segera setelah transaksi terjadi untuk menjaga akurasi laporan kas bulanan. Pilih sumber dana yang sesuai agar saldo Petty Cash atau Kas Rekening tetap sinkron.
+            </p>
+          </div>
+        </div>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 export default CreateExpense;

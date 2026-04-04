@@ -1,231 +1,175 @@
-/* ─── Summary Cards ─────────────────────────────────────────── */
-.summary-cards {
+/* ─── Summary Cards (Transitioned to SummaryStrip soon, but keep some specifics) ─── */
+.summary-cards-pt {
   display: flex;
-  gap: 1rem;
+  gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 1.5rem;
+  margin-bottom: 24px;
 }
 
-.summary-card {
+.summary-card-pt {
   flex: 1;
   min-width: 200px;
-  background: #fff;
-  border: 1px solid #dee2e6;
-  border-radius: 0.5rem;
-  padding: 1.25rem;
-  text-align: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  background: var(--surface);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
   transition: transform 0.15s ease;
 }
 
-.summary-card:hover {
+.summary-card-pt:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
-.summary-card .label {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #6c757d;
-  margin-bottom: 0.25rem;
-  font-weight: 600;
-}
-
-.summary-card .value {
-  font-size: 1.5rem;
+.summary-card-pt .label {
+  font-size: 11px;
   font-weight: 700;
-  color: #212529;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.summary-card.income .value {
-  color: #198754;
-}
-.summary-card.cash-card .value {
-  color: #0d6efd;
-}
-.summary-card.transfer-card .value {
-  color: #6f42c1;
+.summary-card-pt .value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--gray-900);
+  letter-spacing: -0.5px;
 }
 
 /* ─── Preset Buttons ────────────────────────────────────────── */
 .preset-buttons {
   display: flex;
-  gap: 0.35rem;
+  gap: 8px;
   flex-wrap: wrap;
+  margin-bottom: 24px;
 }
 
-.preset-buttons .btn {
-  font-size: 0.78rem;
-  padding: 0.25rem 0.65rem;
+.preset-btn {
+  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: var(--gray-100);
+  border: 1px solid var(--gray-200);
+  color: var(--gray-600);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.preset-btn:hover {
+  background: var(--gray-200);
+  color: var(--gray-800);
+}
+
+.preset-btn.active {
+  background: var(--blue-50);
+  border-color: var(--blue-200);
+  color: var(--blue-600);
 }
 
 /* ─── Tier Badges ───────────────────────────────────────────── */
 .tier-badge {
-  display: inline-block;
-  padding: 0.2rem 0.55rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
 }
 
 .tier-badge.tier-75 {
-  background-color: #d1e7dd;
-  color: #0f5132;
+  background-color: var(--green-50);
+  color: var(--green-600);
 }
 .tier-badge.tier-110 {
-  background-color: #cfe2ff;
-  color: #084298;
+  background-color: var(--blue-50);
+  color: var(--blue-600);
 }
 .tier-badge.tier-out {
-  background-color: #f8d7da;
-  color: #842029;
+  background-color: var(--red-50);
+  color: var(--red-600);
 }
 
-/* ─── Month Card ────────────────────────────────────────────── */
-.month-card {
-  border: 1px solid #dee2e6;
-  border-radius: 0.5rem;
-  margin-bottom: 1.5rem;
-  overflow: hidden;
-}
-
-.month-card-header {
-  background: linear-gradient(135deg, #212529, #343a40);
-  color: #fff;
-  padding: 0.75rem 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.month-card-header h5 {
-  margin: 0;
-  font-weight: 600;
-}
-
+/* ─── Month/Method Sections ─────────────────────────────────── */
 .method-section {
-  padding: 1rem;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 16px;
+  border-bottom: 1px solid var(--gray-100);
 }
 
 .method-section:last-child {
   border-bottom: none;
 }
 
-.method-label {
-  display: inline-block;
-  padding: 0.2rem 0.6rem;
-  border-radius: 50rem;
-  font-size: 0.75rem;
-  font-weight: 600;
+.method-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.method-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
 }
 
-.method-label.cash {
-  background-color: #cff4fc;
-  color: #055160;
+.method-badge.cash {
+  background-color: var(--green-50);
+  color: var(--green-600);
 }
 
-.method-label.transfer {
-  background-color: #e2d9f3;
-  color: #432874;
+.method-badge.transfer {
+  background-color: #F0EDFA;
+  color: #6343D8;
 }
 
-/* ─── Breakdown Table ───────────────────────────────────────── */
-.breakdown-table {
-  font-size: 0.88rem;
-  margin-bottom: 0;
-}
-
-.breakdown-table thead th {
-  background-color: #f8f9fa;
-  border-bottom: 2px solid #dee2e6;
+.method-stats {
+  font-size: 12px;
   font-weight: 600;
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: #495057;
+  color: var(--gray-500);
 }
 
+/* ─── Table Overrides ───────────────────────────────────────── */
 .breakdown-table tbody tr {
   cursor: pointer;
-  transition: background-color 0.15s ease;
 }
 
-.breakdown-table tbody tr:hover {
-  background-color: #e8f4f8;
+.breakdown-table tbody tr:hover td {
+  background-color: rgba(15, 123, 243, 0.03) !important;
 }
 
-.breakdown-table .count-cell {
-  text-align: center;
-  font-weight: 600;
+/* ─── Modal Customization ───────────────────────────────────── */
+.pt-modal-content {
+  border-radius: var(--radius-xl);
+  border: none;
+  overflow: hidden;
+  box-shadow: var(--shadow-xl);
 }
 
-.breakdown-table .nominal-cell {
-  text-align: right;
-  font-weight: 600;
+.pt-modal-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--gray-100);
+  padding: 20px 24px;
 }
 
-/* ─── Warga Detail Table (inside modal) ─────────────────────── */
-.warga-detail-table {
-  font-size: 0.85rem;
+.pt-modal-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--gray-900);
+  letter-spacing: -0.3px;
 }
 
-.warga-detail-table th {
-  background-color: #f8f9fa;
-}
-
-/* ─── Empty state ───────────────────────────────────────────── */
-.empty-state {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: #6c757d;
-}
-
-.empty-state .icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  opacity: 0.4;
-}
-
-/* ─── Loading spinner ───────────────────────────────────────── */
-.loading-overlay {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 4rem 0;
-}
-
-/* ─── Print overrides (supplement print.css) ────────────────── */
 @media print {
-  .summary-card {
-    border: 1px solid #333 !important;
-    box-shadow: none !important;
-    break-inside: avoid;
-  }
-
-  .month-card {
-    break-inside: avoid;
-    border: 1px solid #333 !important;
-  }
-
-  .month-card-header {
-    background: #e9ecef !important;
-    color: #000 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  .modal,
-  .modal-backdrop {
-    display: none !important;
-  }
-
-  .preset-buttons {
-    display: none !important;
-  }
+  .no-print { display: none !important; }
 }

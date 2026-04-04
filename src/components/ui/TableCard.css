@@ -1,0 +1,96 @@
+.table-card {
+  background: var(--surface);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 24px;
+}
+
+.table-card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.table-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.table-card-subtitle {
+  font-size: 11px;
+  color: var(--gray-400);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.table-card-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-card-body {
+  position: relative;
+  padding: 16px 20px;
+}
+
+/* Custom Table Styling within TableCard */
+.table-card .table {
+  margin-bottom: 0;
+  font-size: 13px;
+}
+
+.table-card .table-responsive {
+  border: none;
+  scrollbar-width: thin;
+}
+
+.table-card .table thead th {
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-100);
+  color: var(--gray-500);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 12px 18px;
+  white-space: nowrap;
+}
+
+.table-card .table tbody td, 
+.table-card .table tbody th {
+  padding: 14px 18px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--gray-100);
+  color: var(--gray-700);
+}
+
+.table-card .table tbody tr:last-child td,
+.table-card .table tbody tr:last-child th {
+  border-bottom: none;
+}
+
+.table-card .table-hover tbody tr:hover {
+  background-color: var(--gray-50);
+}
+
+.table-card .table tfoot td {
+  background: var(--gray-50);
+  font-weight: 700;
+  padding: 14px 18px;
+  border-top: 2px solid var(--gray-100);
+}
+
+@media (max-width: 768px) {
+  .table-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

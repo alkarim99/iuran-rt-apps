@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+:root {
+  /* === TYPOGRAPHY === */
+  --font-base: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, monospace;
+
+  /* === COLOR — GREEN (Primary / Income) === */
+  --green-50:  #EDFAF4;
+  --green-100: #C6F0DC;
+  --green-200: #8FDDB8;
+  --green-500: #16A05A;
+  --green-600: #0E8048;
+  --green-700: #0A6038;
+
+  /* === COLOR — BLUE (Info / Transfer) === */
+  --blue-50:   #EEF4FF;
+  --blue-100:  #C7D9FF;
+  --blue-500:  #3B6EE8;
+  --blue-600:  #2A55CC;
+
+  /* === COLOR — AMBER (Warning / Belum Bayar) === */
+  --amber-50:  #FFF8E7;
+  --amber-100: #FFE8A0;
+  --amber-400: #E8A020;
+  --amber-600: #B87B10;
+
+  /* === COLOR — RED (Danger / Expense / Kredit) === */
+  --red-50:    #FEF0F0;
+  --red-100:   #FFCACA;
+  --red-500:   #E84040;
+  --red-600:   #C02020;
+
+  /* === COLOR — GRAY (Neutral) === */
+  --gray-50:   #F8F9FA;
+  --gray-100:  #F0F2F5;
+  --gray-200:  #E4E8EE;
+  --gray-300:  #CBD0D8;
+  --gray-400:  #9BA5B5;
+  --gray-500:  #6B7A8E;
+  --gray-600:  #4A5568;
+  --gray-700:  #2D3748;
+  --gray-800:  #1E2533;
+  --gray-900:  #111827;
+
+  /* === SURFACE === */
+  --surface:       #FFFFFF;
+  --bg-page:       #F4F6F9;
+
+  /* === SPACING === */
+  --radius-sm:  6px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+
+  /* === SHADOW === */
+  --shadow-xs:  0 1px 3px rgba(0,0,0,0.06);
+  --shadow-sm:  0 2px 8px rgba(0,0,0,0.08);
+}

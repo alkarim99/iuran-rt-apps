@@ -1,4 +1,5 @@
 export { default as Home } from "./Home";
+export { default as Dashboard } from "./dashboard/Dashboard";
 export { default as SignIn } from "./SignIn";
 export { default as IndexWarga } from "./warga";
 export { default as CreateWarga } from "./warga/create";

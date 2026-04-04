@@ -2,7 +2,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.js";
 import "./styles/print.css";
 import React from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import axios from "axios";
@@ -11,6 +11,7 @@ import { addAuth } from "./store/reducers/auth";
 
 import PrivateRoute from "./components/PrivateRoute";
 import ScrollToTop from "./components/ScrollToTop";
+import AppShell from "./components/layout/AppShell";
 
 // import pages
 import {
@@ -40,203 +41,130 @@ import {
   EditOtherIncome,
   OpeningBalance,
 } from "./pages";
+import Dashboard from "./pages/dashboard/Dashboard";
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Home />,
-  },
   {
     path: "/sign-in",
     element: <SignIn />,
   },
   {
-    path: "/warga",
+    path: "/",
     element: (
       <PrivateRoute>
-        <IndexWarga />
+        <AppShell />
       </PrivateRoute>
     ),
+    children: [
+      {
+        index: true,
+        element: <Dashboard />,
+      },
+      {
+        path: "dashboard",
+        element: <Dashboard />,
+      },
+      {
+        path: "warga",
+        element: <IndexWarga />,
+      },
+      {
+        path: "warga/create",
+        element: <CreateWarga />,
+      },
+      {
+        path: "warga/edit/:id",
+        element: <EditWarga />,
+      },
+      {
+        path: "warga/:id",
+        element: <DetailWarga />,
+      },
+      {
+        path: "iuran",
+        element: <IndexIuran />,
+      },
+      {
+        path: "iuran/rincian",
+        element: <RincianIuran />,
+      },
+      {
+        path: "iuran/create",
+        element: <CreateIncome />,
+      },
+      {
+        path: "iuran/edit/:id",
+        element: <EditIuran />,
+      },
+      {
+        path: "iuran/total",
+        element: <TotalIuran />,
+      },
+      {
+        path: "income/create",
+        element: <CreateIncome />,
+      },
+      {
+        path: "income/create/warga/:id",
+        element: <CreateIncome />,
+      },
+      {
+        path: "other-income",
+        element: <IndexOtherIncome />,
+      },
+      {
+        path: "other-income/edit/:id",
+        element: <EditOtherIncome />,
+      },
+      {
+        path: "opening-balance",
+        element: <OpeningBalance />,
+      },
+      {
+        path: "user",
+        element: <IndexUser />,
+      },
+      {
+        path: "user/create",
+        element: <CreateUser />,
+      },
+      {
+        path: "user/edit/:id",
+        element: <EditUser />,
+      },
+      {
+        path: "expense",
+        element: <IndexExpense />,
+      },
+      {
+        path: "expense/create",
+        element: <CreateExpense />,
+      },
+      {
+        path: "expense/edit/:id",
+        element: <EditExpense />,
+      },
+      {
+        path: "report/cash",
+        element: <ReportCash />,
+      },
+      {
+        path: "report/transfer",
+        element: <ReportTransfer />,
+      },
+      {
+        path: "report/pricing-tier",
+        element: <ReportPricingTier />,
+      },
+      {
+        path: "report/neraca",
+        element: <ReportNeraca />,
+      },
+    ],
   },
   {
-    path: "/warga/create",
-    element: (
-      <PrivateRoute>
-        <CreateWarga />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/warga/edit/:id",
-    element: (
-      <PrivateRoute>
-        <EditWarga />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/warga/:id",
-    element: (
-      <PrivateRoute>
-        <DetailWarga />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/iuran",
-    element: (
-      <PrivateRoute>
-        <IndexIuran />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/iuran/rincian",
-    element: (
-      <PrivateRoute>
-        <RincianIuran />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/income/create/warga/:id",
-    element: (
-      <PrivateRoute>
-        <CreateIncome />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/iuran/create",
-    element: (
-      <PrivateRoute>
-        <CreateIncome />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/income/create",
-    element: (
-      <PrivateRoute>
-        <CreateIncome />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/other-income",
-    element: (
-      <PrivateRoute>
-        <IndexOtherIncome />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/other-income/edit/:id",
-    element: (
-      <PrivateRoute>
-        <EditOtherIncome />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/opening-balance",
-    element: (
-      <PrivateRoute>
-        <OpeningBalance />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/iuran/edit/:id",
-    element: (
-      <PrivateRoute>
-        <EditIuran />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/iuran/total",
-    element: (
-      <PrivateRoute>
-        <TotalIuran />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/user",
-    element: (
-      <PrivateRoute>
-        <IndexUser />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/user/create",
-    element: (
-      <PrivateRoute>
-        <CreateUser />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/user/edit/:id",
-    element: (
-      <PrivateRoute>
-        <EditUser />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/expense",
-    element: (
-      <PrivateRoute>
-        <IndexExpense />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/expense/create",
-    element: (
-      <PrivateRoute>
-        <CreateExpense />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/expense/edit/:id",
-    element: (
-      <PrivateRoute>
-        <EditExpense />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/report/cash",
-    element: (
-      <PrivateRoute>
-        <ReportCash />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/report/transfer",
-    element: (
-      <PrivateRoute>
-        <ReportTransfer />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/report/pricing-tier",
-    element: <ReportPricingTier />,
-  },
-  {
-    path: "/report/neraca",
-    element: (
-      <PrivateRoute>
-        <ReportNeraca />
-      </PrivateRoute>
-    ),
+    path: "*",
+    element: <Navigate to="/" replace />,
   },
 ]);
 
@@ -251,9 +179,7 @@ function App() {
   );
 }
 
-// Register axios interceptor at module level — runs synchronously before any
-// component renders, so the token is always attached even on page refresh.
-// Reads directly from the Redux store (which is rehydrated by redux-persist).
+// Register axios interceptor at module level
 axios.interceptors.request.use(
   (config) => {
     const state = store.getState()?.auth;

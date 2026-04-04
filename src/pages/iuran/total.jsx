@@ -1,15 +1,25 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowLeft,
+  faMagnifyingGlass,
+  faCalendarCheck,
+} from "@fortawesome/free-solid-svg-icons";
 import FormatDate from "../../helpers/FormatDate";
 import FormatCurrency from "../../helpers/FormatCurrency";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
+import FormatPeriod from "../../helpers/FormatPeriod";
 import TableFooter from "../../components/TableFooter";
 import { useTableState } from "../../hooks/useTableState";
 import { totalPayment } from "../../services/IuranService";
+
+import PageHeader from "../../components/ui/PageHeader";
+import FilterBar from "../../components/ui/FilterBar";
+import TableCard from "../../components/ui/TableCard";
+import Btn from "../../components/ui/Btn";
+import StatusBadge from "../../components/ui/StatusBadge";
+import SummaryStrip from "../../components/ui/SummaryStrip";
 
 function TotalIuran() {
   const navigate = useNavigate();
@@ -62,140 +72,128 @@ function TotalIuran() {
   };
 
   return (
-    <>
-      <div
-        className="container d-flex p-3 mx-auto flex-column"
-        style={{ height: "100vh" }}
-      >
-        <Navbar />
-        <h1>
-          Kalkulasi Iuran Total
-          <Link
-            className="btn btn-primary ms-2 fs-6 position-relative"
-            to={location.state?.from || "/iuran"}
-            style={{ bottom: "5px" }}
+    <div className="iuran-total-page">
+      <PageHeader
+        title="Kalkulasi Total Iuran"
+        breadcrumb={["Laporan", "Total Iuran"]}
+        actions={
+          <Btn
+            variant="outline"
+            icon={<FontAwesomeIcon icon={faArrowLeft} />}
+            onClick={() => navigate(location.state?.from || "/iuran")}
           >
-            <FontAwesomeIcon icon={faArrowLeft} /> Kembali
-          </Link>
-        </h1>
-        <form onSubmit={handleSearchSubmit}>
-          <div className="row d-flex align-items-end">
-            <div className="col-3">
-              <input
-                type="month"
-                className="form-control"
-                value={payAt}
-                onChange={(e) => setPayAt(e.target.value)}
-              />
-            </div>
-            <div className="col-3">
-              <button className="btn btn-primary" type="submit">
-                {isLoading ? "Loading..." : "Search"}
-              </button>
-            </div>
-          </div>
-        </form>
-        {total != 0 && (
-          <div className="alert alert-info py-2 my-3">
-            <strong>Ringkasan:</strong> Terdapat <strong>{totalCount}</strong>{" "}
-            catatan dengan total pendapatan{" "}
-            <strong>{FormatCurrency(total)}</strong>
-          </div>
-        )}
+            Kembali
+          </Btn>
+        }
+      />
 
-        <div className="container d-flex justify-content-center align-items-center flex-column">
-          <div>
-            <table className="table table-hover">
-              <thead className="table-light">
-                <tr>
-                  <th scope="col">#</th>
-                  <th
-                    scope="col"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleSort("created_at")}
-                  >
-                    Tanggal Input{" "}
-                    {sortBy === "created_at" && (order === 1 ? "▲" : "▼")}
-                  </th>
-                  <th
-                    scope="col"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleSort("pay_at")}
-                  >
-                    Tanggal Bayar{" "}
-                    {sortBy === "pay_at" && (order === 1 ? "▲" : "▼")}
-                  </th>
-                  <th
-                    scope="col"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleSort("warga.address")}
-                  >
-                    Warga{" "}
-                    {["warga.address", "address"].includes(sortBy) &&
-                      (order === 1 ? "▲" : "▼")}
-                  </th>
-                  <th scope="col">Periode</th>
-                  <th
-                    scope="col"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleSort("nominal")}
-                  >
-                    Nominal {sortBy === "nominal" && (order === 1 ? "▲" : "▼")}
-                  </th>
-                  <th scope="col">Metode Pembayaran</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dataIuran.map((iuran, index) => {
-                  const currentIndex = (page - 1) * limit + index + 1;
-                  return (
-                    <>
-                      <tr>
-                        <th scope="row">{currentIndex}</th>
-                        <td>{FormatDate(iuran?.created_at)}</td>
-                        <td>{FormatDate(iuran?.pay_at)}</td>
-                        <td>
-                          {iuran?.warga?.address} | {iuran?.warga?.name}
-                        </td>
-                        <td>
-                          {FormatDate(iuran?.period_start)} -{" "}
-                          {FormatDate(iuran?.period_end)}
-                        </td>
-                        <td>{FormatCurrency(iuran?.nominal)}</td>
-                        <td className="text-capitalize">
-                          {iuran?.payment_method}
-                        </td>
-                      </tr>
-                    </>
-                  );
-                })}
-                {dataIuran.length === 0 && (
-                  <tr>
-                    <td colSpan="7" className="text-center">
-                      Tidak ada data ditemukan
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-
-            <TableFooter
-              currentPage={page}
-              totalPages={totalPages}
-              totalCount={totalCount}
-              itemsPerPage={limit}
-              onPageChange={setPage}
-              onLimitChange={(newLimit) => {
-                setLimit(newLimit);
-                setPage(1);
-              }}
+      <FilterBar>
+        <form onSubmit={handleSearchSubmit} className="d-flex align-items-center gap-3">
+          <div className="d-flex align-items-center gap-2">
+            <label className="small text-muted font-bold whitespace-nowrap">Pilih Bulan:</label>
+            <input
+              type="month"
+              className="filter-select"
+              value={payAt}
+              onChange={(e) => setPayAt(e.target.value)}
             />
           </div>
+          <Btn
+            variant="primary"
+            size="sm"
+            icon={<FontAwesomeIcon icon={faMagnifyingGlass} />}
+            type="submit"
+            loading={isLoading}
+          >
+            Hitung Total
+          </Btn>
+        </form>
+      </FilterBar>
+
+      <SummaryStrip
+        items={[
+          {
+            label: "Total Transaksi",
+            value: totalCount,
+            icon: <FontAwesomeIcon icon={faCalendarCheck} />,
+            trend: "Pembayaran Terverifikasi"
+          },
+          {
+            label: "Total Pendapatan",
+            value: FormatCurrency(total),
+            variant: "income",
+            trend: `Periode ${FormatDate(payAt).split(" ")[1]} ${FormatDate(payAt).split(" ")[2]}`
+          }
+        ]}
+      />
+
+      <TableCard
+        title="Daftar Transaksi Terhitung"
+        subtitle="Rincian pembayaran yang masuk dalam kalkulasi total periode ini"
+      >
+        <div className="table-responsive">
+          <table className="table table-hover mt-0 align-middle">
+            <thead>
+              <tr>
+                <th className="text-center" style={{ width: '50px' }}>#</th>
+                <th style={{ cursor: "pointer" }} onClick={() => handleSort("pay_at")}>
+                  Tgl Bayar {sortBy === "pay_at" && (order === 1 ? "↑" : "↓")}
+                </th>
+                <th style={{ cursor: "pointer" }} onClick={() => handleSort("warga.address")}>
+                  Warga {["warga.address", "address"].includes(sortBy) && (order === 1 ? "↑" : "↓")}
+                </th>
+                <th>Periode Iuran</th>
+                <th className="text-end" style={{ cursor: "pointer" }} onClick={() => handleSort("nominal")}>
+                  Nominal {sortBy === "nominal" && (order === 1 ? "↑" : "↓")}
+                </th>
+                <th className="text-center">Metode</th>
+                <th className="text-center small text-muted">Input</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                <tr><td colSpan="7" className="text-center py-5 text-muted">Mengkalkulasi data...</td></tr>
+              ) : dataIuran.length === 0 ? (
+                <tr><td colSpan="7" className="text-center py-5 text-muted">Data tidak ditemukan untuk periode ini.</td></tr>
+              ) : (
+                dataIuran.map((iuran, index) => (
+                  <tr key={iuran._id}>
+                    <td className="text-center text-muted small">{(page - 1) * limit + index + 1}</td>
+                    <td><div className="cell-main">{FormatDate(iuran.pay_at)}</div></td>
+                    <td>
+                      <div className="cell-main">{iuran.warga?.name}</div>
+                      <div className="cell-sub">{iuran.warga?.address}</div>
+                    </td>
+                    <td>
+                      <div className="small">{FormatPeriod(iuran.period_start, iuran.period_end)}</div>
+                    </td>
+                    <td className="text-end font-bold amount">{FormatCurrency(iuran.nominal)}</td>
+                    <td className="text-center">
+                      <StatusBadge type={iuran.payment_method || 'cash'} />
+                    </td>
+                    <td className="text-center small text-muted">
+                      {FormatDate(iuran.created_at).split(" ")[0]}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
 
-        <Footer />
-      </div>
-    </>
+        <TableFooter
+          currentPage={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          itemsPerPage={limit}
+          onPageChange={setPage}
+          onLimitChange={(newLimit) => {
+            setLimit(newLimit);
+            setPage(1);
+          }}
+        />
+      </TableCard>
+    </div>
   );
 }
 

@@ -1,5 +1,5 @@
 import React from "react"
-import FormatCurrency from "../helpers/FormatCurrency" // Reuse standard formatter for digits if appropriate, otherwise native
+import "./TableFooter.css"
 
 export default function TableFooter({
   currentPage,
@@ -31,12 +31,11 @@ export default function TableFooter({
   const paginationRange = getPaginationRange(currentPage, totalPages)
 
   return (
-    <div className="d-flex justify-content-between align-items-center mt-3 flex-wrap">
+    <div className="table-footer-wrap">
       {/* Items limit selector and Record Info */}
-      <div className="d-flex align-items-center text-muted mb-2">
+      <div className="tf-info-group">
         <select
-          className="form-select form-select-sm me-3"
-          style={{ width: "auto" }}
+          className="tf-limit-select"
           value={itemsPerPage}
           onChange={(e) => {
             onLimitChange(Number(e.target.value))
@@ -48,49 +47,41 @@ export default function TableFooter({
           <option value={50}>50 Baris</option>
           <option value={100}>100 Baris</option>
         </select>
-        <span className="small">
-          Menampilkan {startItem} hingga {endItem} dari total {totalCount} data
+        <span className="tf-count-label">
+          Menampilkan <strong>{startItem}</strong> — <strong>{endItem}</strong> dari <strong>{totalCount}</strong>
         </span>
       </div>
 
       {/* Pagination Module */}
-      <nav aria-label="Page navigation" className="mb-2">
-        <ul className="pagination pagination-sm m-0">
-          <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-            <button
-              className="page-link"
-              onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </button>
-          </li>
-          
-          {paginationRange.map((pageNumber) => (
-            <li
-              key={pageNumber}
-              className={`page-item ${pageNumber === currentPage ? "active" : ""}`}
-            >
-              <button
-                className="page-link"
-                onClick={() => onPageChange(pageNumber)}
-              >
-                {pageNumber}
-              </button>
-            </li>
-          ))}
+      <div className="tf-pagination">
+        <button
+          className="tf-page-btn tf-nav-btn"
+          onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
+          disabled={currentPage === 1}
+          aria-label="Previous page"
+        >
+          ‹
+        </button>
+        
+        {paginationRange.map((pageNumber) => (
+          <button
+            key={pageNumber}
+            className={`tf-page-btn ${pageNumber === currentPage ? "active" : ""}`}
+            onClick={() => onPageChange(pageNumber)}
+          >
+            {pageNumber}
+          </button>
+        ))}
 
-          <li className={`page-item ${currentPage >= totalPages ? "disabled" : ""}`}>
-            <button
-              className="page-link"
-              onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
-              disabled={currentPage >= totalPages || totalPages === 0}
-            >
-              Next
-            </button>
-          </li>
-        </ul>
-      </nav>
+        <button
+          className="tf-page-btn tf-nav-btn"
+          onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
+          disabled={currentPage >= totalPages || totalPages === 0}
+          aria-label="Next page"
+        >
+          ›
+        </button>
+      </div>
     </div>
   )
 }

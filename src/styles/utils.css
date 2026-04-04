@@ -1,0 +1,152 @@
+/* Angka: selalu tabular/monospace untuk alignment */
+.amount {
+  font-feature-settings: 'tnum';
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.2px;
+}
+
+/* Text helpers */
+.text-income  { color: var(--green-600) !important; }
+.text-expense { color: var(--red-500)   !important; }
+.text-muted   { color: var(--gray-400)  !important; }
+.text-strong  { color: var(--gray-900)  !important; }
+
+/* Desc dua baris dalam sel tabel */
+.cell-main { font-weight: 600; color: var(--gray-800); font-size: 13px; }
+.cell-sub  { font-size: 11px; color: var(--gray-400); margin-top: 1px; }
+
+/* Filter Bar Helpers */
+.filter-select {
+  padding: 6px 28px 6px 10px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-family: var(--font-base);
+  color: var(--gray-700);
+  background: var(--gray-50);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7A8E' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 14px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+/* type="date" & type="month" — icon kalender native menutupi seluruh input agar klik di mana saja membuka picker */
+.filter-select[type="date"],
+.filter-select[type="month"] {
+  background-image: none;
+  padding-right: 10px;
+  position: relative;
+  cursor: pointer;
+}
+
+/* Expand native calendar button to cover entire input — klik di mana saja akan membuka picker */
+.filter-select[type="date"]::-webkit-calendar-picker-indicator,
+.filter-select[type="month"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;  /* Transparan — tetap fungsional tapi tak terlihat */
+  cursor: pointer;
+}
+
+
+.filter-select:focus {
+  background-color: var(--surface);
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 3px rgba(59,110,232,0.1);
+}
+
+/* Form Helper */
+.form-control-rt {
+  border: 1px solid var(--gray-200); /* Ensure solid style is present */
+  border-radius: var(--radius-md);
+  font-family: var(--font-base);
+  font-size: 13px;
+  padding: 9px 12px;
+  color: var(--gray-800);
+  background-color: var(--surface);
+  transition: all 0.2s ease;
+  box-shadow: none; /* Remove any potential browser defaults */
+}
+.form-control-rt:focus {
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 3px rgba(59,110,232,0.12);
+  outline: none;
+}
+.form-control-rt::placeholder {
+  color: var(--gray-300);
+}
+
+/* type="date" & type="month" — klik di mana saja dalam input membuka date picker */
+.form-control-rt[type="date"],
+.form-control-rt[type="month"] {
+  position: relative;
+  cursor: pointer;
+}
+
+.form-control-rt[type="date"]::-webkit-calendar-picker-indicator,
+.form-control-rt[type="month"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0; /* Transparan — tetap fungsional */
+  cursor: pointer;
+}
+
+
+/* Typography & Sectioning */
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gray-800);
+  letter-spacing: -0.01em;
+  border-left: 4px solid var(--blue-600);
+  padding-left: 12px;
+}
+
+.guide-num {
+  width: 24px;
+  height: 24px;
+  background: var(--blue-600);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.form-label-rt-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gray-700);
+  margin-bottom: 8px;
+}
+
+/* Color & Special Backgrounds */
+.bg-blue-50 { background-color: #eff6ff; }
+.bg-yellow-50 { background-color: #fffbeb; }
+.border-blue-100 { border-color: #dbeafe !important; }
+.border-yellow-100 { border-color: #fef08a !important; }
+.text-blue-600 { color: #2563eb !important; }
+.text-blue-700 { color: #1d4ed8 !important; }
+.text-blue-800 { color: #1e40af !important; }
+.text-blue-900 { color: #1e3a8a !important; }
+.text-yellow-600 { color: #ca8a04 !important; }
+.text-yellow-700 { color: #a16207 !important; }
+.text-yellow-800 { color: #854d0e !important; }

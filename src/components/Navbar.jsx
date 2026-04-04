@@ -1,4 +1,3 @@
-import React from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addAuth } from "../store/reducers/auth";
@@ -7,12 +6,7 @@ import { clearTableState } from "../hooks/useTableState";
 import {
   faArrowRightFromBracket,
   faArrowRightToBracket,
-  faHouse,
   faWallet,
-  faUsers,
-  faChartPie,
-  faReceipt,
-  faFileInvoiceDollar,
   faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 

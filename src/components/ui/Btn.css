@@ -1,0 +1,125 @@
+/* Base */
+.btn-rt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-base);
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent; /* Border for outline/danger variants */
+  transition: all 0.15s;
+  line-height: 1;
+  outline: none;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-rt:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Sizes */
+.btn-rt.sm { padding: 6px 12px; font-size: 12px; }
+.btn-rt.md { padding: 10px 18px; font-size: 13px; }
+.btn-rt.lg { padding: 14px 24px; font-size: 15px; }
+
+/* Variants */
+.btn-rt.primary {
+  background: var(--green-500);
+  color: #fff;
+  border-color: var(--green-500);
+}
+.btn-rt.primary:hover:not(:disabled) {
+  background: var(--green-600);
+  border-color: var(--green-600);
+}
+.btn-rt.primary:active:not(:disabled) {
+  background: var(--green-700);
+  border-color: var(--green-700);
+}
+
+.btn-rt.outline {
+  background: var(--surface);
+  color: var(--gray-600);
+  border-color: var(--gray-200);
+}
+.btn-rt.outline:hover:not(:disabled) {
+  background: var(--gray-50);
+  color: var(--gray-800);
+  border-color: var(--gray-300);
+}
+.btn-rt.outline:active:not(:disabled) {
+  background: var(--gray-100);
+}
+
+.btn-rt.ghost {
+  background: transparent;
+  color: var(--gray-500);
+}
+.btn-rt.ghost:hover:not(:disabled) {
+  background: var(--gray-50);
+  color: var(--gray-700);
+}
+.btn-rt.ghost:active:not(:disabled) {
+  background: var(--gray-100);
+}
+
+.btn-rt.danger {
+  background: var(--red-50);
+  color: var(--red-600);
+  border-color: var(--red-100);
+}
+.btn-rt.danger:hover:not(:disabled) {
+  background: var(--red-100);
+  border-color: var(--red-200);
+  color: var(--red-700);
+}
+.btn-rt.danger:active:not(:disabled) {
+  background: var(--red-200);
+}
+
+.btn-rt.success {
+  background: var(--green-50);
+  color: var(--green-700);
+  border-color: var(--green-100);
+}
+.btn-rt.success:hover:not(:disabled) {
+  background: var(--green-100);
+  border-color: var(--green-200);
+  color: var(--green-700);
+}
+.btn-rt.success:active:not(:disabled) {
+  background: var(--green-200);
+}
+
+.btn-rt-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-rt.loading {
+  position: relative;
+  color: transparent !important;
+}
+
+.btn-rt.loading .btn-rt-icon,
+.btn-rt.loading .btn-rt-text {
+  visibility: hidden;
+}
+
+.btn-rt.loading .spinner-border {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  color: currentColor;
+  visibility: visible;
+}
+
+/* Specific to primary loading color */
+.btn-rt.primary.loading .spinner-border { color: #fff; }
+.btn-rt.outline.loading .spinner-border { color: var(--gray-400); }
+.btn-rt.danger.loading .spinner-border { color: var(--red-500); }
