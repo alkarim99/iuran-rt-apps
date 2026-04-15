@@ -254,12 +254,30 @@ export async function exportLaporanKas(
   const strDanaTitle = isPettyCash ? "Petty Cash" : "Kas Tabungan";
   const strTerimaTitle = isPettyCash ? "Iuran Cash" : "Iuran Transfer";
   const strSisaTitle = isPettyCash ? "Sisa dana Petty Cash" : "Saldo Kas Tabungan";
+  const totalOtherIncome = totalDebet - saldoAwal - totalIuranSum;
 
   const summaryItems = [
     { label: "Saldo Awal", value: saldoAwal, tag: "DB" },
-    { label: `Penerimaan ${strTerimaTitle} ${properBulanFooter}`, value: totalIuranSum, tag: "DB" },
-    { label: `Pengeluaran Bulan ${properBulanFooter}`, value: totalKredit, tag: "CR" },
-    { label: `${strSisaTitle} Bulan ${properBulanFooter} ${periode.tahun}`, value: saldoAwal + totalIuranSum - totalKredit, tag: "SALDO" },
+    {
+      label: `Penerimaan ${strTerimaTitle} ${properBulanFooter}`,
+      value: totalIuranSum,
+      tag: "DB",
+    },
+    {
+      label: `Penerimaan Lain ${properBulanFooter}`,
+      value: totalOtherIncome,
+      tag: "DB",
+    },
+    {
+      label: `Pengeluaran Bulan ${properBulanFooter}`,
+      value: totalKredit,
+      tag: "CR",
+    },
+    {
+      label: `${strSisaTitle} Bulan ${properBulanFooter} ${periode.tahun}`,
+      value: totalDebet - totalKredit,
+      tag: "SALDO",
+    },
   ];
 
   summaryItems.forEach(({ label, value, tag }) => {
