@@ -1,32 +1,34 @@
-import { useState, useEffect } from "react"
-import { useSelector } from "react-redux"
-import { Link, useNavigate } from "react-router-dom"
+import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 
-import Swal from "sweetalert2"
-import Navbar from "../../components/Navbar"
-import Footer from "../../components/Footer"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
-import { createUser } from "../../services/UserServices"
+import Swal from "sweetalert2";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { createUser } from "../../services/UserService";
 
 function CreateUser() {
-  const navigate = useNavigate()
-  const state = useSelector((reducer) => reducer.auth)
+  const navigate = useNavigate();
+  const state = useSelector((reducer) => reducer.auth);
 
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [role, setRole] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    document.title = "Tambah Data Pengurus - Iuran RT";
     if (!state.auth) {
-      navigate("/sign-in")
+      navigate("/sign-in");
     }
-  }, [state])
+  }, [state]);
 
-  const handleCreate = () => {
-    setIsLoading(true)
+  const handleCreate = (e) => {
+    e.preventDefault();
+    setIsLoading(true);
     createUser({
       name: name,
       email: email,
@@ -39,20 +41,20 @@ function CreateUser() {
           text: response?.data?.message,
           icon: "success",
         }).then(() => {
-          navigate("/user")
-        })
+          navigate("/user");
+        });
       })
       .catch((error) => {
         Swal.fire({
           title: "Error!",
           text: error?.response?.data?.message ?? "Something wrong in our App!",
           icon: "error",
-        })
+        });
       })
       .finally(() => {
-        setIsLoading(false)
-      })
-  }
+        setIsLoading(false);
+      });
+  };
 
   return (
     <>
@@ -72,7 +74,7 @@ function CreateUser() {
 
         <div className="row">
           <div className="col-6">
-            <form onSubmit={(e) => e.preventDefault()}>
+            <form onSubmit={handleCreate}>
               <div className="mb-3">
                 <label for="name" className="form-label">
                   Name
@@ -81,6 +83,7 @@ function CreateUser() {
                   type="text"
                   className="form-control"
                   id="name"
+                  value={name || ""}
                   onChange={(e) => setName(e.target.value)}
                   required
                 />
@@ -93,6 +96,7 @@ function CreateUser() {
                   type="email"
                   className="form-control"
                   id="email"
+                  value={email || ""}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
@@ -105,6 +109,7 @@ function CreateUser() {
                   type="password"
                   className="form-control"
                   id="password"
+                  value={password || ""}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
@@ -116,19 +121,18 @@ function CreateUser() {
                 <select
                   id="role"
                   className="form-select"
+                  value={role || ""}
                   onChange={(e) => setRole(e.target.value)}
                   required
                 >
-                  <option selected>Pilih Role User</option>
+                  <option value="" disabled>
+                    Pilih Role User
+                  </option>
                   <option value="admin">Admin</option>
                   <option value="user">User</option>
                 </select>
               </div>
-              <button
-                className="btn btn-primary py-2"
-                type="submit"
-                onClick={handleCreate}
-              >
+              <button className="btn btn-primary py-2" type="submit">
                 {isLoading ? "Loading..." : "Submit"}
               </button>
             </form>
@@ -138,7 +142,7 @@ function CreateUser() {
         <Footer />
       </div>
     </>
-  )
+  );
 }
 
-export default CreateUser
+export default CreateUser;

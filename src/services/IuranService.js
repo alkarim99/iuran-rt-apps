@@ -1,11 +1,11 @@
 import axios from "axios";
+import { buildUrl } from "../helpers/urlBuilder";
 import { BASE_URL } from "./config";
 
 export const getAllPayments = async (currentPage, limit) => {
   try {
-    const response = await axios.get(
-      `${BASE_URL}/payments?page=${currentPage}&limit=${limit}`,
-    );
+    const url = buildUrl("/payments", { page: currentPage, limit });
+    const response = await axios.get(url);
     return response;
   } catch (error) {
     console.error("Failed to fetch payments data:", error);
@@ -26,10 +26,7 @@ export const getPaymentByID = async (id) => {
 export const getPaymentByWargaId = async (data) => {
   try {
     const { id, sortBy } = data;
-    let url = `${BASE_URL}/payments/warga/${id}`;
-    if (sortBy != "") {
-      url = url + `?sort_by=${sortBy}`;
-    }
+    const url = buildUrl(`/payments/warga/${id}`, { sort_by: sortBy });
     const response = await axios.get(url);
     return response;
   } catch (error) {
@@ -40,10 +37,13 @@ export const getPaymentByWargaId = async (data) => {
 
 export const getRincianPayment = async (data) => {
   try {
-    const { currentPage, payAt } = data;
-    const response = await axios.get(
-      `${BASE_URL}/payments/rincian?page=${currentPage}&pay_at=${payAt}`,
-    );
+    const { currentPage, limit, payAt } = data;
+    const url = buildUrl("/payments/rincian", {
+      page: currentPage,
+      limit,
+      pay_at: payAt,
+    });
+    const response = await axios.get(url);
     return response;
   } catch (error) {
     console.error("Failed to fetch payment data:", error);
@@ -54,10 +54,7 @@ export const getRincianPayment = async (data) => {
 export const getPaymentReport = async (data) => {
   try {
     const { id, sortBy } = data;
-    let url = `${BASE_URL}/payments/report/${id}`;
-    if (sortBy != "") {
-      url = url + `?sort_by=${sortBy}`;
-    }
+    const url = buildUrl(`/payments/report/${id}`, { sort_by: sortBy });
     const response = await axios.get(url);
     return response;
   } catch (error) {
@@ -68,19 +65,14 @@ export const getPaymentReport = async (data) => {
 
 export const searchPayments = async (data) => {
   try {
-    const { keyword, sortBy, page, limit } = data;
-    let url = `${BASE_URL}/payments`;
-    const params = [];
-
-    if (keyword) params.push(`keyword=${keyword}`);
-    if (sortBy) params.push(`sort_by=${sortBy}`);
-    if (page) params.push(`page=${page}`);
-    if (limit) params.push(`limit=${limit}`);
-
-    if (params.length > 0) {
-      url += `?${params.join("&")}`;
-    }
-
+    const { keyword, sortBy, order, page, limit } = data;
+    const url = buildUrl("/payments", {
+      keyword,
+      sort_by: sortBy,
+      order,
+      page,
+      limit,
+    });
     const response = await axios.get(url);
     return response;
   } catch (error) {
@@ -91,14 +83,15 @@ export const searchPayments = async (data) => {
 
 export const searchPaymentsRincian = async (data) => {
   try {
-    const { keyword, sortBy, payAt } = data;
-    let url = `${BASE_URL}/payments/rincian`;
-    if (keyword) url += `?keyword=${keyword}`;
-    if (sortBy)
-      url += url.includes("?") ? `&sort_by=${sortBy}` : `?sort_by=${sortBy}`;
-    if (payAt)
-      url += url.includes("?") ? `&pay_at=${payAt}` : `?pay_at=${payAt}`;
-
+    const { keyword, sortBy, order, page, limit, payAt } = data;
+    const url = buildUrl("/payments/rincian", {
+      keyword,
+      sort_by: sortBy,
+      order,
+      page,
+      limit,
+      pay_at: payAt,
+    });
     const response = await axios.get(url);
     return response;
   } catch (error) {
@@ -149,15 +142,14 @@ export const deletePayment = async (id) => {
 
 export const totalPayment = async (data) => {
   try {
-    const { start, end, sortBy, currentPage } = data;
-    let url = `${BASE_URL}/payments/total?start=${start}&end=${end}&page=${currentPage}`;
-    if (sortBy != "") {
-      if (url.includes("?")) {
-        url = url + `&sort_by=${sortBy}`;
-      } else {
-        url = url + `?sort_by=${sortBy}`;
-      }
-    }
+    const { payAt, sortBy, order, page, limit } = data;
+    const url = buildUrl("/payments/total", {
+      pay_at: payAt,
+      page,
+      limit,
+      sort_by: sortBy,
+      order,
+    });
     const response = await axios.get(url);
     return response;
   } catch (error) {
@@ -169,23 +161,7 @@ export const totalPayment = async (data) => {
 export const getPaymentByMethod = async (data) => {
   try {
     const { pay_at, payment_method } = data;
-    let url = `${BASE_URL}/payments/method`;
-    if (pay_at != "") {
-      if (url.includes("?")) {
-        url = url + `&pay_at=${pay_at}`;
-      } else {
-        url = url + `?pay_at=${pay_at}`;
-      }
-    }
-
-    if (payment_method != "") {
-      if (url.includes("?")) {
-        url = url + `&payment_method=${payment_method}`;
-      } else {
-        url = url + `?payment_method=${payment_method}`;
-      }
-    }
-
+    const url = buildUrl("/payments/method", { pay_at, payment_method });
     const response = await axios.get(url);
     return response;
   } catch (error) {

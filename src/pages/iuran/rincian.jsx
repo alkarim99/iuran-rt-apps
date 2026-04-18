@@ -1,72 +1,75 @@
-import { useEffect, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import Swal from "sweetalert2"
-import { useSelector } from "react-redux"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"
-import FormatDate from "../../helpers/FormatDate"
-import FormatCurrency from "../../helpers/FormatCurrency"
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import Swal from "sweetalert2";
+import { useSelector } from "react-redux";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faPen,
+  faPlus,
+  faTrash,
+  faFileExcel,
+} from "@fortawesome/free-solid-svg-icons";
+import FormatDate from "../../helpers/FormatDate";
+import FormatCurrency from "../../helpers/FormatCurrency";
+import FormatPeriod from "../../helpers/FormatPeriod";
+import { exportRincianIuran } from "../../helpers/exportExcel/exportRincianIuran";
 import {
   getRincianPayment,
   deletePayment,
   searchPaymentsRincian,
-} from "../../services/IuranService"
+} from "../../services/IuranService";
 
-import Navbar from "../../components/Navbar"
-import Footer from "../../components/Footer"
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import TableFooter from "../../components/TableFooter";
+import { useTableState } from "../../hooks/useTableState";
 
 function RincianIuran() {
-  const navigate = useNavigate()
-  const state = useSelector((reducer) => reducer.auth)
-
-  const [dataIuran, setDataIuran] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-
-  const [keyword, setKeyword] = useState("")
-  const [sortBy, setSortBy] = useState("")
-
-  const itemsPerPage = 20
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(itemsPerPage)
-  const [pagesPerGroup, setPagesPerGroup] = useState(0)
-
-  const todayDate = new Date()
-  const firstDate = new Date(
-    todayDate.getFullYear(),
-    todayDate.getUTCMonth(),
-    15
-  )
-  const payAtDate = firstDate.toISOString().split("T")[0]
-  const [payAt, setPayAt] = useState(payAtDate)
+  const navigate = useNavigate();
+  const location = useLocation();
+  const state = useSelector((reducer) => reducer.auth);
 
   useEffect(() => {
-    setIsLoading(true)
+    document.title = "Rincian Iuran Warga - Iuran RT";
+  }, []);
+
+  const [dataIuran, setDataIuran] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const {
+    page,
+    setPage,
+    limit,
+    setLimit,
+    keyword,
+    setKeyword,
+    sortBy,
+    setSortBy,
+    order,
+    setOrder,
+  } = useTableState("rincianIuran", 20, "warga.address", 1);
+
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+
+  const todayDate = new Date();
+  const currentYear = todayDate.getFullYear();
+  const currentMonth = String(todayDate.getMonth() + 1).padStart(2, "0");
+  const payAtDate = `${currentYear}-${currentMonth}`;
+  const [payAt, setPayAt] = useState(payAtDate);
+
+  useEffect(() => {
+    setIsLoading(true);
     if (!state.auth) {
-      navigate("/sign-in")
+      navigate("/sign-in");
     }
-    handleGet()
-  }, [state, currentPage])
+    handleSearch();
+  }, [state, page, limit, sortBy, order, payAt]);
 
   const handleGet = () => {
-    const payload = {
-      currentPage,
-      payAt,
-    }
-    getRincianPayment(payload)
-      .then((response) => {
-        setTotalPages(response?.data?.totalPages)
-        setDataIuran(response?.data?.data)
-        setPagesPerGroup(
-          response?.data?.totalPages > 5 ? 5 : response?.data?.totalPages
-        )
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
-  }
+    handleSearch();
+  };
 
   const handleDelete = (id) => {
     Swal.fire({
@@ -78,7 +81,7 @@ function RincianIuran() {
     }).then((result) => {
       /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
-        setIsLoading(true)
+        setIsLoading(true);
         deletePayment(id)
           .then((response) => {
             Swal.fire({
@@ -86,88 +89,98 @@ function RincianIuran() {
               text: response?.data?.message,
               icon: "success",
             }).then(() => {
-              handleGet()
-            })
+              handleGet();
+            });
           })
           .catch((error) => {
-            console.log(error)
+            console.log(error);
             Swal.fire({
               title: "Error!",
               text:
                 error?.response?.data?.message ?? "Something wrong in our App!",
               icon: "error",
-            })
+            });
           })
           .finally(() => {
-            setIsLoading(false)
-          })
+            setIsLoading(false);
+          });
       } else if (result.isDenied) {
-        Swal.fire("Payment are not deleted", "", "info")
+        Swal.fire("Payment are not deleted", "", "info");
       }
-    })
-  }
+    });
+  };
 
-  const handleSearch = () => {
-    setIsLoading(true)
-    const payload = { keyword, sortBy, payAt }
+  const handleSearch = (e) => {
+    if (e) {
+      e.preventDefault();
+      setPage(1);
+    }
+    setIsLoading(true);
+    const payload = { keyword, sortBy, order, page, limit, payAt };
     searchPaymentsRincian(payload)
       .then((response) => {
-        setDataIuran(response?.data?.data)
-        setTotalPages(response?.data?.totalPages)
-        setPagesPerGroup(
-          response?.data?.totalPages > 5 ? 5 : response?.data?.totalPages
-        )
+        setDataIuran(response?.data?.data);
+        setTotalPages(response?.data?.totalPages);
+        setTotalCount(response?.data?.totalCount);
       })
       .catch((error) => {
-        console.log(error)
+        console.log(error);
       })
       .finally(() => {
-        setIsLoading(false)
-      })
-  }
+        setIsLoading(false);
+      });
+  };
 
   const handleReset = () => {
-    setIsLoading(true)
-    setKeyword("")
-    setSortBy("")
-    handleGet()
-  }
+    setIsLoading(true);
+    setKeyword("");
+    setSortBy("warga.address");
+    setOrder(1);
+    setPage(1);
+    handleGet();
+  };
 
-  const handlePreviousPage = () => {
-    const newGroupStartPage = Math.max(1, currentPage - pagesPerGroup)
-    setCurrentPage(newGroupStartPage)
-  }
+  const handleExportExcel = async () => {
+    if (totalCount === 0) {
+      Swal.fire(
+        "Info",
+        "Tidak ada data untuk diekspor pada periode ini.",
+        "info",
+      );
+      return;
+    }
+    setIsExporting(true);
+    try {
+      // Fetch all data bounded by totalCount
+      const payload = {
+        keyword,
+        sortBy,
+        order,
+        page: 1,
+        limit: totalCount,
+        payAt,
+      };
+      const response = await searchPaymentsRincian(payload);
+      const allData = response?.data?.data || [];
 
-  const handleNextPage = () => {
-    const newGroupStartPage = Math.min(
-      currentPage + pagesPerGroup,
-      totalPages - pagesPerGroup + 1
-    )
-    setCurrentPage(newGroupStartPage)
-  }
-
-  const handlePageClick = (page) => {
-    setCurrentPage(page)
-  }
+      const [year, month] = payAt.split("-");
+      const periode = { bulan: parseInt(month, 10), tahun: parseInt(year, 10) };
+      await exportRincianIuran(allData, periode);
+    } catch (error) {
+      console.error("Export Error:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Gagal mengekspor data.",
+        icon: "error",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const getStartingIndex = () => {
-    return (currentPage - 1) * itemsPerPage + 1
-  }
-
-  const getPageNumbers = () => {
-    console.log(totalPages)
-    const pageNumbers = []
-    const totalPagesDisplayed = Math.min(
-      totalPages,
-      currentPage + pagesPerGroup - 1
-    )
-
-    for (let i = currentPage; i <= totalPagesDisplayed; i++) {
-      pageNumbers.push(i)
-    }
-
-    return pageNumbers
-  }
+    return (page - 1) * limit + 1;
+  };
 
   if (isLoading) {
     return (
@@ -179,7 +192,7 @@ function RincianIuran() {
           <span className="visually-hidden">Loading...</span>
         </div>
       </div>
-    )
+    );
   } else {
     return (
       <>
@@ -191,13 +204,40 @@ function RincianIuran() {
 
           <h1>
             Rincian Iuran
-            <Link className="btn btn-primary ms-1" to="/iuran/create">
+            <Link
+              className="btn btn-primary ms-1 no-print"
+              to="/iuran/create"
+              state={{ from: location.pathname + location.search }}
+            >
               <FontAwesomeIcon icon={faPlus} />
             </Link>
-            <Link className="btn btn-primary ms-1" to="/iuran/total">
+            <Link
+              className="btn btn-primary ms-1 no-print"
+              to="/iuran/total"
+              state={{ from: location.pathname + location.search }}
+            >
               Total
             </Link>
+            <button
+              className="btn btn-success ms-1 no-print"
+              onClick={handleExportExcel}
+              disabled={isExporting}
+              title="Export Excel"
+            >
+              <FontAwesomeIcon icon={faFileExcel} />{" "}
+              {isExporting ? "Exporting..." : "Export Excel"}
+            </button>
           </h1>
+
+          <div className="print-header">
+            <h2>Rincian Iuran RT</h2>
+            <p>
+              Periode:{" "}
+              {FormatDate(payAt).split(" ")[1] +
+                " " +
+                FormatDate(payAt).split(" ")[2]}
+            </p>
+          </div>
 
           <div className="my-4">
             <form onSubmit={(e) => e.preventDefault()}>
@@ -215,29 +255,14 @@ function RincianIuran() {
                   />
                 </div>
                 <div className="col-3">
-                  <label for="sort_by" className="form-label">
-                    Urutkan berdasarkan
-                  </label>
-                  <select
-                    id="sort_by"
-                    className="form-select"
-                    onChange={(e) => setSortBy(e.target.value)}
-                  >
-                    <option selected>Urutkan</option>
-                    <option value="pay_at">Pembayaran Terbaru</option>
-                    <option value="created_at">Pencatatan Terbaru</option>
-                    <option value="warga.name">Nama Warga</option>
-                    <option value="warga.address">Alamat Warga</option>
-                  </select>
-                </div>
-                <div className="col-3">
                   <label for="payAtDate" className="form-label">
                     Periode
                   </label>
                   <input
-                    type="date"
+                    type="month"
                     id="payAtDate"
                     className="form-control"
+                    value={payAt}
                     onChange={(e) => setPayAt(e.target.value)}
                   />
                 </div>
@@ -254,7 +279,7 @@ function RincianIuran() {
                     type="button"
                     onClick={handleReset}
                   >
-                    {isLoading ? "Loading..." : "Reset"}
+                    Reset
                   </button>
                 </div>
               </div>
@@ -275,47 +300,76 @@ function RincianIuran() {
             <table className="table">
               <thead>
                 <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Tanggal Input</th>
-                  <th scope="col">Tanggal Bayar</th>
-                  <th scope="col">Warga</th>
-                  <th scope="col">Periode</th>
-                  <th scope="col">Nominal</th>
-                  <th scope="col">RT</th>
-                  <th scope="col">PKK</th>
-                  <th scope="col">Sosial</th>
-                  <th scope="col">Kematian</th>
+                  <th scope="col" className="text-center">
+                    #
+                  </th>
+                  <th scope="col">Blok</th>
+                  <th scope="col">Nama</th>
+                  <th scope="col">Alamat</th>
+                  <th scope="col" className="text-center">
+                    Tanggal Bayar
+                  </th>
+                  <th scope="col" className="text-end">
+                    Jumlah
+                  </th>
+                  <th scope="col" className="text-center">
+                    Periode Bulan
+                  </th>
+                  <th scope="col" className="text-end">
+                    RT
+                  </th>
+                  <th scope="col" className="text-end">
+                    PKK
+                  </th>
+                  <th scope="col" className="text-end">
+                    Sosial
+                  </th>
+                  <th scope="col" className="text-end">
+                    Kematian
+                  </th>
                   <th scope="col">Keterangan</th>
-                  <th scope="col">Action</th>
+                  <th scope="col" className="text-center">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {dataIuran.map((iuran, index) => {
-                  const currentIndex = getStartingIndex() + index
+                  const currentIndex = getStartingIndex() + index;
                   return (
                     <>
                       <tr>
-                        <th scope="row">{currentIndex}</th>
-                        <td>{FormatDate(iuran?.created_at)}</td>
-                        <td>{FormatDate(iuran?.pay_at)}</td>
-                        <td>
-                          {iuran?.warga?.address} | {iuran?.warga?.name}
+                        <th scope="row" className="text-center">
+                          {currentIndex}
+                        </th>
+                        <td>{iuran?.warga?.address?.split("-")[0] || ""}</td>
+                        <td>{iuran?.warga?.name}</td>
+                        <td>{iuran?.warga?.address}</td>
+                        <td className="text-center">
+                          {FormatDate(iuran?.pay_at).split(" ")[0]}
                         </td>
-                        <td>{iuran?.number_of_period}</td>
-                        <td>{FormatCurrency(iuran?.nominal)}</td>
-                        <td>{FormatCurrency(iuran?.details_payment?.rt)}</td>
-                        <td>{FormatCurrency(iuran?.details_payment?.pkk)}</td>
-                        <td>
+                        <td className="text-end fw-bold">
+                          {FormatCurrency(iuran?.nominal)}
+                        </td>
+                        <td className="text-center">
+                          {iuran?.number_of_period}
+                        </td>
+                        <td className="text-end">
+                          {FormatCurrency(iuran?.details_payment?.rt)}
+                        </td>
+                        <td className="text-end">
+                          {FormatCurrency(iuran?.details_payment?.pkk)}
+                        </td>
+                        <td className="text-end">
                           {FormatCurrency(iuran?.details_payment?.sosial)}
                         </td>
-                        <td>
+                        <td className="text-end">
                           {FormatCurrency(iuran?.details_payment?.kematian)}
                         </td>
                         <td>
-                          {FormatDate(iuran?.period_start)} -{" "}
-                          {FormatDate(iuran?.period_end)}
+                          {FormatPeriod(iuran?.period_start, iuran?.period_end)}
                         </td>
-                        <td>
+                        <td className="text-center">
                           <div class="btn-group">
                             <button
                               class="btn btn-primary btn-sm dropdown-toggle"
@@ -333,6 +387,9 @@ function RincianIuran() {
                                 <Link
                                   className="text-decoration-none text-black p-2"
                                   to={`/iuran/create/warga/${iuran?.warga?._id}`}
+                                  state={{
+                                    from: location.pathname + location.search,
+                                  }}
                                 >
                                   <FontAwesomeIcon icon={faPlus} /> Buat
                                   Pembayaran
@@ -351,7 +408,7 @@ function RincianIuran() {
                                 <Link
                                   className="text-decoration-none text-black p-2"
                                   onClick={() => {
-                                    handleDelete(iuran?._id)
+                                    handleDelete(iuran?._id);
                                   }}
                                 >
                                   <FontAwesomeIcon icon={faTrash} /> Hapus
@@ -363,55 +420,22 @@ function RincianIuran() {
                         </td>
                       </tr>
                     </>
-                  )
+                  );
                 })}
               </tbody>
             </table>
 
-            {/* Compact pagination */}
-            <nav aria-label="Compact Page Navigation" className="mt-3">
-              <ul className="pagination justify-content-center">
-                <li
-                  className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={handlePreviousPage}
-                    disabled={currentPage === 1}
-                  >
-                    Previous
-                  </button>
-                </li>
-                {getPageNumbers().map((page) => (
-                  <li
-                    key={page}
-                    className={`page-item ${
-                      page === currentPage ? "active" : ""
-                    }`}
-                  >
-                    <button
-                      className="page-link"
-                      onClick={() => handlePageClick(page)}
-                    >
-                      {page}
-                    </button>
-                  </li>
-                ))}
-                <li
-                  className={`page-item ${
-                    currentPage === totalPages ? "disabled" : ""
-                  }`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={handleNextPage}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                  </button>
-                </li>
-              </ul>
-            </nav>
+            <TableFooter
+              currentPage={page}
+              totalPages={totalPages}
+              totalCount={totalCount}
+              itemsPerPage={limit}
+              onPageChange={setPage}
+              onLimitChange={(newLimit) => {
+                setLimit(newLimit);
+                setPage(1);
+              }}
+            />
           </div>
         </div>
 
@@ -422,8 +446,8 @@ function RincianIuran() {
           <Footer />
         </div>
       </>
-    )
+    );
   }
 }
 
-export default RincianIuran
+export default RincianIuran;

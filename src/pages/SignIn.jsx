@@ -14,6 +14,7 @@ function SignIn() {
   const state = useSelector((reducer) => reducer.auth)
 
   useEffect(() => {
+    document.title = "Sign In - Iuran RT"
     if (state.auth) {
       navigate("/")
     }

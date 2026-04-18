@@ -1,21 +1,29 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
 import { getWargaOptions } from "../services/WargaService";
 import { getLatestPayment, createPayment } from "../services/IuranService";
+import FormatCurrency from "../helpers/FormatCurrency";
 
 export const useCreatePayments = () => {
   const navigate = useNavigate();
   const params = useParams();
+  const location = useLocation();
   const state = useSelector((reducer) => reducer.auth);
 
   const [wargaID, setWargaID] = useState(params?.id ?? "");
   const [periodStart, setPeriodStart] = useState("");
   const [periodEnd, setPeriodEnd] = useState("");
   const [nominal, setNominal] = useState("");
+  const [rt, setRt] = useState("");
+  const [pkk, setPkk] = useState("");
+  const [sosial, setSosial] = useState("");
+  const [kematian, setKematian] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [payAt, setPayAt] = useState("");
+  const isCustomNominal =
+    nominal && nominal > 0 && nominal % 75000 !== 0 && nominal % 110000 !== 0;
   const [dataWarga, setDataWarga] = useState([]);
   const [latestPeriod, setLatestPeriod] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +37,7 @@ export const useCreatePayments = () => {
       navigate("/sign-in");
     }
     handleGetWarga();
-    if (wargaID !== "") {
+    if (wargaID) {
       handleGetLatestPeriod(wargaID);
     }
   }, [state]);
@@ -87,14 +95,39 @@ export const useCreatePayments = () => {
       payment_method: paymentMethod,
       pay_at: payAt,
     };
+    if (isCustomNominal) {
+      const sum = Number(rt) + Number(pkk) + Number(sosial) + Number(kematian);
+      if (sum !== Number(nominal)) {
+        Swal.fire({
+          title: "Warning!",
+          text: `Total rincian (${FormatCurrency(sum)}) tidak sama dengan nominal (${FormatCurrency(nominal)}). Harap perbaiki nilai rincian.`,
+          icon: "warning",
+        });
+        setIsLoading(false);
+        return;
+      }
+      payload.details_payment = {
+        rt: Number(rt),
+        pkk: Number(pkk),
+        sosial: Number(sosial),
+        kematian: Number(kematian),
+      };
+    }
     createPayment(payload)
       .then((response) => {
         Swal.fire({
           title: "Create Success!",
-          text: response?.data?.message,
+          html: `Iuran <b>${FormatCurrency(nominal)}</b> berhasil dicatat.`,
           icon: "success",
-        }).then(() => {
-          navigate("/iuran");
+          showCancelButton: true,
+          confirmButtonText: "Lihat Neraca Kas",
+          cancelButtonText: "Tutup",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate("/report/neraca");
+          } else {
+            navigate(location.state?.from || "/iuran");
+          }
         });
       })
       .catch((error) => {
@@ -118,6 +151,15 @@ export const useCreatePayments = () => {
     setPeriodEnd,
     nominal,
     setNominal,
+    rt,
+    setRt,
+    pkk,
+    setPkk,
+    sosial,
+    setSosial,
+    kematian,
+    setKematian,
+    isCustomNominal,
     paymentMethod,
     setPaymentMethod,
     payAt,

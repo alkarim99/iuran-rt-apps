@@ -1,81 +1,98 @@
-import { useState, useEffect } from "react"
-import { useLocation } from "react-router"
-import { useSelector } from "react-redux"
-import { Link, useNavigate } from "react-router-dom"
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router";
+import { useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
-import Swal from "sweetalert2"
-import Navbar from "../../components/Navbar"
-import Footer from "../../components/Footer"
+import Swal from "sweetalert2";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import FormatCurrency from "../../helpers/FormatCurrency";
 
-import { getExpenseByID, editExpense } from "../../services/ExpenseService"
+import { getExpenseByID, editExpense } from "../../services/ExpenseService";
 
 function EditExpense() {
-  const navigate = useNavigate()
-  const state = useSelector((reducer) => reducer.auth)
-  const location = useLocation()
-  const id = location?.pathname?.split("/")[3]
-
-  const [transactionAt, setTransactionAt] = useState(0)
-  const [nominal, setNominal] = useState("")
-  const [description, setDescription] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate();
+  const state = useSelector((reducer) => reducer.auth);
 
   useEffect(() => {
-    setIsLoading(true)
+    document.title = "Ubah Data Pengeluaran - Iuran RT";
+  }, []);
+
+  const location = useLocation();
+  const id = location?.pathname?.split("/")[3];
+
+  const [transactionAt, setTransactionAt] = useState(0);
+  const [nominal, setNominal] = useState("");
+  const [description, setDescription] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsLoading(true);
     if (!state.auth) {
-      navigate("/sign-in")
+      navigate("/sign-in");
     }
-    handleGet()
-  }, [state])
+    handleGet();
+  }, [state]);
 
   const handleGet = async () => {
     getExpenseByID(id)
       .then((response) => {
-        console.log(response?.data?.data)
-        setTransactionAt(response?.data?.data?.transaction_at)
-        setNominal(response?.data?.data?.nominal)
-        setDescription(response?.data?.data?.description)
+        console.log(response?.data?.data);
+        setTransactionAt(response?.data?.data?.transaction_at);
+        setNominal(response?.data?.data?.nominal);
+        setDescription(response?.data?.data?.description);
+        setPaymentMethod(response?.data?.data?.payment_method || "cash");
       })
       .catch((error) => {
-        console.log(error)
+        console.log(error);
       })
       .finally(() => {
-        setIsLoading(false)
-      })
-  }
+        setIsLoading(false);
+      });
+  };
 
-  const handleEdit = async () => {
-    setIsLoading(true)
+  const handleEdit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
     const payload = {
       id: id,
       transaction_at: transactionAt,
       nominal: nominal,
       description: description,
-    }
+      payment_method: paymentMethod,
+    };
     editExpense(payload)
       .then((response) => {
         Swal.fire({
           title: "Update Success!",
-          text: response?.data?.message,
+          html: `Pengeluaran <b>${FormatCurrency(nominal)}</b> berhasil diperbarui.`,
           icon: "success",
-        }).then(() => {
-          navigate("/expense")
-        })
+          showCancelButton: true,
+          confirmButtonText: "Lihat Neraca Kas",
+          cancelButtonText: "Tutup",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate("/report/neraca");
+          } else {
+            navigate("/expense");
+          }
+        });
       })
       .catch((error) => {
         Swal.fire({
           title: "Error!",
           text: error?.response?.data?.message ?? "Something wrong in our App!",
           icon: "error",
-        })
+        });
       })
       .finally(() => {
-        setIsLoading(false)
-      })
-  }
+        setIsLoading(false);
+      });
+  };
 
   if (isLoading) {
     return (
@@ -87,7 +104,7 @@ function EditExpense() {
           <span className="visually-hidden">Loading...</span>
         </div>
       </div>
-    )
+    );
   } else {
     return (
       <div
@@ -106,7 +123,7 @@ function EditExpense() {
 
         <div className="row">
           <div className="col-6">
-            <form onSubmit={(e) => e.preventDefault()}>
+            <form onSubmit={handleEdit}>
               <div className="mb-3">
                 <label for="transaction_at" className="form-label">
                   Tanggal Transaksi
@@ -115,8 +132,10 @@ function EditExpense() {
                   type="date"
                   className="form-control"
                   id="transaction_at"
-                  defaultValue={
-                    new Date(transactionAt).toISOString().split("T")[0]
+                  value={
+                    transactionAt
+                      ? new Date(transactionAt).toISOString().split("T")[0]
+                      : ""
                   }
                   onChange={(e) => setTransactionAt(e.target.value)}
                   required
@@ -128,12 +147,18 @@ function EditExpense() {
                 </label>
                 <input
                   type="number"
+                  step="any"
                   className="form-control"
                   id="nominal"
-                  defaultValue={nominal}
+                  value={nominal || ""}
                   onChange={(e) => setNominal(e.target.value)}
                   required
                 />
+                {nominal && (
+                  <small className="text-muted">
+                    {FormatCurrency(nominal)}
+                  </small>
+                )}
               </div>
               <div className="mb-3">
                 <label for="description" className="form-label">
@@ -144,15 +169,26 @@ function EditExpense() {
                   id="description"
                   className="form-control"
                   onChange={(e) => setDescription(e.target.value)}
-                  defaultValue={description}
+                  value={description || ""}
                   required
                 />
               </div>
-              <button
-                className="btn btn-primary py-2"
-                type="submit"
-                onClick={handleEdit}
-              >
+              <div className="mb-3">
+                <label for="payment_method" className="form-label">
+                  Metode Pembayaran
+                </label>
+                <select
+                  className="form-select"
+                  id="payment_method"
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  required
+                >
+                  <option value="cash">Cash / Petty Cash</option>
+                  <option value="transfer">Transfer / Kas Rekening</option>
+                </select>
+              </div>
+              <button className="btn btn-primary py-2" type="submit">
                 {isLoading ? "Loading..." : "Submit"}
               </button>
             </form>
@@ -161,8 +197,8 @@ function EditExpense() {
 
         <Footer />
       </div>
-    )
+    );
   }
 }
 
-export default EditExpense
+export default EditExpense;

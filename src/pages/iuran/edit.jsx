@@ -1,14 +1,19 @@
-import React from "react"
-import { Link } from "react-router-dom"
+import React from "react";
+import { Link } from "react-router-dom";
 
-import Navbar from "../../components/Navbar"
-import Footer from "../../components/Footer"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
-import FormatDate from "../../helpers/FormatDate"
-import { useEditPayments } from "../../hooks/useEditPayments"
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import FormatDate from "../../helpers/FormatDate";
+import FormatCurrency from "../../helpers/FormatCurrency";
+import { useEditPayments } from "../../hooks/useEditPayments";
 
 function EditIuran() {
+  React.useEffect(() => {
+    document.title = "Ubah Data Pembayaran - Iuran RT";
+  }, []);
+
   const {
     wargaID,
     searchTerm,
@@ -22,6 +27,15 @@ function EditIuran() {
     setPeriodEnd,
     nominal,
     setNominal,
+    rt,
+    setRt,
+    pkk,
+    setPkk,
+    sosial,
+    setSosial,
+    kematian,
+    setKematian,
+    isCustomNominal,
     paymentMethod,
     setPaymentMethod,
     payAt,
@@ -29,7 +43,7 @@ function EditIuran() {
     latestPeriod,
     isLoading,
     handleEdit,
-  } = useEditPayments()
+  } = useEditPayments();
 
   if (isLoading) {
     return (
@@ -41,7 +55,7 @@ function EditIuran() {
           <span className="visually-hidden">Loading...</span>
         </div>
       </div>
-    )
+    );
   } else {
     return (
       <>
@@ -61,7 +75,7 @@ function EditIuran() {
 
           <div className="row">
             <div className="col-6">
-              <form onSubmit={(e) => e.preventDefault()}>
+              <form onSubmit={handleEdit}>
                 <div className="mb-3">
                   <label for="warga_id" className="form-label">
                     Warga
@@ -70,19 +84,18 @@ function EditIuran() {
                     <select
                       id="warga_id"
                       className="form-select"
+                      value={wargaID || ""}
                       onChange={(e) => {
-                        setWargaID(e.target.value)
-                        handleGetLatestPeriod(e.target.value)
+                        setWargaID(e.target.value);
+                        handleGetLatestPeriod(e.target.value);
                       }}
                       required
                     >
-                      <option selected>Pilih Warga</option>
+                      <option value="" disabled>
+                        Pilih Warga
+                      </option>
                       {filteredOptions.map((warga) => (
-                        <option
-                          selected={wargaID == warga?._id ? "selected" : ""}
-                          value={warga?._id}
-                          key={warga?._id}
-                        >
+                        <option value={warga?._id} key={warga?._id}>
                           {warga?.address} | {warga?.name}
                         </option>
                       ))}
@@ -111,7 +124,9 @@ function EditIuran() {
                       type="date"
                       className="form-control"
                       id="pay_at"
-                      defaultValue={new Date(payAt).toISOString().split("T")[0]}
+                      value={
+                        payAt ? new Date(payAt).toISOString().split("T")[0] : ""
+                      }
                       onChange={(e) => setPayAt(e.target.value)}
                       required
                     />
@@ -128,8 +143,10 @@ function EditIuran() {
                       type="date"
                       className="form-control"
                       id="period_start"
-                      defaultValue={
-                        new Date(periodStart).toISOString().split("T")[0]
+                      value={
+                        periodStart
+                          ? new Date(periodStart).toISOString().split("T")[0]
+                          : ""
                       }
                       onChange={(e) => setPeriodStart(e.target.value)}
                     />
@@ -146,8 +163,10 @@ function EditIuran() {
                       type="date"
                       className="form-control"
                       id="period_end"
-                      defaultValue={
-                        new Date(periodEnd).toISOString().split("T")[0]
+                      value={
+                        periodEnd
+                          ? new Date(periodEnd).toISOString().split("T")[0]
+                          : ""
                       }
                       onChange={(e) => setPeriodEnd(e.target.value)}
                     />
@@ -161,41 +180,120 @@ function EditIuran() {
                   </label>
                   <input
                     type="number"
+                    step="any"
                     className="form-control"
                     id="nominal"
-                    defaultValue={nominal}
+                    value={nominal || ""}
                     onChange={(e) => setNominal(e.target.value)}
+                    onWheel={(e) => e.target.blur()}
                   />
+                  {nominal && (
+                    <small className="text-muted">
+                      {FormatCurrency(nominal)}
+                    </small>
+                  )}
                 </div>
+
+                {isCustomNominal && (
+                  <div className="card mb-3 border-warning">
+                    <div className="card-header bg-warning text-dark">
+                      <strong>Input Manual Rincian Iuran</strong>
+                      <br />
+                      <small>
+                        Nominal di luar pricing tier 75k/110k, harap masukkan
+                        rincian secara manual.
+                      </small>
+                    </div>
+                    <div className="card-body">
+                      <div className="mb-2">
+                        <label className="form-label">RT</label>
+                        <input
+                          type="number"
+                          step="any"
+                          className="form-control"
+                          value={rt || ""}
+                          onChange={(e) => setRt(e.target.value)}
+                          onWheel={(e) => e.target.blur()}
+                          required
+                        />
+                        {rt && (
+                          <small className="text-muted">
+                            {FormatCurrency(rt)}
+                          </small>
+                        )}
+                      </div>
+                      <div className="mb-2">
+                        <label className="form-label">PKK</label>
+                        <input
+                          type="number"
+                          step="any"
+                          className="form-control"
+                          value={pkk || ""}
+                          onChange={(e) => setPkk(e.target.value)}
+                          onWheel={(e) => e.target.blur()}
+                          required
+                        />
+                        {pkk && (
+                          <small className="text-muted">
+                            {FormatCurrency(pkk)}
+                          </small>
+                        )}
+                      </div>
+                      <div className="mb-2">
+                        <label className="form-label">Sosial</label>
+                        <input
+                          type="number"
+                          step="any"
+                          className="form-control"
+                          value={sosial || ""}
+                          onChange={(e) => setSosial(e.target.value)}
+                          onWheel={(e) => e.target.blur()}
+                          required
+                        />
+                        {sosial && (
+                          <small className="text-muted">
+                            {FormatCurrency(sosial)}
+                          </small>
+                        )}
+                      </div>
+                      <div className="mb-2">
+                        <label className="form-label">Kematian</label>
+                        <input
+                          type="number"
+                          step="any"
+                          className="form-control"
+                          value={kematian || ""}
+                          onChange={(e) => setKematian(e.target.value)}
+                          onWheel={(e) => e.target.blur()}
+                          required
+                        />
+                        {kematian && (
+                          <small className="text-muted">
+                            {FormatCurrency(kematian)}
+                          </small>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="mb-3">
                   <label for="payment_method" className="form-label">
                     Metode Pembayaran
                   </label>
                   <select
                     id="payment_method"
-                    class="form-select"
+                    className="form-select"
+                    value={paymentMethod || ""}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                   >
-                    <option selected>Pilih Metode Pembayaran</option>
-                    <option
-                      value="cash"
-                      selected={paymentMethod == "cash" ? "selected" : ""}
-                    >
-                      Cash
+                    <option value="" disabled>
+                      Pilih Metode Pembayaran
                     </option>
-                    <option
-                      value="transfer"
-                      selected={paymentMethod == "transfer" ? "selected" : ""}
-                    >
-                      Transfer
-                    </option>
+                    <option value="cash">Cash</option>
+                    <option value="transfer">Transfer</option>
                   </select>
                 </div>
-                <button
-                  className="btn btn-primary py-2"
-                  type="submit"
-                  onClick={handleEdit}
-                >
+                <button className="btn btn-primary py-2" type="submit">
                   {isLoading ? "Loading..." : "Submit"}
                 </button>
               </form>
@@ -205,8 +303,8 @@ function EditIuran() {
           <Footer />
         </div>
       </>
-    )
+    );
   }
 }
 
-export default EditIuran
+export default EditIuran;
