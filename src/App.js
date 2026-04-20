@@ -1,16 +1,11 @@
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.js";
-import "./styles/print.css";
-import React from "react";
+import React, { useEffect } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { Provider } from "react-redux";
+import { Provider, useSelector } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import axios from "axios";
 import { store, persistor } from "./store";
-import { addAuth } from "./store/reducers/auth";
-
-import PrivateRoute from "./components/PrivateRoute";
-import ScrollToTop from "./components/ScrollToTop";
 
 // import pages
 import {
@@ -34,11 +29,6 @@ import {
   ReportCash,
   ReportTransfer,
   ReportPricingTier,
-  CreateIncome,
-  ReportNeraca,
-  IndexOtherIncome,
-  EditOtherIncome,
-  OpeningBalance,
 } from "./pages";
 
 const router = createBrowserRouter([
@@ -52,231 +42,113 @@ const router = createBrowserRouter([
   },
   {
     path: "/warga",
-    element: (
-      <PrivateRoute>
-        <IndexWarga />
-      </PrivateRoute>
-    ),
+    element: <IndexWarga />,
   },
   {
     path: "/warga/create",
-    element: (
-      <PrivateRoute>
-        <CreateWarga />
-      </PrivateRoute>
-    ),
+    element: <CreateWarga />,
   },
   {
     path: "/warga/edit/:id",
-    element: (
-      <PrivateRoute>
-        <EditWarga />
-      </PrivateRoute>
-    ),
+    element: <EditWarga />,
   },
   {
     path: "/warga/:id",
-    element: (
-      <PrivateRoute>
-        <DetailWarga />
-      </PrivateRoute>
-    ),
+    element: <DetailWarga />,
   },
   {
     path: "/iuran",
-    element: (
-      <PrivateRoute>
-        <IndexIuran />
-      </PrivateRoute>
-    ),
+    element: <IndexIuran />,
   },
   {
     path: "/iuran/rincian",
-    element: (
-      <PrivateRoute>
-        <RincianIuran />
-      </PrivateRoute>
-    ),
+    element: <RincianIuran />,
   },
   {
-    path: "/income/create/warga/:id",
-    element: (
-      <PrivateRoute>
-        <CreateIncome />
-      </PrivateRoute>
-    ),
+    path: "/iuran/create/warga/:id",
+    element: <CreateIuran />,
   },
   {
     path: "/iuran/create",
-    element: (
-      <PrivateRoute>
-        <CreateIncome />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/income/create",
-    element: (
-      <PrivateRoute>
-        <CreateIncome />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/other-income",
-    element: (
-      <PrivateRoute>
-        <IndexOtherIncome />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/other-income/edit/:id",
-    element: (
-      <PrivateRoute>
-        <EditOtherIncome />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "/opening-balance",
-    element: (
-      <PrivateRoute>
-        <OpeningBalance />
-      </PrivateRoute>
-    ),
+    element: <CreateIuran />,
   },
   {
     path: "/iuran/edit/:id",
-    element: (
-      <PrivateRoute>
-        <EditIuran />
-      </PrivateRoute>
-    ),
+    element: <EditIuran />,
   },
   {
     path: "/iuran/total",
-    element: (
-      <PrivateRoute>
-        <TotalIuran />
-      </PrivateRoute>
-    ),
+    element: <TotalIuran />,
   },
   {
     path: "/user",
-    element: (
-      <PrivateRoute>
-        <IndexUser />
-      </PrivateRoute>
-    ),
+    element: <IndexUser />,
   },
   {
     path: "/user/create",
-    element: (
-      <PrivateRoute>
-        <CreateUser />
-      </PrivateRoute>
-    ),
+    element: <CreateUser />,
   },
   {
     path: "/user/edit/:id",
-    element: (
-      <PrivateRoute>
-        <EditUser />
-      </PrivateRoute>
-    ),
+    element: <EditUser />,
   },
   {
     path: "/expense",
-    element: (
-      <PrivateRoute>
-        <IndexExpense />
-      </PrivateRoute>
-    ),
+    element: <IndexExpense />,
   },
   {
     path: "/expense/create",
-    element: (
-      <PrivateRoute>
-        <CreateExpense />
-      </PrivateRoute>
-    ),
+    element: <CreateExpense />,
   },
   {
     path: "/expense/edit/:id",
-    element: (
-      <PrivateRoute>
-        <EditExpense />
-      </PrivateRoute>
-    ),
+    element: <EditExpense />,
   },
   {
     path: "/report/cash",
-    element: (
-      <PrivateRoute>
-        <ReportCash />
-      </PrivateRoute>
-    ),
+    element: <ReportCash />,
   },
   {
     path: "/report/transfer",
-    element: (
-      <PrivateRoute>
-        <ReportTransfer />
-      </PrivateRoute>
-    ),
+    element: <ReportTransfer />,
   },
   {
     path: "/report/pricing-tier",
     element: <ReportPricingTier />,
   },
-  {
-    path: "/report/neraca",
-    element: (
-      <PrivateRoute>
-        <ReportNeraca />
-      </PrivateRoute>
-    ),
-  },
 ]);
 
 function App() {
   return (
-    <Provider store={store}>
+    <div>
       <PersistGate loading={null} persistor={persistor}>
-        <RouterProvider router={router} />
-        <ScrollToTop />
+        <Provider store={store}>
+          <RunApp router={router} />
+        </Provider>
       </PersistGate>
-    </Provider>
+    </div>
   );
 }
 
-// Register axios interceptor at module level — runs synchronously before any
-// component renders, so the token is always attached even on page refresh.
-// Reads directly from the Redux store (which is rehydrated by redux-persist).
-axios.interceptors.request.use(
-  (config) => {
-    const state = store.getState()?.auth;
-    if (state?.token) {
-      config.headers.Authorization = `Bearer ${state.token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+function useAxiosAuth(state) {
+  useEffect(() => {
+    const requestInterceptor = axios.interceptors.request.use(
+      (config) => {
+        if (state?.token) {
+          config.headers.Authorization = `Bearer ${state.token}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error),
+    );
+    return () => axios.interceptors.request.eject(requestInterceptor);
+  }, [state]);
+}
 
-axios.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      localStorage.clear();
-      store.dispatch(addAuth({ auth: false, userData: {}, token: "" }));
-      if (window.location.pathname !== "/sign-in") {
-        window.location.href = "/sign-in";
-      }
-    }
-    return Promise.reject(error);
-  },
-);
+function RunApp({ router }) {
+  const state = useSelector((reducer) => reducer.auth);
+  useAxiosAuth(state);
+  return <RouterProvider router={router} />;
+}
 
 export default App;

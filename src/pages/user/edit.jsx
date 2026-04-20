@@ -1,62 +1,60 @@
-import { useState, useEffect } from "react";
-import { useLocation } from "react-router";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react"
+import { useLocation } from "react-router"
+import { Link, useNavigate } from "react-router-dom"
 
-import Swal from "sweetalert2";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
-import { useSelector } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { getUserByID, editUser } from "../../services/UserService";
+import Swal from "sweetalert2"
+import Navbar from "../../components/Navbar"
+import Footer from "../../components/Footer"
+import { useSelector } from "react-redux"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+import { getUserByID, editUser } from "../../services/UserServices"
 
 function EditUser() {
-  const navigate = useNavigate();
-  const state = useSelector((reducer) => reducer.auth);
-  const location = useLocation();
-  const id = location?.pathname?.split("/")[3];
+  const navigate = useNavigate()
+  const state = useSelector((reducer) => reducer.auth)
+  const location = useLocation()
+  const id = location?.pathname?.split("/")[3]
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [role, setRole] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    document.title = "Ubah Data Pengurus - Iuran RT";
     if (!state.auth) {
-      navigate("/sign-in");
+      navigate("/sign-in")
     }
-    setIsLoading(true);
+    setIsLoading(true)
     getUserByID(id)
       .then((response) => {
-        setName(response?.name);
-        setEmail(response?.email);
-        setRole(response?.role);
+        setName(response?.name)
+        setEmail(response?.email)
+        setRole(response?.role)
       })
       .catch((error) => {
         Swal.fire({
           title: "Error!",
           text: "Failed to fetch user data.",
           icon: "error",
-        });
+        })
       })
       .finally(() => {
-        setIsLoading(false);
-      });
-  }, [state]);
+        setIsLoading(false)
+      })
+  }, [state])
 
-  const handleEdit = (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const handleEdit = () => {
+    setIsLoading(true)
     const payload = {
       id: id,
       name: name,
       email: email,
       role: role,
-    };
+    }
     if (password != "") {
-      payload.password = password;
+      payload.password = password
     }
     editUser(payload)
       .then((response) => {
@@ -65,20 +63,20 @@ function EditUser() {
           text: response?.data?.message,
           icon: "success",
         }).then(() => {
-          navigate("/user");
-        });
+          navigate("/user")
+        })
       })
       .catch((error) => {
         Swal.fire({
           title: "Error!",
           text: error?.response?.data?.message ?? "Something wrong in our App!",
           icon: "error",
-        });
+        })
       })
       .finally(() => {
-        setIsLoading(false);
-      });
-  };
+        setIsLoading(false)
+      })
+  }
 
   return (
     <>
@@ -98,7 +96,7 @@ function EditUser() {
 
         <div className="row">
           <div className="col-6">
-            <form onSubmit={handleEdit}>
+            <form onSubmit={(e) => e.preventDefault()}>
               <div className="mb-3">
                 <label for="name" className="form-label">
                   Name
@@ -107,8 +105,8 @@ function EditUser() {
                   type="text"
                   className="form-control"
                   id="name"
-                  value={name || ""}
                   onChange={(e) => setName(e.target.value)}
+                  defaultValue={name}
                 />
               </div>
               <div className="mb-3">
@@ -119,8 +117,8 @@ function EditUser() {
                   type="email"
                   className="form-control"
                   id="email"
-                  value={email || ""}
                   onChange={(e) => setEmail(e.target.value)}
+                  defaultValue={email}
                 />
               </div>
               <div className="mb-3">
@@ -131,7 +129,6 @@ function EditUser() {
                   type="password"
                   className="form-control"
                   id="password"
-                  value={password || ""}
                   onChange={(e) => setPassword(e.target.value)}
                 />
                 <small>Isi jika ingin mengubah password</small>
@@ -143,17 +140,28 @@ function EditUser() {
                 <select
                   id="role"
                   className="form-select"
-                  value={role || ""}
                   onChange={(e) => setRole(e.target.value)}
                 >
-                  <option value="" disabled>
-                    Pilih Role User
+                  <option selected>Pilih Role User</option>
+                  <option
+                    value="admin"
+                    selected={role == "admin" ? "selected" : ""}
+                  >
+                    Admin
                   </option>
-                  <option value="admin">Admin</option>
-                  <option value="user">User</option>
+                  <option
+                    value="user"
+                    selected={role == "user" ? "selected" : ""}
+                  >
+                    User
+                  </option>
                 </select>
               </div>
-              <button className="btn btn-primary py-2" type="submit">
+              <button
+                className="btn btn-primary py-2"
+                type="submit"
+                onClick={handleEdit}
+              >
                 {isLoading ? "Loading..." : "Submit"}
               </button>
             </form>
@@ -163,7 +171,7 @@ function EditUser() {
         <Footer />
       </div>
     </>
-  );
+  )
 }
 
-export default EditUser;
+export default EditUser

@@ -1,81 +1,70 @@
-# Iuran RT Apps
+# Getting Started with Create React App
 
-Aplikasi frontend untuk pencatatan iuran warga RT.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Tech Stack
+## Available Scripts
 
-- **Framework:** React 18 (Create React App)
-- **UI:** Bootstrap 5
-- **State Management:** Redux Toolkit + redux-persist
-- **HTTP Client:** Axios
-- **Routing:** React Router DOM v6
-- **Icons:** Font Awesome
-- **Notifications:** SweetAlert2
-- **Data Export:** xlsx (SheetJS)
+In the project directory, you can run:
 
-## Fitur
+### `npm start`
 
-- 🔐 **Login/Logout** — Autentikasi dengan JWT (persisted di localStorage)
-- 👥 **Data Warga** — Kelola data warga RT (CRUD + detail + riwayat iuran)
-- 💰 **Catat Pemasukan** — Form satu pintu untuk mencatat iuran warga (termasuk form dinamis custom nominal) atau pemasukan lainnya (sumbangan/donasi)
-- 📋 **Data Iuran & Rincian** — Kelola data iuran warga serta breakdown per periode (RT/PKK/Sosial/Kematian)
-- 💸 **Pemasukan Lainnya** — Catat sumbangan, donasi, atau pendapatan lain di luar iuran
-- 📤 **Data Pengeluaran** — Catat pengeluaran kas RT
-- 🏦 **Saldo Awal** — Atur saldo awal tahun untuk Petty Cash (Bu Agus) dan Rekening BCA (Bu Harris)
-- 📊 **Laporan Petty Cash** — Laporan rekapitulasi akuntansi untuk pemasukan cash + pengeluaran
-- 📊 **Laporan Kas Rekening** — Laporan rekapitulasi akuntansi untuk pemasukan transfer
-- ⚖️ **Neraca Kas RT** — Laporan side-by-side untuk melihat net balance per bulan secara komprehensif
-- 📈 **Laporan Pricing Tier** — Analisis kategori pembayaran warga (75k, 110k, atau custom)
-- 📥 **Ekspor Excel** — Download otomatis laporan dan tabel secara langsung di rincian laporan kas RT
-- 👤 **Data User** — Kelola pengguna aplikasi
-- 🚀 **UI UX Enhancements** — Menyediakan Select Limit tabel fleksibel, dan persistensi pagination via `sessionStorage`.
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-## Struktur Folder
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
 
-```
-src/
-├── components/      # Komponen reusable (Navbar, Footer, TableFooter)
-├── helpers/         # Utility functions (FormatDate, FormatCurrency, urlBuilder)
-├── hooks/           # Custom hooks (usePayments, useCreatePayments, dll.)
-├── pages/           # Halaman aplikasi
-│   ├── income/      # Halaman Catat Pemasukan
-│   ├── iuran/       # Halaman iuran (index, rincian, total)
-│   ├── otherIncome/ # Halaman pemasukan lainnya
-│   ├── warga/       # Halaman warga (index, create, edit, detail)
-│   ├── expense/     # Halaman pengeluaran
-│   ├── opening-balance/ # Halaman saldo awal tahun
-│   ├── user/        # Halaman user management
-│   └── report/      # Halaman laporan (cash, transfer, neraca, pricing-tier)
-├── services/        # API service layer (Axios)
-└── store/           # Redux store & reducers
-```
+### `npm test`
 
-## Setup
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-```bash
-# Install dependencies
-npm install
+### `npm run build`
 
-# Konfigurasi environment
-cp .env.example .env
-# Edit .env — set REACT_APP_BASE_URL_LOCAL sesuai alamat backend
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-# Jalankan development server
-npm start
-```
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-Buka [http://localhost:3000](http://localhost:3000) di browser.
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-## Environment Variables
+### `npm run eject`
 
-| Variable                   | Keterangan                                           |
-| -------------------------- | ---------------------------------------------------- |
-| `REACT_APP_ENV`            | Environment (`local` / `development` / `production`) |
-| `REACT_APP_BASE_URL_LOCAL` | URL backend API (local)                              |
-| `REACT_APP_BASE_URL_DEV`   | URL backend API (development)                        |
-| `REACT_APP_BASE_URL_PROD`  | URL backend API (production)                         |
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-## Dokumentasi
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-- 📗 [User Guide](docs/USER_GUIDE.md) — Panduan penggunaan aplikasi (non-teknis)
-- 📘 [Technical Review](../api-iuran-rt/docs/TECHNICAL_REVIEW.md) — Arsitektur, bisnis proses, dan API reference
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Code Splitting
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+
+### Analyzing the Bundle Size
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+
+### Making a Progressive Web App
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+
+### Advanced Configuration
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+
+### Deployment
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+
+### `npm run build` fails to minify
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

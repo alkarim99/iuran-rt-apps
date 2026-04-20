@@ -1,22 +1,11 @@
 // hooks/usePayments.js
 import { useState, useEffect, useCallback } from "react";
 import Swal from "sweetalert2";
-import {
-  getAllPayments,
-  searchPayments,
-  deletePayment,
-} from "../services/IuranService";
+import { getAllPayments, searchPayments, deletePayment } from "../services/IuranService";
 
-export const usePayments = (
-  currentPage,
-  itemsPerPage,
-  keyword,
-  sortBy,
-  order,
-) => {
+export const usePayments = (currentPage, itemsPerPage, keyword, sortBy) => {
   const [dataIuran, setDataIuran] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
-  const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
   // Define fetchPayments function outside useEffect so it can be reused
@@ -25,7 +14,6 @@ export const usePayments = (
     try {
       const response = await getAllPayments(currentPage, itemsPerPage);
       setTotalPages(response?.data?.totalPages);
-      setTotalCount(response?.data?.totalCount || 0);
       setDataIuran(response?.data?.data);
     } catch (error) {
       Swal.fire("Error!", "Failed to fetch payment data.", "error");
@@ -44,13 +32,11 @@ export const usePayments = (
           const response = await searchPayments({
             keyword,
             sortBy,
-            order,
             page: currentPage,
             limit: itemsPerPage,
           });
           setDataIuran(response?.data?.data);
           setTotalPages(response?.data?.totalPages);
-          setTotalCount(response?.data?.totalCount || 0);
         } catch (error) {
           console.error(error);
         } finally {
@@ -59,7 +45,7 @@ export const usePayments = (
       };
       searchAndSortPayments();
     }
-  }, [fetchPayments, keyword, sortBy, order, currentPage, itemsPerPage]);
+  }, [fetchPayments, keyword, sortBy, currentPage, itemsPerPage]);
 
   // Now fetchPayments can be reused in handleDelete
   const handleDelete = async (id) => {
@@ -79,15 +65,11 @@ export const usePayments = (
         await fetchPayments(); // Refresh data after delete
       }
     } catch (error) {
-      Swal.fire(
-        "Error!",
-        error?.response?.data?.message || "Something wrong in our App!",
-        "error",
-      );
+      Swal.fire("Error!", error?.response?.data?.message || "Something wrong in our App!", "error");
     } finally {
       setIsLoading(false);
     }
   };
 
-  return { dataIuran, totalPages, totalCount, isLoading, handleDelete };
+  return { dataIuran, totalPages, isLoading, handleDelete };
 };

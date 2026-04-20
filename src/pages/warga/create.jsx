@@ -1,37 +1,35 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
-import Swal from "sweetalert2";
-import { useSelector } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState, useEffect } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import axios from "axios"
+import Swal from "sweetalert2"
+import { useSelector } from "react-redux"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { createWarga } from "../../services/WargaService";
+import Navbar from "../../components/Navbar"
+import Footer from "../../components/Footer"
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+import { createWarga } from "../../services/WargaService"
 
 function CreateWarga() {
-  const navigate = useNavigate();
-  const state = useSelector((reducer) => reducer.auth);
+  const navigate = useNavigate()
+  const state = useSelector((reducer) => reducer.auth)
 
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [name, setName] = useState("")
+  const [address, setAddress] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    document.title = "Tambah Data Warga - Iuran RT";
     if (!state.auth) {
-      navigate("/sign-in");
+      navigate("/sign-in")
     }
-  }, [state]);
+  }, [state])
 
-  const handleCreate = (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const handleCreate = () => {
+    setIsLoading(true)
     const payload = {
       name: name,
       address: address,
-    };
+    }
     createWarga(payload)
       .then((response) => {
         Swal.fire({
@@ -39,20 +37,20 @@ function CreateWarga() {
           text: response?.data?.message,
           icon: "success",
         }).then(() => {
-          navigate("/warga");
-        });
+          navigate("/warga")
+        })
       })
       .catch((error) => {
         Swal.fire({
           title: "Error!",
           text: error?.response?.data?.message ?? "Something wrong in our App!",
           icon: "error",
-        });
+        })
       })
       .finally(() => {
-        setIsLoading(false);
-      });
-  };
+        setIsLoading(false)
+      })
+  }
 
   return (
     <>
@@ -72,7 +70,7 @@ function CreateWarga() {
 
         <div className="row">
           <div className="col-6">
-            <form onSubmit={handleCreate}>
+            <form onSubmit={(e) => e.preventDefault()}>
               <div className="mb-3">
                 <label for="name" className="form-label">
                   Name
@@ -81,7 +79,6 @@ function CreateWarga() {
                   type="text"
                   className="form-control"
                   id="name"
-                  value={name || ""}
                   onChange={(e) => setName(e.target.value)}
                   required
                 />
@@ -94,12 +91,15 @@ function CreateWarga() {
                   type="text"
                   className="form-control"
                   id="address"
-                  value={address || ""}
                   onChange={(e) => setAddress(e.target.value)}
                   required
                 />
               </div>
-              <button className="btn btn-primary py-2" type="submit">
+              <button
+                className="btn btn-primary py-2"
+                type="submit"
+                onClick={handleCreate}
+              >
                 {isLoading ? "Loading..." : "Submit"}
               </button>
             </form>
@@ -109,7 +109,7 @@ function CreateWarga() {
         <Footer />
       </div>
     </>
-  );
+  )
 }
 
-export default CreateWarga;
+export default CreateWarga

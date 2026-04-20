@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react"
 import Swal from "sweetalert2"
-import { getAllUser, deleteUser } from "../services/UserService"
+import { getAllUser, deleteUser } from "../services/UserServices"
 import { useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
 

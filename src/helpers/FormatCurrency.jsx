@@ -1,13 +1,12 @@
 const FormatCurrency = (amount) => {
-  if (amount == null) return "Rp 0";
   // Convert the amount to string
-  let [whole, fraction] = amount.toString().split(".");
+  let formattedAmount = amount?.toString()
 
   // Insert dots for thousands separator
-  whole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  formattedAmount = formattedAmount?.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
 
-  // Prepend "Rp " to the formatted amount, handle fractions if any
-  return fraction ? `Rp ${whole},${fraction}` : `Rp ${whole}`;
-};
+  // Prepend "Rp " to the formatted amount
+  return "Rp " + formattedAmount
+}
 
-export default FormatCurrency;
+export default FormatCurrency

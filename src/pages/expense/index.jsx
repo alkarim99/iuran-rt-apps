@@ -1,90 +1,60 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useEffect, useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { useSelector } from "react-redux"
 
-import Swal from "sweetalert2";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
+import Swal from "sweetalert2"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"
+import Navbar from "../../components/Navbar"
+import Footer from "../../components/Footer"
 
-import FormatDate from "../../helpers/FormatDate";
-import FormatCurrency from "../../helpers/FormatCurrency";
+import FormatDate from "../../helpers/FormatDate"
+import FormatCurrency from "../../helpers/FormatCurrency"
 
-import { getAllExpense, deleteExpense } from "../../services/ExpenseService";
-
-import TableFooter from "../../components/TableFooter";
-import { useTableState } from "../../hooks/useTableState";
+import { getAllExpense, deleteExpense } from "../../services/ExpenseService"
 
 function IndexExpense() {
-  const navigate = useNavigate();
-  const state = useSelector((reducer) => reducer.auth);
+  const navigate = useNavigate()
+  const state = useSelector((reducer) => reducer.auth)
+  const itemsPerPage = 20
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [keyword, setKeyword] = useState("")
+  const [sortBy, setSortBy] = useState("")
+
+  const [isLoading, setIsLoading] = useState(false)
+  const [dataExpense, setDataExpense] = useState([])
 
   useEffect(() => {
-    document.title = "Data Pengeluaran - Iuran RT";
-  }, []);
-
-  const {
-    page,
-    setPage,
-    limit,
-    setLimit,
-    keyword,
-    setKeyword,
-    sortBy,
-    setSortBy,
-    order,
-    setOrder,
-    handleSort,
-    resetTable,
-  } = useTableState("expense", 20, "transaction_at", -1);
-
-  const [payAt, setPayAt] = useState("");
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [dataExpense, setDataExpense] = useState([]);
-  const [totalNominal, setTotalNominal] = useState(0);
-  const [totalCount, setTotalCount] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-
-  useEffect(() => {
-    setIsLoading(true);
+    setIsLoading(true)
     if (!state.auth) {
-      navigate("/sign-in");
-      return;
+      navigate("/sign-in")
+      return
     }
-    handleGet();
-  }, [keyword, sortBy, order, page, limit, payAt]); // eslint-disable-line react-hooks/exhaustive-deps
+    handleGet()
+  }, [keyword, sortBy, currentPage, itemsPerPage]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleGet = () => {
-    const payload = {
-      keyword,
-      sort_by: sortBy,
-      order,
-      page,
-      limit,
-      payAt,
-    };
+    const payload = { keyword, sortBy, page: currentPage, limit: itemsPerPage }
     getAllExpense(payload)
       .then((response) => {
-        setDataExpense(response?.data?.data || []);
-        setTotalPages(response?.data?.totalPages || 1);
-        setTotalNominal(response?.data?.totalNominal || 0);
-        setTotalCount(response?.data?.totalCount || 0);
+        setDataExpense(response?.data?.data || [])
+        setTotalPages(response?.data?.totalPages || 1)
       })
       .catch((error) => {
-        console.error(error);
+        console.error(error)
       })
       .finally(() => {
-        setIsLoading(false);
-      });
-  };
+        setIsLoading(false)
+      })
+  }
 
   const handleReset = () => {
-    setIsLoading(true);
-    setPayAt("");
-    resetTable("transaction_at", -1);
-  };
+    setIsLoading(true)
+    setKeyword("")
+    setSortBy("transaction_at")
+    setCurrentPage(1)
+  }
 
   const handleDelete = (id) => {
     Swal.fire({
@@ -95,7 +65,7 @@ function IndexExpense() {
       denyButtonText: `Don't Delete`,
     }).then((result) => {
       if (result.isConfirmed) {
-        setIsLoading(true);
+        setIsLoading(true)
         deleteExpense(id)
           .then((response) => {
             Swal.fire({
@@ -103,31 +73,47 @@ function IndexExpense() {
               text: response?.data?.message,
               icon: "success",
             }).then(() => {
-              handleGet();
-            });
+              handleGet()
+            })
           })
           .catch((error) => {
-            console.error(error);
+            console.error(error)
             Swal.fire({
               title: "Error!",
               text:
                 error?.response?.data?.message ?? "Something wrong in our App!",
               icon: "error",
-            });
+            })
           })
           .finally(() => {
-            setIsLoading(false);
-          });
+            setIsLoading(false)
+          })
       } else if (result.isDenied) {
-        Swal.fire("Data was not deleted", "", "info");
+        Swal.fire("Data was not deleted", "", "info")
       }
-    });
-  };
+    })
+  }
 
-  const handleSearchSubmit = (e) => {
-    if (e) e.preventDefault();
-    setPage(1);
-  };
+  const handlePageClick = (page) => {
+    setCurrentPage(page)
+  }
+
+  // Helper to get pagination page numbers centered on currentPage
+  const getPaginationRange = (current, total, siblingCount = 2) => {
+    const totalPageNumbers = siblingCount * 2 + 1 // 5 pages total
+    if (total <= totalPageNumbers) {
+      return Array.from({ length: total }, (_, i) => i + 1)
+    }
+    const left = Math.max(current - siblingCount, 1)
+    const right = Math.min(left + totalPageNumbers - 1, total)
+    const rangeStart = Math.max(Math.min(left, total - totalPageNumbers + 1), 1)
+    return Array.from(
+      { length: Math.min(totalPageNumbers, total) },
+      (_, i) => rangeStart + i
+    )
+  }
+
+  const paginationRange = getPaginationRange(currentPage, totalPages)
 
   return (
     <>
@@ -143,16 +129,8 @@ function IndexExpense() {
 
         {/* Search & Sort Form */}
         <div className="my-4">
-          <form onSubmit={handleSearchSubmit}>
+          <form onSubmit={(e) => e.preventDefault()}>
             <div className="row d-flex align-items-end">
-              <div className="col-3">
-                <input
-                  type="month"
-                  className="form-control"
-                  value={payAt}
-                  onChange={(e) => setPayAt(e.target.value)}
-                />
-              </div>
               <div className="col-3">
                 <input
                   type="text"
@@ -174,7 +152,7 @@ function IndexExpense() {
                 </select>
               </div>
               <div className="col-3">
-                <button className="btn btn-primary" type="submit">
+                <button className="btn btn-primary" onClick={handleGet}>
                   {isLoading ? "Loading..." : "Search"}
                 </button>
                 <button
@@ -191,57 +169,33 @@ function IndexExpense() {
 
       {/* Table & Pagination */}
       <div className="container">
-        <div className="alert alert-info py-2 mb-3">
-          <strong>Ringkasan:</strong> Terdapat <strong>{totalCount}</strong>{" "}
-          catatan dengan total nominal{" "}
-          <strong>{FormatCurrency(totalNominal)}</strong>
-        </div>
         {isLoading ? (
           <div className="spinner-grow text-warning" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
         ) : (
           <div>
-            <table className="table table-hover">
-              <thead className="table-light">
+            <table className="table">
+              <thead>
                 <tr>
                   <th>#</th>
-                  <th
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleSort("created_at")}
-                  >
-                    Tanggal Input{" "}
-                    {sortBy === "created_at" && (order === 1 ? "▲" : "▼")}
-                  </th>
-                  <th
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleSort("transaction_at")}
-                  >
-                    Tanggal Transaksi{" "}
-                    {sortBy === "transaction_at" && (order === 1 ? "▲" : "▼")}
-                  </th>
+                  <th>Tanggal Input</th>
+                  <th>Tanggal Transaksi</th>
                   <th>Deskripsi</th>
-                  <th
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleSort("nominal")}
-                  >
-                    Nominal {sortBy === "nominal" && (order === 1 ? "▲" : "▼")}
-                  </th>
-                  <th>Metode</th>
+                  <th>Nominal</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {dataExpense.map((expense, index) => (
                   <tr key={expense._id}>
-                    <th scope="row">{(page - 1) * limit + index + 1}</th>
+                    <th scope="row">
+                      {(currentPage - 1) * itemsPerPage + index + 1}
+                    </th>
                     <td>{FormatDate(expense?.created_at)}</td>
                     <td>{FormatDate(expense?.transaction_at)}</td>
                     <td>{expense?.description}</td>
                     <td>{FormatCurrency(expense?.nominal)}</td>
-                    <td className="text-capitalize">
-                      {expense?.payment_method || "cash"}
-                    </td>
                     <td>
                       <div className="btn-group">
                         <button
@@ -268,11 +222,10 @@ function IndexExpense() {
                             <Link
                               className="text-decoration-none text-black p-2"
                               onClick={() => {
-                                handleDelete(expense?._id);
+                                handleDelete(expense?._id)
                               }}
                             >
-                              <FontAwesomeIcon icon={faTrash} /> Hapus
-                              Pengeluaran
+                              <FontAwesomeIcon icon={faTrash} /> Hapus Pengeluaran
                             </Link>
                           </li>
                         </ul>
@@ -280,33 +233,75 @@ function IndexExpense() {
                     </td>
                   </tr>
                 ))}
-                {dataExpense.length === 0 && (
-                  <tr>
-                    <td colSpan="7" className="text-center">
-                      Tidak ada data ditemukan
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
 
-            <TableFooter
-              currentPage={page}
-              totalPages={totalPages}
-              totalCount={totalCount}
-              itemsPerPage={limit}
-              onPageChange={setPage}
-              onLimitChange={(newLimit) => {
-                setLimit(newLimit);
-                setPage(1);
-              }}
-            />
+            {/* Pagination */}
+            <nav>
+              <ul className="pagination">
+                {/* Previous group arrow */}
+                <li
+                  className={`page-item ${
+                    currentPage <= 3 ? "disabled" : ""
+                  }`}
+                >
+                  <button
+                    className="page-link"
+                    onClick={() =>
+                      currentPage > 3 &&
+                      setCurrentPage(paginationRange[0] - 1)
+                    }
+                    aria-label="Previous group"
+                  >
+                    Previous
+                  </button>
+                </li>
+
+                {/* Page numbers */}
+                {paginationRange.map((page) => (
+                  <li
+                    key={page}
+                    className={`page-item ${
+                      currentPage === page ? "active" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => handlePageClick(page)}
+                    >
+                      {page}
+                    </button>
+                  </li>
+                ))}
+
+                {/* Next group arrow */}
+                <li
+                  className={`page-item ${
+                    paginationRange[paginationRange.length - 1] >= totalPages
+                      ? "disabled"
+                      : ""
+                  }`}
+                >
+                  <button
+                    className="page-link"
+                    onClick={() =>
+                      paginationRange[paginationRange.length - 1] < totalPages &&
+                      setCurrentPage(paginationRange[paginationRange.length - 1] + 1)
+                    }
+                    aria-label="Next group"
+                  >
+                    Next
+                  </button>
+                </li>
+              </ul>
+            </nav>
           </div>
         )}
-        <Footer />
       </div>
+
+      <Footer />
     </>
-  );
+  )
 }
 
-export default IndexExpense;
+export default IndexExpense

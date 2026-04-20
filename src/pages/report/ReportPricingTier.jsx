@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState, useEffect } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { useSelector } from "react-redux"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
   faArrowLeft,
   faChartBar,
@@ -9,35 +9,29 @@ import {
   faMoneyBillWave,
   faCreditCard,
   faHandHoldingDollar,
-  faFileExcel,
-} from "@fortawesome/free-solid-svg-icons";
-import FormatDate from "../../helpers/FormatDate";
-import FormatCurrency from "../../helpers/FormatCurrency";
-import { exportToExcel } from "../../helpers/exportToExcel";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
-import { getPricingTierReport } from "../../services/IuranService";
-import "../../styles/ReportPricingTier.css";
+} from "@fortawesome/free-solid-svg-icons"
+import FormatDate from "../../helpers/FormatDate"
+import FormatCurrency from "../../helpers/FormatCurrency"
+import Navbar from "../../components/Navbar"
+import Footer from "../../components/Footer"
+import PrintButton from "../../components/PrintButton"
+import { getPricingTierReport } from "../../services/IuranService"
+import "../../styles/ReportPricingTier.css"
 
 // ─── Helpers ────────────────────────────────────────────────────
-const toYMD = (d) => {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-};
+const toYMD = (d) => d.toISOString().split("T")[0]
 
 const monthLabel = (ym) => {
-  const [y, m] = ym.split("-");
-  const d = new Date(Number(y), Number(m) - 1);
-  return d.toLocaleString("id-ID", { month: "long", year: "numeric" });
-};
+  const [y, m] = ym.split("-")
+  const d = new Date(Number(y), Number(m) - 1)
+  return d.toLocaleString("id-ID", { month: "long", year: "numeric" })
+}
 
 const tierBadgeClass = (category) => {
-  if (category.startsWith("tier_75")) return "tier-75";
-  if (category.startsWith("tier_110")) return "tier-110";
-  return "tier-out";
-};
+  if (category.startsWith("tier_75")) return "tier-75"
+  if (category.startsWith("tier_110")) return "tier-110"
+  return "tier-out"
+}
 
 const categoryLabel = (category) => {
   const labels = {
@@ -46,26 +40,21 @@ const categoryLabel = (category) => {
     tier_110_single: "1× Rp 110.000",
     tier_110_multiple: "≥2× Rp 110.000",
     out_of_tier: "Di Luar Tier",
-  };
-  return labels[category] || category;
-};
+  }
+  return labels[category] || category
+}
 
 // Preset date ranges
 const getPresets = () => {
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = now.getMonth();
+  const now = new Date()
+  const y = now.getFullYear()
+  const m = now.getMonth()
 
   return [
     {
       label: "Bulan Ini",
       start: toYMD(new Date(y, m, 1)),
       end: toYMD(new Date(y, m + 1, 0)),
-    },
-    {
-      label: "1 Bulan Sebelumnya",
-      start: toYMD(new Date(y, m - 1, 1)),
-      end: toYMD(new Date(y, m, 0)),
     },
     {
       label: "3 Bulan Terakhir",
@@ -82,114 +71,84 @@ const getPresets = () => {
       start: toYMD(new Date(y, 0, 1)),
       end: toYMD(new Date(y, m + 1, 0)),
     },
-  ];
-};
+  ]
+}
 
 // ─── Component ──────────────────────────────────────────────────
 function ReportPricingTier() {
-  const navigate = useNavigate();
-  const state = useSelector((reducer) => reducer.auth);
-
-  useEffect(() => {
-    document.title = "Laporan Pricing Tier - Iuran RT";
-  }, []);
+  const navigate = useNavigate()
+  const state = useSelector((reducer) => reducer.auth)
 
   // Date range — default to current month
-  const now = new Date();
+  const now = new Date()
   const [startDate, setStartDate] = useState(
-    toYMD(new Date(now.getFullYear(), now.getMonth(), 1)),
-  );
+    toYMD(new Date(now.getFullYear(), now.getMonth(), 1))
+  )
   const [endDate, setEndDate] = useState(
-    toYMD(new Date(now.getFullYear(), now.getMonth() + 1, 0)),
-  );
+    toYMD(new Date(now.getFullYear(), now.getMonth() + 1, 0))
+  )
 
-  const [report, setReport] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [report, setReport] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [hasSearched, setHasSearched] = useState(false)
 
   // Modal state
-  const [modalData, setModalData] = useState(null);
+  const [modalData, setModalData] = useState(null)
+
+  useEffect(() => {
+    if (!state.auth) navigate("/sign-in")
+  }, [state, navigate])
 
   // ── Fetch report ──
   const fetchReport = () => {
-    setIsLoading(true);
-    setHasSearched(true);
+    setIsLoading(true)
+    setHasSearched(true)
     getPricingTierReport({ start_date: startDate, end_date: endDate })
       .then((res) => setReport(res?.data?.report || []))
       .catch((err) => console.error(err))
-      .finally(() => setIsLoading(false));
-  };
-
-  useEffect(() => {
-    if (!state.auth) {
-      navigate("/sign-in");
-    } else {
-      fetchReport();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state, navigate]);
+      .finally(() => setIsLoading(false))
+  }
 
   // ── Preset click ──
   const applyPreset = (preset) => {
-    setStartDate(preset.start);
-    setEndDate(preset.end);
-  };
+    setStartDate(preset.start)
+    setEndDate(preset.end)
+  }
 
   // ── Aggregated summary ──
   const grandTotalIncome = report.reduce(
     (s, m) => s + (m.grand_total_income || 0),
-    0,
-  );
+    0
+  )
   const grandTotalWarga = report.reduce(
     (s, m) => s + (m.grand_total_warga || 0),
-    0,
-  );
+    0
+  )
 
-  let totalCash = 0;
-  let totalTransfer = 0;
+  let totalCash = 0
+  let totalTransfer = 0
   report.forEach((m) => {
-    (m.payment_methods || []).forEach((pm) => {
-      if (pm.payment_method === "cash") totalCash += pm.total_income || 0;
-      else totalTransfer += pm.total_income || 0;
-    });
-  });
+    ;(m.payment_methods || []).forEach((pm) => {
+      if (pm.payment_method === "cash") totalCash += pm.total_income || 0
+      else totalTransfer += pm.total_income || 0
+    })
+  })
 
   const cashPct =
     grandTotalIncome > 0
       ? ((totalCash / grandTotalIncome) * 100).toFixed(1)
-      : 0;
+      : 0
   const transferPct =
     grandTotalIncome > 0
       ? ((totalTransfer / grandTotalIncome) * 100).toFixed(1)
-      : 0;
+      : 0
 
   // ── Open detail modal ──
   const openModal = (category, wargaList, monthStr, method) => {
-    setModalData({ category, wargaList, monthStr, method });
-  };
+    setModalData({ category, wargaList, monthStr, method })
+  }
 
-  const closeModal = () => setModalData(null);
-
-  const handleExportExcel = () => {
-    const dataToExport = [];
-    report.forEach((month) => {
-      (month.payment_methods || []).forEach((pm) => {
-        (pm.breakdown || []).forEach((bk) => {
-          dataToExport.push({
-            Bulan: monthLabel(month.month),
-            "Metode Pembayaran": pm.payment_method
-              ? pm.payment_method.charAt(0).toUpperCase() +
-                pm.payment_method.slice(1)
-              : "",
-            Kategori: bk.label,
-            Jumlah: bk.count,
-            "Total Nominal": bk.total_nominal,
-          });
-        });
-      });
-    });
-    exportToExcel(dataToExport, `Laporan_Pricing_Tier_${startDate}_${endDate}`);
-  };
+  const closeModal = () => setModalData(null)
 
   // ── Render ─────────────────────────────────────────────────
   return (
@@ -205,13 +164,7 @@ function ReportPricingTier() {
           <Link className="btn btn-primary me-1" to="/iuran">
             <FontAwesomeIcon icon={faArrowLeft} />
           </Link>
-          <button
-            className="btn btn-success ms-1"
-            onClick={handleExportExcel}
-            title="Export Excel"
-          >
-            <FontAwesomeIcon icon={faFileExcel} /> Export Excel
-          </button>
+          <PrintButton label="Cetak Laporan Pricing Tier" />
         </div>
 
         {/* ── Print header ── */}
@@ -225,8 +178,8 @@ function ReportPricingTier() {
         {/* ── Filter form ── */}
         <form
           onSubmit={(e) => {
-            e.preventDefault();
-            fetchReport();
+            e.preventDefault()
+            fetchReport()
           }}
           className="no-print"
         >
@@ -297,9 +250,7 @@ function ReportPricingTier() {
                   <FontAwesomeIcon icon={faChartBar} />
                 </div>
                 <h5>Tidak ada data</h5>
-                <p>
-                  Tidak ditemukan data pembayaran pada periode yang dipilih.
-                </p>
+                <p>Tidak ditemukan data pembayaran pada periode yang dipilih.</p>
               </div>
             ) : (
               <>
@@ -307,15 +258,10 @@ function ReportPricingTier() {
                 <div className="summary-cards">
                   <div className="summary-card income">
                     <div className="label">
-                      <FontAwesomeIcon
-                        icon={faMoneyBillWave}
-                        className="me-1"
-                      />
+                      <FontAwesomeIcon icon={faMoneyBillWave} className="me-1" />
                       Total Pemasukan
                     </div>
-                    <div className="value">
-                      {FormatCurrency(grandTotalIncome)}
-                    </div>
+                    <div className="value">{FormatCurrency(grandTotalIncome)}</div>
                   </div>
                   <div className="summary-card">
                     <div className="label">
@@ -357,7 +303,7 @@ function ReportPricingTier() {
                     {(month.payment_methods || []).map((pm) => (
                       <div className="method-section" key={pm.payment_method}>
                         <span
-                          className={`method-label text-capitalize ${pm.payment_method}`}
+                          className={`method-label ${pm.payment_method}`}
                         >
                           {pm.payment_method} — {pm.total_warga} warga —{" "}
                           {FormatCurrency(pm.total_income)}
@@ -381,7 +327,7 @@ function ReportPricingTier() {
                                     bk.category,
                                     bk.warga || [],
                                     month.month,
-                                    pm.payment_method,
+                                    pm.payment_method
                                   )
                                 }
                                 title="Klik untuk lihat detail warga"
@@ -389,7 +335,7 @@ function ReportPricingTier() {
                                 <td>
                                   <span
                                     className={`tier-badge ${tierBadgeClass(
-                                      bk.category,
+                                      bk.category
                                     )}`}
                                   >
                                     {categoryLabel(bk.category)}
@@ -499,7 +445,7 @@ function ReportPricingTier() {
         <Footer />
       </div>
     </>
-  );
+  )
 }
 
-export default ReportPricingTier;
+export default ReportPricingTier
