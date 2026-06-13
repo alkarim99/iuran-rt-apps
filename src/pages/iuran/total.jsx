@@ -8,6 +8,7 @@ import FormatCurrency from "../../helpers/FormatCurrency"
 import getFirstAndLastDateOfMonth from "../../helpers/FirstAndLastDate"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
+import Pagination from "../../components/Pagination"
 import { totalPayment } from "../../services/IuranService"
 
 function TotalIuran() {
@@ -28,8 +29,7 @@ function TotalIuran() {
 
   const itemsPerPage = 20
   const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(itemsPerPage)
-  const pagesPerGroup = 5
+  const [totalPages, setTotalPages] = useState(0)
 
   useEffect(() => {
     if (!state.auth) {
@@ -47,9 +47,14 @@ function TotalIuran() {
     handleSearch()
   }, [state])
 
-  const handleSearch = () => {
+  const handleSearch = (pageOverride) => {
     setIsLoading(true)
-    const payload = { start, end, sortBy, currentPage }
+    const payload = {
+      start,
+      end,
+      sortBy,
+      currentPage: pageOverride ?? currentPage,
+    }
     totalPayment(payload)
       .then((response) => {
         setTotal(response?.data?.totalIncome)
@@ -62,42 +67,13 @@ function TotalIuran() {
       .finally(() => setIsLoading(false))
   }
 
-  const handlePreviousPage = () => {
-    const newGroupStartPage = Math.max(1, currentPage - pagesPerGroup)
-    setCurrentPage(newGroupStartPage)
-    handleSearch()
-  }
-
-  const handleNextPage = () => {
-    const newGroupStartPage = Math.min(
-      currentPage + pagesPerGroup,
-      totalPages - pagesPerGroup + 1
-    )
-    setCurrentPage(newGroupStartPage)
-    handleSearch()
-  }
-
-  const handlePageClick = (page) => {
+  const handlePageChange = (page) => {
     setCurrentPage(page)
-    handleSearch()
+    handleSearch(page)
   }
 
   const getStartingIndex = () => {
     return (currentPage - 1) * itemsPerPage + 1
-  }
-
-  const getPageNumbers = () => {
-    const pageNumbers = []
-    const totalPagesDisplayed = Math.min(
-      totalPages,
-      currentPage + pagesPerGroup - 1
-    )
-
-    for (let i = currentPage; i <= totalPagesDisplayed; i++) {
-      pageNumbers.push(i)
-    }
-
-    return pageNumbers
   }
 
   return (
@@ -219,50 +195,11 @@ function TotalIuran() {
               </tbody>
             </table>
 
-            {/* Compact pagination */}
-            <nav aria-label="Compact Page Navigation" className="mt-3">
-              <ul className="pagination justify-content-center">
-                <li
-                  className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={handlePreviousPage}
-                    disabled={currentPage === 1}
-                  >
-                    Previous
-                  </button>
-                </li>
-                {getPageNumbers().map((page) => (
-                  <li
-                    key={page}
-                    className={`page-item ${
-                      page === currentPage ? "active" : ""
-                    }`}
-                  >
-                    <button
-                      className="page-link"
-                      onClick={() => handlePageClick(page)}
-                    >
-                      {page}
-                    </button>
-                  </li>
-                ))}
-                <li
-                  className={`page-item ${
-                    currentPage === totalPages ? "disabled" : ""
-                  }`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={handleNextPage}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                  </button>
-                </li>
-              </ul>
-            </nav>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           </div>
         </div>
 

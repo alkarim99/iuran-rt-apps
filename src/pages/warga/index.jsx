@@ -11,11 +11,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
-import {
-  getAllWarga,
-  searchWarga,
-  deleteWarga,
-} from "../../services/WargaService"
+import Pagination from "../../components/Pagination"
+import { searchWarga, deleteWarga } from "../../services/WargaService"
+import { usePersistedState } from "../../hooks/usePersistedState"
 
 function IndexWarga() {
   const navigate = useNavigate()
@@ -24,27 +22,38 @@ function IndexWarga() {
   const [dataWarga, setDataWarga] = useState([])
   const [isLoading, setIsLoading] = useState(false)
 
-  const [keyword, setKeyword] = useState("")
-  const [sortBy, setSortBy] = useState("address")
+  const [keyword, setKeyword] = usePersistedState("wargaIndex_keyword", "")
+  const [sortBy, setSortBy] = usePersistedState("wargaIndex_sortBy", "")
   const [order, setOrder] = useState(1)
 
   const itemsPerPage = 20
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = usePersistedState("wargaIndex_page", 1)
   const [totalPages, setTotalPages] = useState(1)
+  const [refetch, setRefetch] = useState(0)
 
+  // Single fetch path so pagination keeps the active filter; persisted page/
+  // keyword/sortBy (sessionStorage) also restore the view when returning from a
+  // detail page. `refetch` forces a reload when only the filter changes.
   useEffect(() => {
-    setIsLoading(true)
     if (!state.auth) {
       navigate("/sign-in")
     }
-    handleGet()
-  }, [state, currentPage])
+    fetchWarga()
+  }, [state, currentPage, refetch])
 
-  const handleGet = () => {
-    getAllWarga(currentPage)
+  const fetchWarga = () => {
+    setIsLoading(true)
+    const payload = {
+      keyword,
+      sortBy,
+      order: sortBy ? order : "",
+      page: currentPage,
+      limit: itemsPerPage,
+    }
+    searchWarga(payload)
       .then((response) => {
-        setTotalPages(response?.data?.totalPages)
         setDataWarga(response?.data?.data)
+        setTotalPages(response?.data?.totalPages)
       })
       .catch((error) => {
         console.log(error)
@@ -72,7 +81,7 @@ function IndexWarga() {
               text: response?.data?.message,
               icon: "success",
             }).then(() => {
-              handleGet()
+              fetchWarga()
             })
           })
           .catch((error) => {
@@ -94,34 +103,16 @@ function IndexWarga() {
   }
 
   const handleSearch = () => {
-    setIsLoading(true)
-    const payload = { keyword, sortBy, order }
-    searchWarga(payload)
-      .then((response) => {
-        setDataWarga(response?.data?.data)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
+    setCurrentPage(1)
+    setRefetch((n) => n + 1)
   }
 
   const handleReset = () => {
-    setIsLoading(true)
     setKeyword("")
-    setSortBy("warga.address")
+    setSortBy("")
     setOrder(1)
-    handleGet()
-  }
-
-  const handlePreviousPage = () => {
-    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
-  }
-
-  const handleNextPage = () => {
-    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
+    setCurrentPage(1)
+    setRefetch((n) => n + 1)
   }
 
   const getStartingIndex = () => {
@@ -167,6 +158,7 @@ function IndexWarga() {
                     className="form-control"
                     id="keyword"
                     placeholder="Nama atau Alamat"
+                    value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
                   />
                 </div>
@@ -177,9 +169,10 @@ function IndexWarga() {
                   <select
                     id="sort_by"
                     className="form-select"
+                    value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
                   >
-                    <option selected>Urutkan</option>
+                    <option value="">Urutkan</option>
                     <option value="name">Nama Warga</option>
                     <option value="address">Alamat Warga</option>
                   </select>
@@ -252,52 +245,11 @@ function IndexWarga() {
                   })}
                 </tbody>
               </table>
-              {/* Pagination */}
-              <nav aria-label="Page navigation example">
-                <ul className="pagination justify-content-center">
-                  <li
-                    className={`page-item ${
-                      currentPage === 1 ? "disabled" : ""
-                    }`}
-                  >
-                    <button
-                      className="page-link"
-                      onClick={handlePreviousPage}
-                      disabled={currentPage === 1}
-                    >
-                      Previous
-                    </button>
-                  </li>
-                  {Array.from({ length: totalPages }, (_, i) => (
-                    <li
-                      key={i}
-                      className={`page-item ${
-                        i + 1 === currentPage ? "active" : ""
-                      }`}
-                    >
-                      <button
-                        className="page-link"
-                        onClick={() => setCurrentPage(i + 1)}
-                      >
-                        {i + 1}
-                      </button>
-                    </li>
-                  ))}
-                  <li
-                    className={`page-item ${
-                      currentPage === totalPages ? "disabled" : ""
-                    }`}
-                  >
-                    <button
-                      className="page-link"
-                      onClick={handleNextPage}
-                      disabled={currentPage === totalPages}
-                    >
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             </div>
           </div>
 

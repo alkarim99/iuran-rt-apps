@@ -3,8 +3,9 @@ import { BASE_URL } from "./config";
 
 export const getAllPayments = async (currentPage, limit) => {
   try {
+    // Default ordering: newest payment first (sort by pay_at, descending).
     const response = await axios.get(
-      `${BASE_URL}/payments?page=${currentPage}&limit=${limit}`,
+      `${BASE_URL}/payments?page=${currentPage}&limit=${limit}&sort_by=pay_at&order=-1`,
     );
     return response;
   } catch (error) {
@@ -68,12 +69,13 @@ export const getPaymentReport = async (data) => {
 
 export const searchPayments = async (data) => {
   try {
-    const { keyword, sortBy, page, limit } = data;
+    const { keyword, sortBy, order, page, limit } = data;
     let url = `${BASE_URL}/payments`;
     const params = [];
 
     if (keyword) params.push(`keyword=${keyword}`);
     if (sortBy) params.push(`sort_by=${sortBy}`);
+    if (order) params.push(`order=${order}`);
     if (page) params.push(`page=${page}`);
     if (limit) params.push(`limit=${limit}`);
 
@@ -91,13 +93,19 @@ export const searchPayments = async (data) => {
 
 export const searchPaymentsRincian = async (data) => {
   try {
-    const { keyword, sortBy, payAt } = data;
+    const { keyword, sortBy, order, payAt, page, limit } = data;
     let url = `${BASE_URL}/payments/rincian`;
     if (keyword) url += `?keyword=${keyword}`;
     if (sortBy)
       url += url.includes("?") ? `&sort_by=${sortBy}` : `?sort_by=${sortBy}`;
+    if (order)
+      url += url.includes("?") ? `&order=${order}` : `?order=${order}`;
     if (payAt)
       url += url.includes("?") ? `&pay_at=${payAt}` : `?pay_at=${payAt}`;
+    if (page)
+      url += url.includes("?") ? `&page=${page}` : `?page=${page}`;
+    if (limit)
+      url += url.includes("?") ? `&limit=${limit}` : `?limit=${limit}`;
 
     const response = await axios.get(url);
     return response;

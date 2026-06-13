@@ -162,6 +162,7 @@ function CreateIuran() {
                   id="nominal"
                   value={nominal}
                   onChange={(e) => setNominal(e.target.value)}
+                  onWheel={(e) => e.target.blur()}
                   required
                 />
               </div>

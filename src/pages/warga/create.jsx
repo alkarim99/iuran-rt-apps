@@ -24,7 +24,8 @@ function CreateWarga() {
     }
   }, [state])
 
-  const handleCreate = () => {
+  const handleCreate = (e) => {
+    e.preventDefault()
     setIsLoading(true)
     const payload = {
       name: name,
@@ -70,7 +71,7 @@ function CreateWarga() {
 
         <div className="row">
           <div className="col-6">
-            <form onSubmit={(e) => e.preventDefault()}>
+            <form onSubmit={handleCreate}>
               <div className="mb-3">
                 <label for="name" className="form-label">
                   Name
@@ -79,6 +80,7 @@ function CreateWarga() {
                   type="text"
                   className="form-control"
                   id="name"
+                  value={name || ""}
                   onChange={(e) => setName(e.target.value)}
                   required
                 />
@@ -91,15 +93,12 @@ function CreateWarga() {
                   type="text"
                   className="form-control"
                   id="address"
+                  value={address || ""}
                   onChange={(e) => setAddress(e.target.value)}
                   required
                 />
               </div>
-              <button
-                className="btn btn-primary py-2"
-                type="submit"
-                onClick={handleCreate}
-              >
+              <button className="btn btn-primary py-2" type="submit">
                 {isLoading ? "Loading..." : "Submit"}
               </button>
             </form>

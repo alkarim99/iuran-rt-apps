@@ -33,7 +33,7 @@ export const getWargaByID = async (id) => {
 
 export const searchWarga = async (data) => {
   try {
-    const { keyword, sortBy, order } = data
+    const { keyword, sortBy, order, page, limit } = data
     let url = `${BASE_URL}/wargas`
     if (keyword != "") {
       if (url.includes("?")) {
@@ -55,6 +55,12 @@ export const searchWarga = async (data) => {
       } else {
         url = url + `?order=${order}`
       }
+    }
+    if (page) {
+      url = url + (url.includes("?") ? `&page=${page}` : `?page=${page}`)
+    }
+    if (limit) {
+      url = url + (url.includes("?") ? `&limit=${limit}` : `?limit=${limit}`)
     }
     const response = await axios.get(url)
     return response
