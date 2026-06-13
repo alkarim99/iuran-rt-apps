@@ -27,7 +27,8 @@ function CreateExpense() {
     }
   }, [state])
 
-  const handleCreate = async () => {
+  const handleCreate = async (e) => {
+    e.preventDefault()
     setIsLoading(true)
     const payload = {
       transaction_at: transactionAt,
@@ -85,7 +86,7 @@ function CreateExpense() {
 
         <div className="row">
           <div className="col-6">
-            <form onSubmit={(e) => e.preventDefault()}>
+            <form onSubmit={handleCreate}>
               <div className="mb-3">
                 <label for="transaction_at" className="form-label">
                   Tanggal Transaksi
@@ -94,6 +95,7 @@ function CreateExpense() {
                   type="date"
                   className="form-control"
                   id="transaction_at"
+                  value={transactionAt || ""}
                   onChange={(e) => setTransactionAt(e.target.value)}
                   required
                 />
@@ -106,6 +108,7 @@ function CreateExpense() {
                   type="number"
                   className="form-control"
                   id="nominal"
+                  value={nominal || ""}
                   onChange={(e) => setNominal(e.target.value)}
                   required
                 />
@@ -118,15 +121,12 @@ function CreateExpense() {
                   type="text"
                   id="description"
                   className="form-control"
+                  value={description || ""}
                   onChange={(e) => setDescription(e.target.value)}
                   required
                 />
               </div>
-              <button
-                className="btn btn-primary py-2"
-                type="submit"
-                onClick={handleCreate}
-              >
+              <button className="btn btn-primary py-2" type="submit">
                 {isLoading ? "Loading..." : "Submit"}
               </button>
             </form>

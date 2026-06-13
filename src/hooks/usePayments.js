@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import Swal from "sweetalert2";
 import { getAllPayments, searchPayments, deletePayment } from "../services/IuranService";
 
-export const usePayments = (currentPage, itemsPerPage, keyword, sortBy) => {
+export const usePayments = (currentPage, itemsPerPage, keyword, sortBy, order) => {
   const [dataIuran, setDataIuran] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,6 +32,7 @@ export const usePayments = (currentPage, itemsPerPage, keyword, sortBy) => {
           const response = await searchPayments({
             keyword,
             sortBy,
+            order,
             page: currentPage,
             limit: itemsPerPage,
           });
@@ -45,7 +46,7 @@ export const usePayments = (currentPage, itemsPerPage, keyword, sortBy) => {
       };
       searchAndSortPayments();
     }
-  }, [fetchPayments, keyword, sortBy, currentPage, itemsPerPage]);
+  }, [fetchPayments, keyword, sortBy, order, currentPage, itemsPerPage]);
 
   // Now fetchPayments can be reused in handleDelete
   const handleDelete = async (id) => {

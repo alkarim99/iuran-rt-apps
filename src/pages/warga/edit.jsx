@@ -42,7 +42,8 @@ function EditWarga() {
       })
   }
 
-  const handleEdit = () => {
+  const handleEdit = (e) => {
+    e.preventDefault()
     setIsLoading(true)
     const payload = {
       id: id,
@@ -102,7 +103,7 @@ function EditWarga() {
 
           <div className="row">
             <div className="col-6">
-              <form onSubmit={(e) => e.preventDefault()}>
+              <form onSubmit={handleEdit}>
                 <div className="mb-3">
                   <label for="name" className="form-label">
                     Name
@@ -111,7 +112,7 @@ function EditWarga() {
                     type="text"
                     className="form-control"
                     id="name"
-                    defaultValue={name}
+                    value={name || ""}
                     onChange={(e) => setName(e.target.value)}
                   />
                 </div>
@@ -123,15 +124,11 @@ function EditWarga() {
                     type="text"
                     className="form-control"
                     id="address"
-                    defaultValue={address}
+                    value={address || ""}
                     onChange={(e) => setAddress(e.target.value)}
                   />
                 </div>
-                <button
-                  className="btn btn-primary py-2"
-                  type="submit"
-                  onClick={handleEdit}
-                >
+                <button className="btn btn-primary py-2" type="submit">
                   {isLoading ? "Loading..." : "Submit"}
                 </button>
               </form>

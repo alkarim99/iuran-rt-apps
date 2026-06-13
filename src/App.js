@@ -1,11 +1,12 @@
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.js";
-import React, { useEffect } from "react";
+import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { Provider, useSelector } from "react-redux";
+import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import axios from "axios";
 import { store, persistor } from "./store";
+import { addAuth } from "./store/reducers/auth";
 
 // import pages
 import {
@@ -121,34 +122,47 @@ const router = createBrowserRouter([
 function App() {
   return (
     <div>
-      <PersistGate loading={null} persistor={persistor}>
-        <Provider store={store}>
-          <RunApp router={router} />
-        </Provider>
-      </PersistGate>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <RouterProvider router={router} />
+        </PersistGate>
+      </Provider>
     </div>
   );
 }
 
-function useAxiosAuth(state) {
-  useEffect(() => {
-    const requestInterceptor = axios.interceptors.request.use(
-      (config) => {
-        if (state?.token) {
-          config.headers.Authorization = `Bearer ${state.token}`;
-        }
-        return config;
-      },
-      (error) => Promise.reject(error),
-    );
-    return () => axios.interceptors.request.eject(requestInterceptor);
-  }, [state]);
-}
+// Register axios interceptors at module level so they run synchronously at import
+// time — before any component renders. This guarantees the bearer token is
+// attached even on a hard page refresh. Previously the request interceptor was
+// registered inside a parent useEffect (RunApp), which runs AFTER child page
+// effects: on refresh the first API call fired before the interceptor existed,
+// so it went out without a token and got a 401. The token is read from the Redux
+// store, which redux-persist rehydrates before PersistGate renders the app.
+axios.interceptors.request.use(
+  (config) => {
+    const state = store.getState()?.auth;
+    if (state?.token) {
+      config.headers.Authorization = `Bearer ${state.token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
 
-function RunApp({ router }) {
-  const state = useSelector((reducer) => reducer.auth);
-  useAxiosAuth(state);
-  return <RouterProvider router={router} />;
-}
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.clear();
+      store.dispatch(
+        addAuth({ auth: false, userData: {}, token: "", recipes: {} }),
+      );
+      if (window.location.pathname !== "/sign-in") {
+        window.location.href = "/sign-in";
+      }
+    }
+    return Promise.reject(error);
+  },
+);
 
 export default App;

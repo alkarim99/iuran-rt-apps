@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
+import Pagination from "../../components/Pagination"
 
 import FormatDate from "../../helpers/FormatDate"
 import FormatCurrency from "../../helpers/FormatCurrency"
@@ -93,27 +94,6 @@ function IndexExpense() {
       }
     })
   }
-
-  const handlePageClick = (page) => {
-    setCurrentPage(page)
-  }
-
-  // Helper to get pagination page numbers centered on currentPage
-  const getPaginationRange = (current, total, siblingCount = 2) => {
-    const totalPageNumbers = siblingCount * 2 + 1 // 5 pages total
-    if (total <= totalPageNumbers) {
-      return Array.from({ length: total }, (_, i) => i + 1)
-    }
-    const left = Math.max(current - siblingCount, 1)
-    const right = Math.min(left + totalPageNumbers - 1, total)
-    const rangeStart = Math.max(Math.min(left, total - totalPageNumbers + 1), 1)
-    return Array.from(
-      { length: Math.min(totalPageNumbers, total) },
-      (_, i) => rangeStart + i
-    )
-  }
-
-  const paginationRange = getPaginationRange(currentPage, totalPages)
 
   return (
     <>
@@ -236,65 +216,11 @@ function IndexExpense() {
               </tbody>
             </table>
 
-            {/* Pagination */}
-            <nav>
-              <ul className="pagination">
-                {/* Previous group arrow */}
-                <li
-                  className={`page-item ${
-                    currentPage <= 3 ? "disabled" : ""
-                  }`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={() =>
-                      currentPage > 3 &&
-                      setCurrentPage(paginationRange[0] - 1)
-                    }
-                    aria-label="Previous group"
-                  >
-                    Previous
-                  </button>
-                </li>
-
-                {/* Page numbers */}
-                {paginationRange.map((page) => (
-                  <li
-                    key={page}
-                    className={`page-item ${
-                      currentPage === page ? "active" : ""
-                    }`}
-                  >
-                    <button
-                      className="page-link"
-                      onClick={() => handlePageClick(page)}
-                    >
-                      {page}
-                    </button>
-                  </li>
-                ))}
-
-                {/* Next group arrow */}
-                <li
-                  className={`page-item ${
-                    paginationRange[paginationRange.length - 1] >= totalPages
-                      ? "disabled"
-                      : ""
-                  }`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={() =>
-                      paginationRange[paginationRange.length - 1] < totalPages &&
-                      setCurrentPage(paginationRange[paginationRange.length - 1] + 1)
-                    }
-                    aria-label="Next group"
-                  >
-                    Next
-                  </button>
-                </li>
-              </ul>
-            </nav>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
           </div>
         )}
       </div>

@@ -45,7 +45,8 @@ function EditUser() {
       })
   }, [state])
 
-  const handleEdit = () => {
+  const handleEdit = (e) => {
+    e.preventDefault()
     setIsLoading(true)
     const payload = {
       id: id,
@@ -96,7 +97,7 @@ function EditUser() {
 
         <div className="row">
           <div className="col-6">
-            <form onSubmit={(e) => e.preventDefault()}>
+            <form onSubmit={handleEdit}>
               <div className="mb-3">
                 <label for="name" className="form-label">
                   Name
@@ -105,8 +106,8 @@ function EditUser() {
                   type="text"
                   className="form-control"
                   id="name"
+                  value={name || ""}
                   onChange={(e) => setName(e.target.value)}
-                  defaultValue={name}
                 />
               </div>
               <div className="mb-3">
@@ -117,8 +118,8 @@ function EditUser() {
                   type="email"
                   className="form-control"
                   id="email"
+                  value={email || ""}
                   onChange={(e) => setEmail(e.target.value)}
-                  defaultValue={email}
                 />
               </div>
               <div className="mb-3">
@@ -129,6 +130,7 @@ function EditUser() {
                   type="password"
                   className="form-control"
                   id="password"
+                  value={password || ""}
                   onChange={(e) => setPassword(e.target.value)}
                 />
                 <small>Isi jika ingin mengubah password</small>
@@ -140,28 +142,17 @@ function EditUser() {
                 <select
                   id="role"
                   className="form-select"
+                  value={role || ""}
                   onChange={(e) => setRole(e.target.value)}
                 >
-                  <option selected>Pilih Role User</option>
-                  <option
-                    value="admin"
-                    selected={role == "admin" ? "selected" : ""}
-                  >
-                    Admin
+                  <option value="" disabled>
+                    Pilih Role User
                   </option>
-                  <option
-                    value="user"
-                    selected={role == "user" ? "selected" : ""}
-                  >
-                    User
-                  </option>
+                  <option value="admin">Admin</option>
+                  <option value="user">User</option>
                 </select>
               </div>
-              <button
-                className="btn btn-primary py-2"
-                type="submit"
-                onClick={handleEdit}
-              >
+              <button className="btn btn-primary py-2" type="submit">
                 {isLoading ? "Loading..." : "Submit"}
               </button>
             </form>

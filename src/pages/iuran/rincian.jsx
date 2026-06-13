@@ -7,13 +7,13 @@ import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"
 import FormatDate from "../../helpers/FormatDate"
 import FormatCurrency from "../../helpers/FormatCurrency"
 import {
-  getRincianPayment,
   deletePayment,
   searchPaymentsRincian,
 } from "../../services/IuranService"
 
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
+import Pagination from "../../components/Pagination"
 
 function RincianIuran() {
   const navigate = useNavigate()
@@ -27,8 +27,8 @@ function RincianIuran() {
 
   const itemsPerPage = 20
   const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(itemsPerPage)
-  const [pagesPerGroup, setPagesPerGroup] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [refetch, setRefetch] = useState(0)
 
   const todayDate = new Date()
   const firstDate = new Date(
@@ -39,26 +39,33 @@ function RincianIuran() {
   const payAtDate = firstDate.toISOString().split("T")[0]
   const [payAt, setPayAt] = useState(payAtDate)
 
+  // Single fetch path: pagination and filters always go through the same query,
+  // so moving pages keeps the active keyword/sort/period. `refetch` is bumped to
+  // force a reload when only the filters change (page stays the same).
   useEffect(() => {
-    setIsLoading(true)
     if (!state.auth) {
       navigate("/sign-in")
     }
-    handleGet()
-  }, [state, currentPage])
+    fetchPayments()
+  }, [state, currentPage, refetch])
 
-  const handleGet = () => {
+  const fetchPayments = () => {
+    setIsLoading(true)
+    // "Terbaru" (pay_at/created_at) = desc (-1); nama/alamat = asc (1); kosong = tak dikirim.
+    const order =
+      sortBy === "pay_at" || sortBy === "created_at" ? -1 : sortBy ? 1 : ""
     const payload = {
-      currentPage,
+      keyword,
+      sortBy,
+      order,
       payAt,
+      page: currentPage,
+      limit: itemsPerPage,
     }
-    getRincianPayment(payload)
+    searchPaymentsRincian(payload)
       .then((response) => {
-        setTotalPages(response?.data?.totalPages)
         setDataIuran(response?.data?.data)
-        setPagesPerGroup(
-          response?.data?.totalPages > 5 ? 5 : response?.data?.totalPages
-        )
+        setTotalPages(response?.data?.totalPages)
       })
       .catch((error) => {
         console.log(error)
@@ -86,7 +93,7 @@ function RincianIuran() {
               text: response?.data?.message,
               icon: "success",
             }).then(() => {
-              handleGet()
+              fetchPayments()
             })
           })
           .catch((error) => {
@@ -108,65 +115,19 @@ function RincianIuran() {
   }
 
   const handleSearch = () => {
-    setIsLoading(true)
-    const payload = { keyword, sortBy, payAt }
-    searchPaymentsRincian(payload)
-      .then((response) => {
-        setDataIuran(response?.data?.data)
-        setTotalPages(response?.data?.totalPages)
-        setPagesPerGroup(
-          response?.data?.totalPages > 5 ? 5 : response?.data?.totalPages
-        )
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
+    setCurrentPage(1)
+    setRefetch((n) => n + 1)
   }
 
   const handleReset = () => {
-    setIsLoading(true)
     setKeyword("")
     setSortBy("")
-    handleGet()
-  }
-
-  const handlePreviousPage = () => {
-    const newGroupStartPage = Math.max(1, currentPage - pagesPerGroup)
-    setCurrentPage(newGroupStartPage)
-  }
-
-  const handleNextPage = () => {
-    const newGroupStartPage = Math.min(
-      currentPage + pagesPerGroup,
-      totalPages - pagesPerGroup + 1
-    )
-    setCurrentPage(newGroupStartPage)
-  }
-
-  const handlePageClick = (page) => {
-    setCurrentPage(page)
+    setCurrentPage(1)
+    setRefetch((n) => n + 1)
   }
 
   const getStartingIndex = () => {
     return (currentPage - 1) * itemsPerPage + 1
-  }
-
-  const getPageNumbers = () => {
-    console.log(totalPages)
-    const pageNumbers = []
-    const totalPagesDisplayed = Math.min(
-      totalPages,
-      currentPage + pagesPerGroup - 1
-    )
-
-    for (let i = currentPage; i <= totalPagesDisplayed; i++) {
-      pageNumbers.push(i)
-    }
-
-    return pageNumbers
   }
 
   if (isLoading) {
@@ -211,6 +172,7 @@ function RincianIuran() {
                     className="form-control"
                     id="keyword"
                     placeholder="Nama atau Alamat"
+                    value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
                   />
                 </div>
@@ -221,9 +183,10 @@ function RincianIuran() {
                   <select
                     id="sort_by"
                     className="form-select"
+                    value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
                   >
-                    <option selected>Urutkan</option>
+                    <option value="">Urutkan</option>
                     <option value="pay_at">Pembayaran Terbaru</option>
                     <option value="created_at">Pencatatan Terbaru</option>
                     <option value="warga.name">Nama Warga</option>
@@ -238,6 +201,7 @@ function RincianIuran() {
                     type="date"
                     id="payAtDate"
                     className="form-control"
+                    value={payAt}
                     onChange={(e) => setPayAt(e.target.value)}
                   />
                 </div>
@@ -368,50 +332,11 @@ function RincianIuran() {
               </tbody>
             </table>
 
-            {/* Compact pagination */}
-            <nav aria-label="Compact Page Navigation" className="mt-3">
-              <ul className="pagination justify-content-center">
-                <li
-                  className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={handlePreviousPage}
-                    disabled={currentPage === 1}
-                  >
-                    Previous
-                  </button>
-                </li>
-                {getPageNumbers().map((page) => (
-                  <li
-                    key={page}
-                    className={`page-item ${
-                      page === currentPage ? "active" : ""
-                    }`}
-                  >
-                    <button
-                      className="page-link"
-                      onClick={() => handlePageClick(page)}
-                    >
-                      {page}
-                    </button>
-                  </li>
-                ))}
-                <li
-                  className={`page-item ${
-                    currentPage === totalPages ? "disabled" : ""
-                  }`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={handleNextPage}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                  </button>
-                </li>
-              </ul>
-            </nav>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
           </div>
         </div>
 
