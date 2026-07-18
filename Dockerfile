@@ -10,7 +10,7 @@ RUN npm ci
 COPY . .
 
 ENV REACT_APP_ENV=production
-ENV REACT_APP_BASE_URL_PROD=/api
+ENV REACT_APP_BASE_URL_PROD=
 
 RUN npm run build
 
