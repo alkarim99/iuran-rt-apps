@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  PieChart, Pie, Cell, LineChart, Line, AreaChart, Area
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell
 } from 'recharts';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -28,8 +28,13 @@ const KAS_COLORS = ['#3b82f6', '#8b5cf6'];
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [selectedYear] = useState(new Date().getFullYear());
-  const [selectedMonth] = useState(new Date().toISOString().slice(0, 7));
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+
+  const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
+  const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
   
   const { data, isLoading } = useDashboard(selectedYear, selectedMonth);
 
@@ -51,7 +56,26 @@ const Dashboard = () => {
         title="Ringkasan Eksekutif" 
         breadcrumb={["Dashboard"]}
         actions={
-          <div className="d-flex gap-2">
+          <div className="d-flex gap-2 align-items-center">
+            <select
+              className="form-select form-select-sm"
+              style={{ width: 'auto' }}
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+            >
+              {monthLabels.map((label, i) => {
+                const val = `${selectedYear}-${String(i + 1).padStart(2, '0')}`;
+                return <option key={val} value={val}>{label}</option>;
+              })}
+            </select>
+            <select
+              className="form-select form-select-sm"
+              style={{ width: 'auto' }}
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(Number(e.target.value))}
+            >
+              {yearOptions.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
             <Btn variant="outline" size="sm" onClick={() => navigate('/report/neraca')}>Lihat Laporan Lengkap</Btn>
             <Btn variant="primary" size="sm" onClick={() => navigate('/income/create')}>Catat Iuran</Btn>
           </div>
@@ -246,25 +270,7 @@ const Dashboard = () => {
                    </div>
                 </div>
              </div>
-             
-             <div className="mt-4 pt-3 border-top">
-                <div className="small font-bold text-muted mb-3">Tren Kepatuhan Bayar (%)</div>
-                <div style={{ height: '100px' }}>
-                   <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={tierBreakdown.compliance_trend}>
-                         <defs>
-                            <linearGradient id="colorPct" x1="0" y1="0" x2="0" y2="1">
-                               <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                               <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                            </linearGradient>
-                         </defs>
-                         <Area type="monotone" dataKey="persentase" stroke="#3b82f6" fillOpacity={1} fill="url(#colorPct)" strokeWidth={2} />
-                         <Tooltip />
-                      </AreaChart>
-                   </ResponsiveContainer>
-                </div>
-             </div>
-          </TableCard>
+                       </TableCard>
         </div>
       </div>
     </div>

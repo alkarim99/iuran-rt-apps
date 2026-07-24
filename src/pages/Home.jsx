@@ -127,6 +127,14 @@ function Home() {
             >
               Cek Laporan Neraca
             </Link>
+            {state?.user?.role === "admin" && (
+              <Link
+                className="btn btn-outline-primary btn-lg"
+                to="/dashboard"
+              >
+                Dashboard Lengkap
+              </Link>
+            )}
           </div>
         </div>
       ) : (
