@@ -28,6 +28,12 @@ Aplikasi frontend untuk pencatatan iuran warga RT.
 - 📈 **Laporan Pricing Tier** — Analisis kategori pembayaran warga (75k, 110k, atau custom)
 - 📥 **Ekspor Excel** — Download otomatis laporan dan tabel secara langsung di rincian laporan kas RT
 - 👤 **Data User** — Kelola pengguna aplikasi
+- 📈 **Dashboard** — Halaman ringkasan kondisi keuangan RT dalam satu tampilan, dilengkapi filter tahun/bulan. Data berasal dari 5 endpoint `/api/dashboard/*`. Komponen yang ditampilkan:
+  - **Alert Tunggakan** — Jumlah warga yang belum membayar dan potensi nominal yang belum terkumpul, untuk identifikasi cepat warga yang perlu ditagih. *(dari `/api/dashboard/tunggakan`)*
+  - **Ringkasan Bulanan** — Grafik batang pemasukan (cash + transfer) vs pengeluaran per bulan dalam setahun, untuk melihat tren arus kas. *(dari `/api/dashboard/monthly-summary`)*
+  - **Heatmap Kepatuhan** — Persentase warga yang membayar per bulan sepanjang tahun, untuk menilai kedisiplinan pembayaran iuran. *(dari `/api/dashboard/payment-heatmap`)*
+  - **Komposisi Tier** — Proporsi warga yang membayar di Tier 1 (Rp75rb), Tier 2 (Rp110rb), atau nominal kustom, untuk melihat distribusi beban iuran. *(dari `/api/dashboard/tier-breakdown`)*
+  - **Posisi Kas** — Saldo terkini petty cash dan rekening BCA, termasuk pemasukan, pengeluaran, dan komposisi persentase antar pos. *(dari `/api/dashboard/kas-summary`)*
 - 🚀 **UI UX Enhancements** — Menyediakan Select Limit tabel fleksibel, dan persistensi pagination via `sessionStorage`.
 
 ## Struktur Folder
@@ -45,6 +51,7 @@ src/
 │   ├── expense/     # Halaman pengeluaran
 │   ├── opening-balance/ # Halaman saldo awal tahun
 │   ├── user/        # Halaman user management
+│   ├── dashboard/   # Halaman dashboard (ringkasan, tunggakan, heatmap, tier, kas)
 │   └── report/      # Halaman laporan (cash, transfer, neraca, pricing-tier)
 ├── services/        # API service layer (Axios)
 └── store/           # Redux store & reducers
