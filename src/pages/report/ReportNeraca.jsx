@@ -40,6 +40,7 @@ function ReportNeraca() {
 
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
+  const [saldoAwal, setSaldoAwal] = useState(0);
   const [saldoPettyCash, setSaldoPettyCash] = useState(0);
   const [saldoRekening, setSaldoRekening] = useState(0);
   const [reportData, setReportData] = useState([]);
@@ -69,6 +70,7 @@ function ReportNeraca() {
         const openingRekening = rekRes?.data?.data?.nominal || 0;
         const trueOpeningBal = reportRes?.data?.data?.saldo_awal || 0;
 
+        setSaldoAwal(trueOpeningBal);
         setSaldoPettyCash(openingPetty);
         setSaldoRekening(openingRekening);
         setTotalIncome(reportRes?.data?.data?.total_income || 0);
@@ -181,7 +183,7 @@ function ReportNeraca() {
       <SummaryStrip items={[
         { 
           label: "Total Pemasukan", 
-          value: FormatCurrency(totalIncome + saldoPettyCash + saldoRekening), 
+          value: FormatCurrency(toMoney(saldoAwal + totalIncome)), 
           icon: <FontAwesomeIcon icon={faArrowUp} />, 
           iconBg: "var(--green-50)", 
           iconColor: "var(--green-600)",
@@ -197,7 +199,7 @@ function ReportNeraca() {
         },
         { 
           label: "Sisa Saldo (Net)", 
-          value: FormatCurrency((totalIncome + saldoPettyCash + saldoRekening) - totalExpense), 
+          value: FormatCurrency(toMoney(saldoAwal + totalIncome - totalExpense)), 
           icon: <FontAwesomeIcon icon={faScaleBalanced} />, 
           iconBg: "var(--blue-50)", 
           iconColor: "var(--blue-600)"
@@ -268,13 +270,13 @@ function ReportNeraca() {
             <tfoot className="fw-bold">
               <tr className="bg-gray-50">
                 <td colSpan="2" className="text-end">TOTAL PEMASUKAN</td>
-                <td className="text-end text-income amount">{FormatCurrency(totalIncome + saldoPettyCash + saldoRekening)}</td>
+                <td className="text-end text-income amount">{FormatCurrency(toMoney(saldoAwal + totalIncome))}</td>
                 <td colSpan="2" className="text-end">TOTAL PENGELUARAN</td>
                 <td className="text-end text-expense amount">{FormatCurrency(totalExpense)}</td>
               </tr>
               <tr className="bg-blue-50">
                 <td colSpan="5" className="text-end text-blue-600">SISA SALDO (NET BALANCE)</td>
-                <td className="text-end text-blue-600 amount">{FormatCurrency((totalIncome + saldoPettyCash + saldoRekening) - totalExpense)}</td>
+                <td className="text-end text-blue-600 amount">{FormatCurrency(toMoney(saldoAwal + totalIncome - totalExpense))}</td>
               </tr>
             </tfoot>
           </table>
