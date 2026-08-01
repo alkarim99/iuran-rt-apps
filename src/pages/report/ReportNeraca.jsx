@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileExcel, faMagnifyingGlass, faArrowUp, faArrowDown, faScaleBalanced } from "@fortawesome/free-solid-svg-icons";
 import FormatDate from "../../helpers/FormatDate";
-import FormatCurrency from "../../helpers/FormatCurrency";
+import FormatCurrency, { toMoney } from "../../helpers/FormatCurrency";
 import { exportNeracaKas } from "../../helpers/exportExcel/exportNeracaKas";
 import { getNeracaKasReport } from "../../services/ReportService";
 import { getOpeningBalances } from "../../services/OpeningBalanceService";

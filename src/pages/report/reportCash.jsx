@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileExcel, faMagnifyingGlass, faArrowUp, faArrowDown, faVault } from "@fortawesome/free-solid-svg-icons";
 import FormatDate from "../../helpers/FormatDate";
-import FormatCurrency from "../../helpers/FormatCurrency";
+import FormatCurrency, { toMoney } from "../../helpers/FormatCurrency";
 import { exportLaporanKas } from "../../helpers/exportExcel/exportLaporanKas";
 import { getPettyCashReport } from "../../services/ReportService";
 import FormatPeriod from "../../helpers/FormatPeriod";
@@ -67,8 +67,8 @@ function ReportCash() {
         let outTotal = 0;
 
         transactions.forEach((t) => {
-          inTotal += t.debit || 0;
-          outTotal += t.kredit || 0;
+          inTotal = toMoney(inTotal + (t.debit || 0));
+          outTotal = toMoney(outTotal + (t.kredit || 0));
         });
 
         setTotalIncome(inTotal);
@@ -134,7 +134,7 @@ function ReportCash() {
         isHeaderGroup: true,
       });
       listIuran.forEach((tx, i) => {
-        rb += (tx.debit || 0) - (tx.kredit || 0);
+        rb = toMoney(rb + (tx.debit || 0) - (tx.kredit || 0));
         grouped.push({
           ...tx,
           displayDesc: `    ${i + 1}. ${tx.description}`,
@@ -145,7 +145,7 @@ function ReportCash() {
     }
 
     listNonIuran.forEach((tx) => {
-      rb += (tx.debit || 0) - (tx.kredit || 0);
+      rb = toMoney(rb + (tx.debit || 0) - (tx.kredit || 0));
       grouped.push({
         ...tx,
         displayDesc: tx.description,
@@ -225,7 +225,7 @@ function ReportCash() {
         },
         { 
           label: "Saldo Akhir", 
-          value: FormatCurrency((saldoAwal || 0) + totalIncome - totalExpense), 
+          value: FormatCurrency(toMoney((saldoAwal || 0) + totalIncome - totalExpense)), 
           icon: <FontAwesomeIcon icon={faVault} />, 
           iconBg: "var(--blue-50)", 
           iconColor: "var(--blue-600)"
@@ -298,7 +298,7 @@ function ReportCash() {
                   {FormatCurrency(totalExpense)}
                 </td>
                 <td className="text-end amount">
-                  {FormatCurrency((saldoAwal || 0) + totalIncome - totalExpense)}
+                  {FormatCurrency(toMoney((saldoAwal || 0) + totalIncome - totalExpense))}
                 </td>
               </tr>
             </tfoot>
